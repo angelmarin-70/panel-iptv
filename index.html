@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control IPTV Portable V11</title>
+    <style>
+        :root { --primary: #2563eb; --danger: #dc2626; --success: #16a34a; --warning: #d97706; --whatsapp: #25d366; --bg: #f8fafc; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #1e293b; }
+        .container { max-width: 1050px; margin: 0 auto; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .stat-card { background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .stat-card h3 { margin: 0; font-size: 14px; color: #64748b; }
+        .stat-card p { margin: 5px 0 0; font-size: 22px; font-weight: bold; }
+        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        .toolbar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .btn-tool { background: #475569; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
+        form { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+        input, select, button { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+        button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
+        button:hover { opacity: 0.9; }
+        .search-box { width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+        th, td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f1f5f9; }
+        .badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; color: white; }
+        .bg-active { background: var(--success); }
+        .bg-expired { background: var(--danger); }
+        .btn-ws { background: var(--whatsapp); color: white; padding: 5px 8px; font-size: 12px; text-decoration: none; border-radius: 4px; display: inline-block; margin-right: 3px; font-weight: bold; }
+        .btn-renew { background: var(--warning); padding: 5px 8px; font-size: 12px; margin-right: 3px; }
+        .btn-del { background: var(--danger); padding: 5px 8px; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Gestor de Clientes IPTV Portable (V11)</h2>
+
+    <!-- Botones de Portabilidad -->
+    <div class="toolbar">
+        <button class="btn-tool" onclick="exportData()">📥 Guardar Copia (Exportar)</button>
+        <button class="btn-tool" onclick="document.getElementById('import-file').click()">📤 Cargar Copia (Importar)</button>
+        <input type="file" id="import-file" style="display:none" accept=".json" onchange="importData(event)">
+    </div>
+
+    <div class="stats">
+        <div class="stat-card"><h3>Total</h3><p id="total-count">0</p></div>
+        <div class="stat-card"><h3>Activos</h3><p id="active-count" style="color:var(--success)">0</p></div>
+        <div class="stat-card"><h3>Vencidos</h3><p id="expired-count" style="color:var(--danger)">0</p></div>
+    </div>
+
+    <div class="card">
+        <h3>Alta de Cliente</h3>
+        <form id="client-form">
+            <input type="text" id="nombre" placeholder="Nombre *" required>
+            <select id="iptv" required>
+                <option value="" disabled selected>Seleccionar IPTV / Panel *</option>
+                <option value="Emby">Emby</option>
+                <option value="P2P">P2P</option>
+                <option value="Dylan">Dylan</option>
+                <option value="Joker">Joker</option>
+                <option value="TS4K">TS4K</option>
+                <option value="Nexon">Nexon</option>
+                <option value="Zafiro">Zafiro</option>
+            </select>
+            <input type="text" id="usuario" placeholder="Usuario IPTV">
+            <input type="tel" id="telefono" placeholder="Teléfono (ej: 34600000000)">
+            <input type="number" id="precio" step="0.01" placeholder="Precio € (opcional)">
+            <select id="duracion" required>
+                <option value="1">1 Mes</option>
+                <option value="2">2 Meses</option>
+                <option value="3">3 Meses</option>
+                <option value="4">4 Meses</option>
+                <option value="5">5 Meses</option>
+                <option value="6">6 Meses</option>
+                <option value="7">7 Meses</option>
+                <option value="8">8 Meses</option>
+                <option value="9">9 Meses</option>
+                <option value="10">10 Meses</option>
+                <option value="11">11 Meses</option>
+                <option value="12">12 Meses (1 Año)</option>
+            </select>
+            <button type="submit">Guardar Cliente</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <input type="text" id="search" class="search-box" placeholder="🔍 Buscar por nombre, panel IPTV, usuario...">
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>IPTV</th>
+                        <th>Usuario</th>
+                        <th>Teléfono</th>
+                        <th>Precio</th>
+                        <th>Vencimiento</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="client-table"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let clients = JSON.parse(localStorage.getItem('iptv_v11_clients')) || JSON.parse(localStorage.getItem('iptv_v10_clients')) || [];
+    const form = document.getElementById('client-form');
+    const searchInput = document.getElementById('search');
+
+    function calcularVencimiento(meses, fechaBase = new Date()) {
+        let fecha = new Date(fechaBase);
+        fecha.setMonth(fecha.getMonth() + parseInt(meses));
+        return fecha.toISOString().split('T')[0];
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('iptv_v11_clients', JSON.stringify(clients));
+        render();
+    }
+
+    function render() {
+        const tableBody = document.getElementById('client-table');
+        const filter = searchInput.value.toLowerCase();
+        
+        const hoyObj = new Date();
+        hoyObj.setHours(0,0,0,0);
+        const hoyStr = hoyObj.toISOString().split('T')[0];
+
+        tableBody.innerHTML = '';
+        let active = 0, expired = 0;
+
+        clients.forEach((c, index) => {
+            const isExpired = c.vencimiento < hoyStr;
+            if (isExpired) expired++; else active++;
+
+            const matches = c.nombre.toLowerCase().includes(filter) || 
+                            (c.iptv && c.iptv.toLowerCase().includes(filter)) ||
+                            (c.usuario && c.usuario.toLowerCase().includes(filter)) ||
+                            (c.telefono && c.telefono.includes(filter));
+
+            if (matches) {
+                const fechaVencObj = new Date(c.vencimiento + "T00:00:00");
+                const diferenciaMs = fechaVencObj - hoyObj;
+                const diasRestantes = Math.ceil(diferenciaMs / (1000 * 60 * 60 * 24));
+
+                let textoDias = "";
+                if (diasRestantes > 1) {
+                    textoDias = `en ${diasRestantes} días`;
+                } else if (diasRestantes === 1) {
+                    textoDias = "mañana";
+                } else if (diasRestantes === 0) {
+                    textoDias = "hoy";
+                } else {
+                    textoDias = "hace unos días";
+                }
+
+                let wsBtn = '-';
+                if (c.telefono) {
+                    const telLimpio = c.telefono.replace(/[^0-9]/g, '');
+                    const mensajeTexto = `Buenas ${c.nombre}, te caduca la aplicación ${textoDias}, ¿te interesa renovar? Gracias.`;
+                    const msg = encodeURIComponent(mensajeTexto);
+                    wsBtn = `<a class="btn-ws" href="https://wa.me/${telLimpio}?text=${msg}" target="_blank" title="Enviar WhatsApp">💬 WA</a>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${c.nombre}</strong></td>
+                    <td><strong>${c.iptv || '-'}</strong></td>
+                    <td>${c.usuario || '-'}</td>
+                    <td>${c.telefono || '-'}</td>
+                    <td>${c.precio ? c.precio + '€' : '-'}</td>
+                    <td>${c.vencimiento}</td>
+                    <td><span class="badge ${isExpired ? 'bg-expired' : 'bg-active'}">${isExpired ? 'VENCIDO' : 'ACTIVO'}</span></td>
+                    <td>
+                        ${wsBtn}
+                        <button class="btn-renew" title="Renovar 1 mes" onclick="renewClient(${index})">🔄 +1M</button>
+                        <button class="btn-del" title="Eliminar" onclick="deleteClient(${index})">X</button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            }
+        });
+
+        document.getElementById('total-count').textContent = clients.length;
+        document.getElementById('active-count').textContent = active;
+        document.getElementById('expired-count').textContent = expired;
+    }
+
+    // Funciones Portables (Exportar / Importar)
+    function exportData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clients));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `clientes_iptv_${new Date().toISOString().split('T')[0]}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
+
+    function importData(event) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedClients = JSON.parse(e.target.result);
+                if (Array.isArray(importedClients)) {
+                    clients = importedClients;
+                    saveAndRender();
+                    alert("¡Clientes cargados con éxito!");
+                } else {
+                    alert("El archivo no es válido.");
+                }
+            } catch (err) {
+                alert("Error al leer el archivo.");
+            }
+        };
+        reader.readAsText(event.target.files[0]);
+    }
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newClient = {
+            nombre: document.getElementById('nombre').value.trim(),
+            iptv: document.getElementById('iptv').value,
+            usuario: document.getElementById('usuario').value.trim(),
+            telefono: document.getElementById('telefono').value.trim(),
+            precio: document.getElementById('precio').value,
+            vencimiento: calcularVencimiento(document.getElementById('duracion').value)
+        };
+        clients.push(newClient);
+        form.reset();
+        saveAndRender();
+    });
+
+    function renewClient(index) {
+        const c = clients[index];
+        const hoy = new Date().toISOString().split('T')[0];
+        const fechaInicio = (c.vencimiento < hoy) ? new Date() : new Date(c.vencimiento);
+        
+        if (confirm(`¿Renovar 1 mes adicional a ${c.nombre}?`)) {
+            clients[index].vencimiento = calcularVencimiento(1, fechaInicio);
+            saveAndRender();
+        }
+    }
+
+    function deleteClient(index) {
+        if (confirm('¿Eliminar este cliente?')) {
+            clients.splice(index, 1);
+            saveAndRender();
+        }
+    }
+
+    searchInput.addEventListener('input', render);
+    render();
+</script>
+
+</body>
+</html>
