@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control IPTV Portable V11</title>
+    <title>Control IPTV V12</title>
     <style>
         :root { --primary: #2563eb; --danger: #dc2626; --success: #16a34a; --warning: #d97706; --whatsapp: #25d366; --bg: #f8fafc; }
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #1e293b; }
@@ -16,7 +16,9 @@
         .toolbar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
         .btn-tool { background: #475569; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
         form { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
-        input, select, button { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+        .field-group { display: flex; flex-direction: column; }
+        .field-group label { font-size: 12px; font-weight: bold; margin-bottom: 4px; color: #475569; }
+        input, select, button { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box; width: 100%; }
         button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
         button:hover { opacity: 0.9; }
         .search-box { width: 100%; box-sizing: border-box; margin-bottom: 10px; }
@@ -35,7 +37,7 @@
 <body>
 
 <div class="container">
-    <h2>Gestor de Clientes IPTV Portable (V11)</h2>
+    <h2>Gestor de Clientes IPTV Portable (V12)</h2>
 
     <!-- Botones de Portabilidad -->
     <div class="toolbar">
@@ -67,21 +69,14 @@
             <input type="text" id="usuario" placeholder="Usuario IPTV">
             <input type="tel" id="telefono" placeholder="Teléfono (ej: 34600000000)">
             <input type="number" id="precio" step="0.01" placeholder="Precio € (opcional)">
-            <select id="duracion" required>
-                <option value="1">1 Mes</option>
-                <option value="2">2 Meses</option>
-                <option value="3">3 Meses</option>
-                <option value="4">4 Meses</option>
-                <option value="5">5 Meses</option>
-                <option value="6">6 Meses</option>
-                <option value="7">7 Meses</option>
-                <option value="8">8 Meses</option>
-                <option value="9">9 Meses</option>
-                <option value="10">10 Meses</option>
-                <option value="11">11 Meses</option>
-                <option value="12">12 Meses (1 Año)</option>
-            </select>
-            <button type="submit">Guardar Cliente</button>
+            
+            <!-- Campo Calendario para la Fecha de Vencimiento -->
+            <div class="field-group">
+                <label for="vencimiento">Fecha de Vencimiento *</label>
+                <input type="date" id="vencimiento" required>
+            </div>
+
+            <button type="submit" style="align-self: end;">Guardar Cliente</button>
         </form>
     </div>
 
@@ -108,18 +103,20 @@
 </div>
 
 <script>
-    let clients = JSON.parse(localStorage.getItem('iptv_v11_clients')) || JSON.parse(localStorage.getItem('iptv_v10_clients')) || [];
+    let clients = JSON.parse(localStorage.getItem('iptv_v12_clients')) || JSON.parse(localStorage.getItem('iptv_v11_clients')) || [];
     const form = document.getElementById('client-form');
     const searchInput = document.getElementById('search');
 
-    function calcularVencimiento(meses, fechaBase = new Date()) {
-        let fecha = new Date(fechaBase);
-        fecha.setMonth(fecha.getMonth() + parseInt(meses));
-        return fecha.toISOString().split('T')[0];
+    // Establecer la fecha predeterminada del calendario a 1 mes a partir de hoy
+    function setDefaultDate() {
+        let fecha = new Date();
+        fecha.setMonth(fecha.getMonth() + 1);
+        document.getElementById('vencimiento').value = fecha.toISOString().split('T')[0];
     }
+    setDefaultDate();
 
     function saveAndRender() {
-        localStorage.setItem('iptv_v11_clients', JSON.stringify(clients));
+        localStorage.setItem('iptv_v12_clients', JSON.stringify(clients));
         render();
     }
 
@@ -178,7 +175,7 @@
                     <td><span class="badge ${isExpired ? 'bg-expired' : 'bg-active'}">${isExpired ? 'VENCIDO' : 'ACTIVO'}</span></td>
                     <td>
                         ${wsBtn}
-                        <button class="btn-renew" title="Renovar 1 mes" onclick="renewClient(${index})">🔄 +1M</button>
+                        <button class="btn-renew" title="Modificar o ampliar fecha de vencimiento" onclick="renewClient(${index})">📅 Editar Fecha</button>
                         <button class="btn-del" title="Eliminar" onclick="deleteClient(${index})">X</button>
                     </td>
                 `;
@@ -191,7 +188,6 @@
         document.getElementById('expired-count').textContent = expired;
     }
 
-    // Funciones Portables (Exportar / Importar)
     function exportData() {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clients));
         const downloadAnchor = document.createElement('a');
@@ -229,20 +225,20 @@
             usuario: document.getElementById('usuario').value.trim(),
             telefono: document.getElementById('telefono').value.trim(),
             precio: document.getElementById('precio').value,
-            vencimiento: calcularVencimiento(document.getElementById('duracion').value)
+            vencimiento: document.getElementById('vencimiento').value
         };
         clients.push(newClient);
         form.reset();
+        setDefaultDate();
         saveAndRender();
     });
 
     function renewClient(index) {
         const c = clients[index];
-        const hoy = new Date().toISOString().split('T')[0];
-        const fechaInicio = (c.vencimiento < hoy) ? new Date() : new Date(c.vencimiento);
+        const nuevaFecha = prompt(`Introduzca la nueva fecha de vencimiento (AAAA-MM-DD) para ${c.nombre}:`, c.vencimiento);
         
-        if (confirm(`¿Renovar 1 mes adicional a ${c.nombre}?`)) {
-            clients[index].vencimiento = calcularVencimiento(1, fechaInicio);
+        if (nuevaFecha && nuevaFecha.trim() !== "") {
+            clients[index].vencimiento = nuevaFecha.trim();
             saveAndRender();
         }
     }
