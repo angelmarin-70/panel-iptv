@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Control IPTV</title>
+    <title>Panel de Control IPTV - Personalizable</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
@@ -62,10 +62,10 @@
             font-size: 0.85rem;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             gap: 6px;
             text-decoration: none;
-            text-align: center;
+            cursor: pointer;
         }
         .btn-panel:hover { background-color: #374151; color: #fff; }
 
@@ -75,6 +75,12 @@
             color: #ffffff;
         }
         .btn-app:hover { background-color: #2563eb; }
+
+        .btn-edit-icon {
+            opacity: 0.5;
+            font-size: 0.75rem;
+        }
+        .btn-edit-icon:hover { opacity: 1; color: #f59e0b; }
 
         .form-control, .form-select {
             background-color: #1f2937;
@@ -101,45 +107,22 @@
         <div>
             <h5 class="fw-bold m-0"><i class="bi bi-box-seam me-2"></i>Panel de Control IPTV</h5>
         </div>
-        <button class="btn btn-emerald btn-sm btn-success" onclick="exportBackup()"><i class="bi bi-download me-1"></i> Exportar Copia de Seguridad</button>
+        <div>
+            <button class="btn btn-warning btn-sm me-2" onclick="resetLinks()"><i class="bi bi-arrow-counterclockwise me-1"></i> Restaurar URLs</button>
+            <button class="btn btn-success btn-sm" onclick="exportBackup()"><i class="bi bi-download me-1"></i> Exportar Copia</button>
+        </div>
     </div>
 
     <!-- PANELES IPTV -->
     <div class="section-box">
-        <div class="section-title"><i class="bi bi-grid-fill"></i> PANELES IPTV</div>
-        <div class="btn-grid">
-            <a href="https://maxplayer.xyz" target="_blank" class="btn-panel"><i class="bi bi-display"></i> Max Player</a>
-            <a href="https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100" target="_blank" class="btn-panel"><i class="bi bi-tv"></i> NetTV</a>
-            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-hdd-network"></i> Emby</a>
-            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-gem"></i> Zafiro</a>
-            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-play-circle"></i> Dylan</a>
-            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-lightning"></i> Joker</a>
-            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-box"></i> TS4K</a>
-            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-cpu"></i> Nexon</a>
-            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-globe"></i> Región</a>
-            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-broadcast"></i> DonIPTV</a>
-            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-diagram-3"></i> P2P</a>
-        </div>
+        <div class="section-title"><i class="bi bi-grid-fill"></i> PANELES IPTV (Haz clic secundario o en el lápiz para editar URL)</div>
+        <div class="btn-grid" id="iptvGrid"></div>
     </div>
 
     <!-- PANELES APLICACIONES -->
     <div class="section-box">
-        <div class="section-title"><i class="bi bi-app-indicator"></i> PANELES APLICACIONES</div>
-        <div class="btn-grid">
-            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-box"></i> iBox Player</a>
-            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-play"></i> Max Player App</a>
-            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-tv"></i> Smartone</a>
-            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-shield"></i> CR7 Panel</a>
-            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-play-circle"></i> IBO Player</a>
-            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-sun"></i> IBO Sol</a>
-            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-controller"></i> IBO Lepes</a>
-            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-check-circle"></i> DonIBO</a>
-            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-key"></i> Thimata VPN</a>
-            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-collection-play"></i> VU Player (Marine)</a>
-            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-x-circle"></i> IBO Killer</a>
-            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-fire"></i> XCIPTV Phoenix</a>
-            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-lightning-charge"></i> Thimata Phoenix</a>
-        </div>
+        <div class="section-title"><i class="bi bi-app-indicator"></i> PANELES APLICACIONES (Max Player Movido Aquí)</div>
+        <div class="btn-grid" id="appGrid"></div>
     </div>
 
     <!-- REGISTRAR NUEVO CLIENTE -->
@@ -158,9 +141,9 @@
                 <div class="col-md-4">
                     <label class="form-label small text-muted">Aplicación Instalada</label>
                     <select class="form-select" id="cApp">
+                        <option value="Max Player">Max Player</option>
                         <option value="IBO Player">IBO Player</option>
                         <option value="NetTV App">NetTV App</option>
-                        <option value="Max Player">Max Player</option>
                         <option value="iBox Player">iBox Player</option>
                         <option value="Smartone">Smartone</option>
                     </select>
@@ -172,8 +155,8 @@
                 <div class="col-md-4">
                     <label class="form-label small text-muted">Panel IPTV / Servidor</label>
                     <select class="form-select" id="cServer">
-                        <option value="Max Player">Max Player</option>
                         <option value="NetTV">NetTV</option>
+                        <option value="Max Player">Max Player</option>
                         <option value="Emby">Emby</option>
                         <option value="Zafiro">Zafiro</option>
                         <option value="Dylan">Dylan</option>
@@ -207,7 +190,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="section-title m-0"><i class="bi bi-people-fill"></i> Lista de Clientes (<span id="clientCount">0</span>)</div>
             <div style="width: 280px;">
-                <input type="text" class="form-control form-control-sm" id="searchBox" placeholder="Q Buscar cliente, MAC, app..." onkeyup="renderTable()">
+                <input type="text" class="form-control form-control-sm" id="searchBox" placeholder="Buscar cliente..." onkeyup="renderTable()">
             </div>
         </div>
         <div class="table-responsive">
@@ -228,7 +211,89 @@
 </div>
 
 <script>
-    let clients = JSON.parse(localStorage.getItem('iptv_clients_photo')) || [];
+    const defaultIptvLinks = [
+        { id: 'nettv', name: 'NetTV', icon: 'bi-tv', url: 'https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100' },
+        { id: 'emby', name: 'Emby', icon: 'bi-hdd-network', url: '#' },
+        { id: 'zafiro', name: 'Zafiro', icon: 'bi-gem', url: '#' },
+        { id: 'dylan', name: 'Dylan', icon: 'bi-play-circle', url: '#' },
+        { id: 'joker', name: 'Joker', icon: 'bi-lightning', url: '#' },
+        { id: 'ts4k', name: 'TS4K', icon: 'bi-box', url: '#' },
+        { id: 'nexon', name: 'Nexon', icon: 'bi-cpu', url: '#' },
+        { id: 'region', name: 'Región', icon: 'bi-globe', url: '#' },
+        { id: 'doniptv', name: 'DonIPTV', icon: 'bi-broadcast', url: '#' },
+        { id: 'p2p', name: 'P2P', icon: 'bi-diagram-3', url: '#' }
+    ];
+
+    const defaultAppLinks = [
+        { id: 'maxplayer', name: 'Max Player', icon: 'bi-display', url: 'https://maxplayer.xyz' },
+        { id: 'ibox', name: 'iBox Player', icon: 'bi-box', url: '#' },
+        { id: 'smartone', name: 'Smartone', icon: 'bi-tv', url: '#' },
+        { id: 'cr7', name: 'CR7 Panel', icon: 'bi-shield', url: '#' },
+        { id: 'ibo', name: 'IBO Player', icon: 'bi-play-circle', url: '#' },
+        { id: 'ibosol', name: 'IBO Sol', icon: 'bi-sun', url: '#' },
+        { id: 'ibolepes', name: 'IBO Lepes', icon: 'bi-controller', url: '#' },
+        { id: 'donibo', name: 'DonIBO', icon: 'bi-check-circle', url: '#' },
+        { id: 'thimata', name: 'Thimata VPN', icon: 'bi-key', url: '#' },
+        { id: 'vuplayer', name: 'VU Player (Marine)', icon: 'bi-collection-play', url: '#' },
+        { id: 'ibokiller', name: 'IBO Killer', icon: 'bi-x-circle', url: '#' },
+        { id: 'xciptv', name: 'XCIPTV Phoenix', icon: 'bi-fire', url: '#' },
+        { id: 'thimataph', name: 'Thimata Phoenix', icon: 'bi-lightning-charge', url: '#' }
+    ];
+
+    let customLinks = JSON.parse(localStorage.getItem('iptv_custom_urls')) || {};
+
+    function renderButtons() {
+        const iptvGrid = document.getElementById('iptvGrid');
+        const appGrid = document.getElementById('appGrid');
+        iptvGrid.innerHTML = '';
+        appGrid.innerHTML = '';
+
+        defaultIptvLinks.forEach(item => {
+            const currentUrl = customLinks[item.id] || item.url;
+            iptvGrid.appendChild(createButtonElement(item, currentUrl, false));
+        });
+
+        defaultAppLinks.forEach(item => {
+            const currentUrl = customLinks[item.id] || item.url;
+            appGrid.appendChild(createButtonElement(item, currentUrl, true));
+        });
+    }
+
+    function createButtonElement(item, url, isApp) {
+        const div = document.createElement('div');
+        div.className = `btn-panel ${isApp ? 'btn-app' : ''}`;
+        div.innerHTML = `
+            <a href="${url}" target="_blank" style="color:inherit; text-decoration:none; flex-grow:1;">
+                <i class="bi ${item.icon} me-1"></i> ${item.name}
+            </a>
+            <i class="bi bi-pencil-fill btn-edit-icon" title="Editar URL" onclick="editUrl('${item.id}', '${item.name}', '${url}')"></i>
+        `;
+        div.oncontextmenu = (e) => {
+            e.preventDefault();
+            editUrl(item.id, item.name, url);
+        };
+        return div;
+    }
+
+    function editUrl(id, name, currentUrl) {
+        const newUrl = prompt(`Introduce la nueva dirección URL para ${name}:`, currentUrl);
+        if (newUrl !== null && newUrl.trim() !== "") {
+            customLinks[id] = newUrl.trim();
+            localStorage.setItem('iptv_custom_urls', JSON.stringify(customLinks));
+            renderButtons();
+        }
+    }
+
+    function resetLinks() {
+        if(confirm('¿Restaurar todas las URLs predeterminadas?')) {
+            localStorage.removeItem('iptv_custom_urls');
+            customLinks = {};
+            renderButtons();
+        }
+    }
+
+    // LÓGICA DE CLIENTES
+    let clients = JSON.parse(localStorage.getItem('iptv_clients_v27')) || [];
 
     function addClient() {
         const client = {
@@ -243,7 +308,7 @@
             notes: document.getElementById('cNotes').value
         };
         clients.push(client);
-        localStorage.setItem('iptv_clients_photo', JSON.stringify(clients));
+        localStorage.setItem('iptv_clients_v27', JSON.stringify(clients));
         document.getElementById('clientForm').reset();
         renderTable();
     }
@@ -279,7 +344,7 @@
     function deleteClient(id) {
         if(confirm('¿Eliminar cliente?')) {
             clients = clients.filter(c => c.id !== id);
-            localStorage.setItem('iptv_clients_photo', JSON.stringify(clients));
+            localStorage.setItem('iptv_clients_v27', JSON.stringify(clients));
             renderTable();
         }
     }
@@ -292,6 +357,7 @@
         a.click();
     }
 
+    renderButtons();
     renderTable();
 </script>
 </body>
