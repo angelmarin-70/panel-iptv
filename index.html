@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Clientes IPTV v22</title>
+    <title>Gestión de Clientes IPTV v23</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -24,101 +24,94 @@
                 <h1 class="text-3xl font-bold text-white flex items-center gap-2">
                     <i data-lucide="tv"></i> Panel de Control IPTV
                 </h1>
-                <p class="text-slate-400 text-sm">Versión 22 — Accesos Directos Separados por Categoría</p>
+                <p class="text-slate-400 text-sm">Versión 23 — Paneles IPTV (Negro) y Aplicaciones (Azul) Separados</p>
             </div>
             <button onclick="exportarBaseDatos()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 transition">
                 <i data-lucide="download"></i> Exportar Copia de Seguridad
             </button>
         </div>
 
-        <!-- ACCESOS DIRECTOS RÁPIDOS -->
-        <div class="card-bg p-5 rounded-xl border border-slate-700 space-y-4">
-            <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">
-                <i data-lucide="external-link"></i> Accesos Directos Rápidos
+        <!-- SECCIÓN 1: PANELES IPTV (BLOQUE INDEPENDIENTE EN NEGRO/OSCURO) -->
+        <div class="card-bg p-5 rounded-xl border border-slate-700 space-y-3">
+            <h2 class="text-base font-bold text-slate-200 flex items-center gap-2 uppercase tracking-wide">
+                <i data-lucide="server" class="text-slate-400"></i> Paneles IPTV
             </h2>
-            
-            <!-- GRUPO 1: PANELES IPTV (NEGRO / OSCURO) -->
-            <div>
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">
-                    Paneles IPTV
-                </span>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-                    <a href="https://panel.maxplayer.io" target="_blank" class="bg-slate-900 hover:bg-black text-slate-200 border border-slate-700 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="server" class="w-4 h-4 text-slate-400"></i> Max Player (P1)
-                    </a>
-                    <a href="https://panel2.maxplayer.io" target="_blank" class="bg-slate-900 hover:bg-black text-slate-200 border border-slate-700 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="server" class="w-4 h-4 text-slate-400"></i> Max Player (P2)
-                    </a>
-                    <a href="https://emby.media" target="_blank" class="bg-slate-900 hover:bg-black text-slate-200 border border-slate-700 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="film" class="w-4 h-4 text-slate-400"></i> Emby
-                    </a>
-                    <a href="#" target="_blank" class="bg-slate-900 hover:bg-black text-slate-200 border border-slate-700 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="shield" class="w-4 h-4 text-slate-400"></i> Zafiro
-                    </a>
-                    <a href="#" target="_blank" class="bg-slate-900 hover:bg-black text-slate-200 border border-slate-700 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="play-circle" class="w-4 h-4 text-slate-400"></i> Dylan
-                    </a>
-                    <a href="#" target="_blank" class="bg-slate-900 hover:bg-black text-slate-200 border border-slate-700 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="zap" class="w-4 h-4 text-slate-400"></i> Joker
-                    </a>
-                    <a href="#" target="_blank" class="bg-slate-900 hover:bg-black text-slate-200 border border-slate-700 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="tv-2" class="w-4 h-4 text-slate-400"></i> TS4K
-                    </a>
-                    <a href="#" target="_blank" class="bg-slate-900 hover:bg-black text-slate-200 border border-slate-700 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="cpu" class="w-4 h-4 text-slate-400"></i> Nexon
-                    </a>
-                    <a href="#" target="_blank" class="bg-slate-900 hover:bg-black text-slate-200 border border-slate-700 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="crown" class="w-4 h-4 text-slate-400"></i> Regilón
-                    </a>
-                    <a href="https://doniptv.com" target="_blank" class="bg-slate-900 hover:bg-black text-slate-200 border border-slate-700 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="tv" class="w-4 h-4 text-slate-400"></i> DonIPTV
-                    </a>
-                    <a href="#" target="_blank" class="bg-slate-900 hover:bg-black text-slate-200 border border-slate-700 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="share-2" class="w-4 h-4 text-slate-400"></i> P2P
-                    </a>
-                </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+                <a href="https://panel.maxplayer.io" target="_blank" class="bg-black hover:bg-slate-900 text-white border border-slate-800 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="server" class="w-4 h-4 text-slate-400"></i> Max Player (P1)
+                </a>
+                <a href="https://panel2.maxplayer.io" target="_blank" class="bg-black hover:bg-slate-900 text-white border border-slate-800 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="server" class="w-4 h-4 text-slate-400"></i> Max Player (P2)
+                </a>
+                <a href="https://emby.media" target="_blank" class="bg-black hover:bg-slate-900 text-white border border-slate-800 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="film" class="w-4 h-4 text-slate-400"></i> Emby
+                </a>
+                <a href="#" target="_blank" class="bg-black hover:bg-slate-900 text-white border border-slate-800 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="shield" class="w-4 h-4 text-slate-400"></i> Zafiro
+                </a>
+                <a href="#" target="_blank" class="bg-black hover:bg-slate-900 text-white border border-slate-800 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="play-circle" class="w-4 h-4 text-slate-400"></i> Dylan
+                </a>
+                <a href="#" target="_blank" class="bg-black hover:bg-slate-900 text-white border border-slate-800 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="zap" class="w-4 h-4 text-slate-400"></i> Joker
+                </a>
+                <a href="#" target="_blank" class="bg-black hover:bg-slate-900 text-white border border-slate-800 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="tv-2" class="w-4 h-4 text-slate-400"></i> TS4K
+                </a>
+                <a href="#" target="_blank" class="bg-black hover:bg-slate-900 text-white border border-slate-800 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="cpu" class="w-4 h-4 text-slate-400"></i> Nexon
+                </a>
+                <a href="#" target="_blank" class="bg-black hover:bg-slate-900 text-white border border-slate-800 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="crown" class="w-4 h-4 text-slate-400"></i> Regilón
+                </a>
+                <a href="https://doniptv.com" target="_blank" class="bg-black hover:bg-slate-900 text-white border border-slate-800 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="tv" class="w-4 h-4 text-slate-400"></i> DonIPTV
+                </a>
+                <a href="#" target="_blank" class="bg-black hover:bg-slate-900 text-white border border-slate-800 p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="share-2" class="w-4 h-4 text-slate-400"></i> P2P
+                </a>
             </div>
+        </div>
 
-            <!-- GRUPO 2: PANELES APLICACIONES (AZUL) -->
-            <div>
-                <span class="text-xs font-semibold text-blue-400 uppercase tracking-wider block mb-2">
-                    Paneles Aplicaciones
-                </span>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-                    <a href="https://iboplayer.com" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="smartphone" class="w-4 h-4"></i> IBO Player
-                    </a>
-                    <a href="https://iboxplayer.com" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="box" class="w-4 h-4"></i> iBox Player
-                    </a>
-                    <a href="https://vuplayer.org" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="monitor" class="w-4 h-4"></i> VU Player
-                    </a>
-                    <a href="https://smartone-iptv.com" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="aperture" class="w-4 h-4"></i> Smartone
-                    </a>
-                    <a href="https://maxplayer.io" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="play" class="w-4 h-4"></i> Max Player App
-                    </a>
-                    <a href="https://flimplayer.com" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="video" class="w-4 h-4"></i> Flim Player
-                    </a>
-                    <a href="#" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="layout-grid" class="w-4 h-4"></i> Bob Player
-                    </a>
-                    <a href="#" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="disc" class="w-4 h-4"></i> Klay Player
-                    </a>
-                    <a href="#" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="layers" class="w-4 h-4"></i> Clover Player
-                    </a>
-                    <a href="#" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="radio" class="w-4 h-4"></i> Quasar Player
-                    </a>
-                    <a href="#" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="cast" class="w-4 h-4"></i> OTT Player
-                    </a>
-                </div>
+        <!-- SECCIÓN 2: PANELES APLICACIONES (BLOQUE INDEPENDIENTE EN AZUL) -->
+        <div class="card-bg p-5 rounded-xl border border-blue-900/40 space-y-3">
+            <h2 class="text-base font-bold text-blue-400 flex items-center gap-2 uppercase tracking-wide">
+                <i data-lucide="layout-grid" class="text-blue-400"></i> Paneles Aplicaciones
+            </h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+                <a href="https://iboplayer.com" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-semibold transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="smartphone" class="w-4 h-4"></i> IBO Player
+                </a>
+                <a href="https://iboxplayer.com" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-semibold transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="box" class="w-4 h-4"></i> iBox Player
+                </a>
+                <a href="https://vuplayer.org" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-semibold transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="monitor" class="w-4 h-4"></i> VU Player
+                </a>
+                <a href="https://smartone-iptv.com" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-semibold transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="aperture" class="w-4 h-4"></i> Smartone
+                </a>
+                <a href="https://maxplayer.io" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-semibold transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="play" class="w-4 h-4"></i> Max Player App
+                </a>
+                <a href="https://flimplayer.com" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-semibold transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="video" class="w-4 h-4"></i> Flim Player
+                </a>
+                <a href="#" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-semibold transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="layers" class="w-4 h-4"></i> Bob Player
+                </a>
+                <a href="#" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-semibold transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="disc" class="w-4 h-4"></i> Klay Player
+                </a>
+                <a href="#" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-semibold transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="clover" class="w-4 h-4"></i> Clover Player
+                </a>
+                <a href="#" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-semibold transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="radio" class="w-4 h-4"></i> Quasar Player
+                </a>
+                <a href="#" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg text-sm text-center font-semibold transition flex items-center justify-center gap-2 shadow">
+                    <i data-lucide="cast" class="w-4 h-4"></i> OTT Player
+                </a>
             </div>
         </div>
 
@@ -262,7 +255,6 @@
     </div>
 
     <script>
-        // Enlaces oficial de activación de apps
         const APP_URLS = {
             "Max Player": "https://maxplayer.io",
             "IBO Player": "https://iboplayer.com",
@@ -277,7 +269,7 @@
             "OTT Player": "#"
         };
 
-        let clientes = JSON.parse(localStorage.getItem("iptv_clientes_v22")) || [];
+        let clientes = JSON.parse(localStorage.getItem("iptv_clientes_v23")) || JSON.parse(localStorage.getItem("iptv_clientes_v22")) || [];
 
         document.addEventListener("DOMContentLoaded", () => {
             lucide.createIcons();
@@ -311,7 +303,7 @@
         }
 
         function guardarDatos() {
-            localStorage.setItem("iptv_clientes_v22", JSON.stringify(clientes));
+            localStorage.setItem("iptv_clientes_v23", JSON.stringify(clientes));
         }
 
         function renderizarTabla() {
