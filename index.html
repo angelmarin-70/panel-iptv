@@ -3,125 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Control IPTV</title>
+    <title>Panel IPTV - Apertura en Nuevas Pestañas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
-        :root {
-            --bg-color: #000000;
-            --card-bg: #121212;
-            --card-border: #2d2d2d;
-            --btn-iptv: #1e293b;
-            --btn-app: #1d4ed8;
-            --input-bg: #1e1e1e;
-            --text-main: #ffffff;
-        }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+        html, body {
+            background-color: #000000 !important;
+            color: #ffffff !important;
             font-family: system-ui, -apple-system, sans-serif;
-            padding: 20px;
+            padding: 15px;
         }
-        .header-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
+
         .section-box {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: 18px;
-            margin-bottom: 20px;
+            background-color: #111111 !important;
+            border: 2px solid #333333 !important;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
         }
+
         .section-title {
-            font-size: 0.9rem;
-            font-weight: 700;
+            font-size: 1rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .btn-panel-box {
+            background-color: #1e293b !important;
+            border: 1px solid #475569 !important;
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+        .btn-panel-box:hover {
+            background-color: #334155 !important;
+            border-color: #38bdf8 !important;
+        }
+
+        .btn-app-box {
+            background-color: #1d4ed8 !important;
+            border: 1px solid #3b82f6 !important;
+        }
+        .btn-app-box:hover {
+            background-color: #2563eb !important;
+        }
+
+        .panel-link {
+            color: #ffffff !important;
+            text-decoration: none !important;
+            font-weight: 600;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #38bdf8 !important;
+            width: 100%;
         }
-        .btn-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
-        }
-        @media (max-width: 992px) { .btn-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 576px) { .btn-grid { grid-template-columns: repeat(2, 1fr); } }
-
-        .btn-panel {
-            background-color: var(--btn-iptv);
-            border: 1px solid #3f3f46;
-            color: #ffffff !important;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 6px;
-            cursor: pointer;
-            user-select: none;
-        }
-        .btn-panel:hover { background-color: #3f3f46; }
-
-        .btn-app {
-            background-color: var(--btn-app);
-            border: 1px solid #3b82f6;
-            color: #ffffff !important;
-        }
-        .btn-app:hover { background-color: #2563eb; }
 
         .btn-edit-icon {
-            opacity: 0.7;
-            font-size: 0.8rem;
-            color: #fbbf24;
+            color: #fbbf24 !important;
+            font-size: 0.9rem;
+            padding: 2px 6px;
+            cursor: pointer;
         }
-        .btn-edit-icon:hover { opacity: 1; color: #f59e0b; }
 
-        /* Ajustes de visibilidad total en formularios */
-        .form-label {
-            color: #ffffff !important;
-            font-weight: 600;
+        label {
+            color: #f3f4f6 !important;
+            font-weight: 700 !important;
             font-size: 0.85rem;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
         }
+
         .form-control, .form-select {
-            background-color: var(--input-bg) !important;
-            border: 1px solid #444444 !important;
+            background-color: #1a1a1a !important;
+            border: 1px solid #555555 !important;
             color: #ffffff !important;
-            font-size: 0.85rem;
+            font-size: 0.9rem !important;
+            font-weight: 500;
         }
         .form-control:focus, .form-select:focus {
+            background-color: #222222 !important;
             border-color: #38bdf8 !important;
-            box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25);
+            color: #ffffff !important;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
         }
-        .form-control::placeholder { color: #a1a1aa !important; }
+        .form-control::placeholder {
+            color: #888888 !important;
+        }
 
-        /* Icono de calendario visible en inputs de fecha */
         input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(1);
         }
 
-        .table-custom { color: #ffffff; font-size: 0.85rem; margin: 0; }
-        .table-custom th { background-color: #1e1e1e; color: #38bdf8; border-bottom: 1px solid #333; }
-        .table-custom td { border-bottom: 1px solid #222; vertical-align: middle; color: #ffffff; }
+        .table-custom {
+            color: #ffffff !important;
+            margin: 0;
+        }
+        .table-custom th {
+            background-color: #222222 !important;
+            color: #38bdf8 !important;
+            border-bottom: 2px solid #444444 !important;
+            padding: 12px;
+        }
+        .table-custom td {
+            background-color: #111111 !important;
+            border-bottom: 1px solid #222222 !important;
+            padding: 12px;
+            vertical-align: middle;
+            color: #ffffff !important;
+        }
+
+        .btn-whatsapp {
+            background-color: #25d366 !important;
+            color: #ffffff !important;
+            font-weight: bold;
+            border: none !important;
+        }
+        .btn-whatsapp:hover {
+            background-color: #1da851 !important;
+            color: #ffffff !important;
+        }
     </style>
 </head>
 <body>
 
 <div class="container-fluid max-w-7xl mx-auto">
-    <!-- Header principal -->
-    <div class="header-bar">
-        <h5 class="fw-bold m-0 text-white"><i class="bi bi-box-seam me-2"></i>Panel de Control IPTV</h5>
+    <!-- CABECERA -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold m-0 text-white"><i class="bi bi-cpu-fill text-info me-2"></i>Panel IPTV Admin</h4>
         <div>
-            <button class="btn btn-warning btn-sm me-2" onclick="resetLinks()"><i class="bi bi-arrow-counterclockwise"></i> Restaurar URLs</button>
-            <button class="btn btn-info btn-sm me-2" onclick="document.getElementById('importFile').click()"><i class="bi bi-upload"></i> Cargar Copia</button>
+            <button class="btn btn-outline-warning btn-sm me-2" onclick="resetLinks()"><i class="bi bi-arrow-counterclockwise"></i> Reset URLs</button>
+            <button class="btn btn-outline-info btn-sm me-2" onclick="document.getElementById('importFile').click()"><i class="bi bi-upload"></i> Cargar Copia</button>
             <input type="file" id="importFile" style="display:none;" onchange="importBackup(event)">
             <button class="btn btn-success btn-sm" onclick="exportBackup()"><i class="bi bi-download"></i> Guardar Copia</button>
         </div>
@@ -129,66 +153,54 @@
 
     <!-- PANELES IPTV -->
     <div class="section-box">
-        <div class="section-title"><i class="bi bi-grid-fill"></i> PANELES IPTV</div>
+        <div class="section-title text-info"><i class="bi bi-grid-3x3-gap-fill"></i> Paneles IPTV</div>
         <div class="btn-grid" id="iptvGrid"></div>
     </div>
 
     <!-- PANELES APLICACIONES -->
     <div class="section-box">
-        <div class="section-title" style="color: #60a5fa !important;"><i class="bi bi-app-indicator"></i> PANELES APLICACIONES</div>
+        <div class="section-title text-primary"><i class="bi bi-app-indicator"></i> Paneles de Aplicaciones</div>
         <div class="btn-grid" id="appGrid"></div>
     </div>
 
-    <!-- CONFIGURACIÓN BOT TELEGRAM -->
+    <!-- BOT TELEGRAM -->
     <div class="section-box">
-        <div class="section-title text-info"><i class="bi bi-telegram"></i> Configuración Bot de Telegram</div>
+        <div class="section-title text-warning"><i class="bi bi-telegram"></i> Alertas por Telegram</div>
         <div class="row g-3">
             <div class="col-md-6">
-                <label class="form-label">Telegram Bot Token</label>
+                <label>Telegram Bot Token</label>
                 <input type="text" class="form-control" id="tgToken" placeholder="123456789:ABCdef..." onchange="saveTgConfig()">
             </div>
             <div class="col-md-6">
-                <label class="form-label">Telegram Chat ID</label>
+                <label>Telegram Chat ID</label>
                 <input type="text" class="form-control" id="tgChatId" placeholder="987654321" onchange="saveTgConfig()">
             </div>
         </div>
     </div>
 
-    <!-- REGISTRAR NUEVO CLIENTE -->
+    <!-- REGISTRO DE CLIENTE -->
     <div class="section-box">
-        <div class="section-title text-success" style="color: #4ade80 !important;"><i class="bi bi-person-plus-fill"></i> Registrar Nuevo Cliente</div>
+        <div class="section-title text-success"><i class="bi bi-person-plus-fill"></i> Registrar Nuevo Cliente</div>
         <form id="clientForm" onsubmit="event.preventDefault(); addClient();">
             <div class="row g-3">
                 <div class="col-md-3">
-                    <label class="form-label">Nombre del Cliente *</label>
-                    <input type="text" class="form-control" id="cName" required placeholder="Ej: Juan Pérez">
+                    <label>Nombre del Cliente *</label>
+                    <input type="text" class="form-control" id="cName" required placeholder="Nombre completo">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Usuario Panel / App</label>
-                    <input type="text" class="form-control" id="cUser" placeholder="Usuario">
+                    <label>Teléfono (WhatsApp) *</label>
+                    <input type="text" class="form-control" id="cPhone" required placeholder="+34612345678">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Teléfono Cliente (WhatsApp)</label>
-                    <input type="text" class="form-control" id="cPhone" placeholder="+34123456789">
+                    <label>Usuario Panel / App</label>
+                    <input type="text" class="form-control" id="cUser" placeholder="Ej: usuario123">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Aplicación Instalada</label>
-                    <select class="form-select" id="cApp">
-                        <option value="Max Player">Max Player</option>
-                        <option value="IBO Player">IBO Player</option>
-                        <option value="NetTV App">NetTV App</option>
-                        <option value="iBox Player">iBox Player</option>
-                        <option value="Smartone">Smartone</option>
-                        <option value="VU Player">VU Player</option>
-                        <option value="XCIPTV">XCIPTV</option>
-                    </select>
+                    <label>Contraseña</label>
+                    <input type="text" class="form-control" id="cPass" placeholder="Ej: clave123">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Contraseña App / Panel</label>
-                    <input type="text" class="form-control" id="cPass">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Panel IPTV / Servidor</label>
+                    <label>Servidor / Panel IPTV</label>
                     <select class="form-select" id="cServer">
                         <option value="NetTV">NetTV</option>
                         <option value="Max Player">Max Player</option>
@@ -203,21 +215,33 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Dirección MAC</label>
+                    <label>Aplicación Instalada</label>
+                    <select class="form-select" id="cApp">
+                        <option value="Max Player">Max Player</option>
+                        <option value="IBO Player">IBO Player</option>
+                        <option value="NetTV App">NetTV App</option>
+                        <option value="iBox Player">iBox Player</option>
+                        <option value="Smartone">Smartone</option>
+                        <option value="VU Player">VU Player</option>
+                        <option value="XCIPTV">XCIPTV</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Dirección MAC</label>
                     <input type="text" class="form-control" id="cMac" placeholder="00:1A:2B:3C:4D:5E">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Fecha de Vencimiento *</label>
+                    <label>Fecha Vencimiento *</label>
                     <input type="date" class="form-control" id="cExpiry" required>
                 </div>
                 <div class="col-md-12">
-                    <label class="form-label">Notas / Observaciones</label>
-                    <input type="text" class="form-control" id="cNotes" placeholder="Ej: Dispositivo Samsung TV, Suscripción anual">
+                    <label>Notas Adicionales</label>
+                    <input type="text" class="form-control" id="cNotes" placeholder="Dispositivo, observaciones, etc.">
                 </div>
             </div>
             <div class="d-flex justify-content-end gap-2 mt-3">
-                <button type="button" class="btn btn-secondary btn-sm px-3" onclick="document.getElementById('clientForm').reset()">Limpiar</button>
-                <button type="submit" class="btn btn-success btn-sm px-3"><i class="bi bi-floppy me-1"></i> Guardar Cliente</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('clientForm').reset()">Limpiar</button>
+                <button type="submit" class="btn btn-success btn-sm px-4"><i class="bi bi-save me-1"></i> Guardar Cliente</button>
             </div>
         </form>
     </div>
@@ -225,9 +249,9 @@
     <!-- LISTA DE CLIENTES -->
     <div class="section-box">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="section-title m-0" style="color: #fbbf24 !important;"><i class="bi bi-people-fill"></i> Lista de Clientes (<span id="clientCount">0</span>)</div>
+            <div class="section-title text-warning m-0"><i class="bi bi-people-fill"></i> Clientes Registrados (<span id="clientCount">0</span>)</div>
             <div style="width: 280px;">
-                <input type="text" class="form-control form-control-sm" id="searchBox" placeholder="Buscar cliente, teléfono, MAC..." onkeyup="renderTable()">
+                <input type="text" class="form-control form-control-sm" id="searchBox" placeholder="Buscar por nombre, tel, MAC..." onkeyup="renderTable()">
             </div>
         </div>
         <div class="table-responsive">
@@ -235,11 +259,12 @@
                 <thead>
                     <tr>
                         <th>Cliente / Teléfono</th>
-                        <th>Usuario / Clave</th>
+                        <th>Credenciales</th>
                         <th>Servidor / App</th>
                         <th>MAC</th>
                         <th>Vencimiento</th>
-                        <th>Acciones</th>
+                        <th class="text-center">Aviso WhatsApp</th>
+                        <th class="text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="clientTableBody"></tbody>
@@ -272,7 +297,7 @@
         { id: 'ibolepes', name: 'IBO Lepes', icon: 'bi-controller', url: 'https://ibolepes.com' },
         { id: 'donibo', name: 'DonIBO', icon: 'bi-check-circle', url: 'https://donibo.app' },
         { id: 'thimata', name: 'Thimata VPN', icon: 'bi-key', url: 'https://thimata.net' },
-        { id: 'vuplayer', name: 'VU Player (Marine)', icon: 'bi-collection-play', url: 'https://vuplayer.org' },
+        { id: 'vuplayer', name: 'VU Player', icon: 'bi-collection-play', url: 'https://vuplayer.org' },
         { id: 'ibokiller', name: 'IBO Killer', icon: 'bi-x-circle', url: 'https://ibokiller.com' },
         { id: 'xciptv', name: 'XCIPTV Phoenix', icon: 'bi-fire', url: 'https://xciptv.com' },
         { id: 'thimataph', name: 'Thimata Phoenix', icon: 'bi-lightning-charge', url: 'https://phoenix.thimata.net' }
@@ -287,38 +312,31 @@
         appGrid.innerHTML = '';
 
         defaultIptvLinks.forEach(item => {
-            const currentUrl = customLinks[item.id] || item.url;
-            iptvGrid.appendChild(createButtonElement(item, currentUrl, false));
+            const finalUrl = customLinks[item.id] || item.url;
+            iptvGrid.appendChild(createButtonBox(item, finalUrl, false));
         });
 
         defaultAppLinks.forEach(item => {
-            const currentUrl = customLinks[item.id] || item.url;
-            appGrid.appendChild(createButtonElement(item, currentUrl, true));
+            const finalUrl = customLinks[item.id] || item.url;
+            appGrid.appendChild(createButtonBox(item, finalUrl, true));
         });
     }
 
-    function openUrl(url) {
-        if (!url || url === '#' || url.trim() === '') {
-            alert('Esta URL no está configurada. Haz clic en el icono del lápiz para asignarle una dirección web.');
-            return;
-        }
-        window.location.href = url;
-    }
-
-    function createButtonElement(item, url, isApp) {
+    /* CAMBIO A ABRIR EN PESTAÑA NUEVA: target="_blank" rel="noopener noreferrer" */
+    function createButtonBox(item, url, isApp) {
         const div = document.createElement('div');
-        div.className = `btn-panel ${isApp ? 'btn-app' : ''}`;
+        div.className = `btn-panel-box ${isApp ? 'btn-app-box' : ''}`;
         div.innerHTML = `
-            <span onclick="openUrl('${url}')" style="flex-grow:1;">
-                <i class="bi ${item.icon} me-1"></i> ${item.name}
-            </span>
-            <i class="bi bi-pencil-fill btn-edit-icon" title="Editar URL" onclick="event.stopPropagation(); editUrl('${item.id}', '${item.name}', '${url}')"></i>
+            <a href="${url}" class="panel-link" target="_blank" rel="noopener noreferrer">
+                <i class="bi ${item.icon}"></i> ${item.name}
+            </a>
+            <i class="bi bi-pencil-fill btn-edit-icon" title="Editar URL" onclick="editUrl('${item.id}', '${item.name}', '${url}')"></i>
         `;
         return div;
     }
 
     function editUrl(id, name, currentUrl) {
-        const newUrl = prompt(`Introduce la nueva dirección URL para ${name}:`, currentUrl);
+        const newUrl = prompt(`Cambiar enlace para ${name}:`, currentUrl);
         if (newUrl !== null) {
             customLinks[id] = newUrl.trim();
             localStorage.setItem('iptv_custom_urls', JSON.stringify(customLinks));
@@ -327,7 +345,7 @@
     }
 
     function resetLinks() {
-        if(confirm('¿Restaurar todas las URLs predeterminadas?')) {
+        if(confirm('¿Restablecer los botones a las URLs por defecto?')) {
             localStorage.removeItem('iptv_custom_urls');
             customLinks = {};
             renderButtons();
@@ -335,7 +353,7 @@
     }
 
     function loadStoredClients() {
-        const keys = ['iptv_clients_full', 'iptv_clients_v27', 'iptv_clients_photo', 'iptv_clients', 'iptv_clients_data'];
+        const keys = ['iptv_clients_full', 'iptv_clients_v27', 'iptv_clients'];
         for (let key of keys) {
             const data = localStorage.getItem(key);
             if (data) {
@@ -358,11 +376,11 @@
         const client = {
             id: Date.now().toString(),
             name: document.getElementById('cName').value,
-            user: document.getElementById('cUser').value,
             phone: document.getElementById('cPhone').value,
-            app: document.getElementById('cApp').value,
+            user: document.getElementById('cUser').value,
             pass: document.getElementById('cPass').value,
             server: document.getElementById('cServer').value,
+            app: document.getElementById('cApp').value,
             mac: document.getElementById('cMac').value,
             expiry: document.getElementById('cExpiry').value,
             notes: document.getElementById('cNotes').value
@@ -370,33 +388,33 @@
         clients.push(client);
         saveClients();
 
-        sendTelegramAlert(`Nuevo cliente registrado:\nCliente: ${client.name}\nServidor: ${client.server}\nVence: ${client.expiry}`);
+        sendTelegramAlert(`🟢 *Nuevo Cliente Registrado*\n\n👤 *Cliente:* ${client.name}\n📱 *Tel:* ${client.phone}\n🖥 *Servidor:* ${client.server}\n📅 *Vence:* ${client.expiry}`);
 
         document.getElementById('clientForm').reset();
         renderTable();
     }
 
-    function sendWhatsApp(phone, name, expiry) {
-        if (!phone) {
-            alert("Este cliente no tiene teléfono guardado.");
+    function sendWhatsApp(phone, name, expiry, app) {
+        if (!phone || phone.trim() === '') {
+            alert("No se ha registrado ningún teléfono para este cliente.");
             return;
         }
         const cleanPhone = phone.replace(/[^0-9]/g, '');
-        const text = encodeURIComponent(`Hola ${name}, te comento que tu suscripción vence el ${expiry}. ¿Te interesa renovar? ¡Muchas gracias!`);
-        window.open(`https://wa.me/${cleanPhone}?text=${text}`, '_blank');
+        const message = `Buenas, te caduca la aplicación ${app || ''} el día ${expiry}, ¿te interesa renovar? Gracias.`;
+        const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+        window.open(waUrl, '_blank');
     }
 
     function renderTable() {
         const tbody = document.getElementById('clientTableBody');
         const query = document.getElementById('searchBox').value.toLowerCase();
         tbody.innerHTML = '';
-        
+
         const filtered = clients.filter(c => 
             (c.name && c.name.toLowerCase().includes(query)) || 
             (c.phone && c.phone.includes(query)) ||
             (c.user && c.user.toLowerCase().includes(query)) ||
-            (c.mac && c.mac.toLowerCase().includes(query)) || 
-            (c.server && c.server.toLowerCase().includes(query))
+            (c.mac && c.mac.toLowerCase().includes(query))
         );
 
         document.getElementById('clientCount').innerText = filtered.length;
@@ -404,14 +422,18 @@
         filtered.forEach(c => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><strong>${c.name || '-'}</strong><br><small class="text-secondary">${c.phone || '-'}</small></td>
-                <td><small>User: ${c.user || '-'}<br>Pass: ${c.pass || '-'}</small></td>
+                <td><strong>${c.name || '-'}</strong><br><small class="text-info">${c.phone || '-'}</small></td>
+                <td><small>U: ${c.user || '-'}<br>C: ${c.pass || '-'}</small></td>
                 <td><span class="badge bg-primary">${c.server || '-'}</span><br><small class="text-light">${c.app || '-'}</small></td>
-                <td><small>${c.mac || '-'}</small></td>
-                <td>${c.expiry || '-'}</td>
-                <td>
-                    <button class="btn btn-success btn-sm me-1" title="Enviar WhatsApp" onclick="sendWhatsApp('${c.phone}', '${c.name}', '${c.expiry}')"><i class="bi bi-whatsapp"></i></button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')"><i class="bi bi-trash"></i></button>
+                <td><small class="text-warning">${c.mac || '-'}</small></td>
+                <td><span class="badge bg-outline-light">${c.expiry || '-'}</span></td>
+                <td class="text-center">
+                    <button class="btn btn-whatsapp btn-sm px-3" onclick="sendWhatsApp('${c.phone}', '${c.name}', '${c.expiry}', '${c.app}')">
+                        <i class="bi bi-whatsapp me-1"></i> Contactar
+                    </button>
+                </td>
+                <td class="text-center">
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteClient('${c.id}')"><i class="bi bi-trash"></i></button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -419,7 +441,7 @@
     }
 
     function deleteClient(id) {
-        if(confirm('¿Eliminar cliente?')) {
+        if(confirm('¿Seguro que deseas eliminar este registro?')) {
             clients = clients.filter(c => c.id !== id);
             saveClients();
             renderTable();
@@ -445,12 +467,10 @@
                     clients = data;
                     saveClients();
                     renderTable();
-                    alert('¡Copia de seguridad cargada correctamente!');
-                } else {
-                    alert('El archivo seleccionado no tiene el formato correcto.');
+                    alert('¡Datos cargados con éxito!');
                 }
             } catch(err) {
-                alert('Error al leer el archivo JSON.');
+                alert('El archivo no contiene un JSON válido.');
             }
         };
         reader.readAsText(file);
@@ -474,12 +494,11 @@
         const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || {};
         if (!tgData.token || !tgData.chatId) return;
 
-        const url = `https://api.telegram.org/bot${tgData.token}/sendMessage`;
-        fetch(url, {
+        fetch(`https://api.telegram.org/bot${tgData.token}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: tgData.chatId, text: message })
-        }).catch(err => console.error("Error Telegram:", err));
+            body: JSON.stringify({ chat_id: tgData.chatId, text: message, parse_mode: 'Markdown' })
+        }).catch(e => console.error("Error enviado a Telegram:", e));
     }
 
     renderButtons();
