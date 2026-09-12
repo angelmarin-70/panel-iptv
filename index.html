@@ -198,7 +198,7 @@
                 </div>
                 <div class="col-md-12">
                     <label class="form-label small text-muted">Notas / Observaciones</label>
-                    <input type="text" class="form-control" id="cNotes" placeholder="Ej: Dispositivo Samsung TV, Renovación anual">
+                    <input type="text" class="form-control" id="cNotes" placeholder="Ej: Dispositivo Samsung TV">
                 </div>
             </div>
             <div class="d-flex justify-content-end gap-2 mt-3">
@@ -283,11 +283,12 @@
         });
     }
 
+    // Se elimina el target="_blank" para abrir enlaces en la misma pestaña
     function createButtonElement(item, url, isApp) {
         const div = document.createElement('div');
         div.className = `btn-panel ${isApp ? 'btn-app' : ''}`;
         div.innerHTML = `
-            <a href="${url}" target="_blank" style="color:inherit; text-decoration:none; flex-grow:1;">
+            <a href="${url}" style="color:inherit; text-decoration:none; flex-grow:1;">
                 <i class="bi ${item.icon} me-1"></i> ${item.name}
             </a>
             <i class="bi bi-pencil-fill btn-edit-icon" title="Editar URL" onclick="editUrl('${item.id}', '${item.name}', '${url}')"></i>
@@ -316,6 +317,112 @@
         }
     }
 
+    // RECUPERACIÓN AUTOMÁTICA DE CLIENTES DE TODAS LAS VERSIONES ANTERIORES
+    function loadStoredClients() {
+        const keys = ['iptv_clients_full', 'iptv_clients_v27', 'iptv_clients_photo', 'iptv_clients'];
+        let found = [];
+        for (let key of keys) {
+            const data = localStorage.getItem(key);
+            if (data) {
+                try {
+                    const parsed = JSON.parse(data);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        found = parsed;
+                        break;
+                    }
+                } catch(e) {}
+            }
+        }
+        return found;
+    }
+
+    let clients = loadStoredClients();
+
+    function saveClients() {
+        localStorage.setItem('iptv_clients_full', JSON.stringify(clients));
+        localStorage.setItem('iptv_clients_v27', JSON.stringify(clients));
+    }
+
+    function addClient() {
+        const client = {
+            id: Date.now().toString(),
+            name: document.getElementById('cName').value,
+            user: document.getElementById('cUser').value,
+            phone: document.getElementById('cPhone').value,
+            app: document.getElementById('cApp').value,
+            pass: document.getElementById('cPass').value,
+            server: document.getElementById('cServer').value,
+            mac: document.getElementById('cMac').value,
+            expiry: document.getElementById('cExpiry').value,
+            notes: document.getElementById('cNotes').value
+        };
+        clients.push(client);
+        saveClients();
+
+        sendTelegramAlert(`Nuevo cliente registrado:\nCliente: ${client.name}\nServidor: ${client.server}\nVence: ${client.expiry}`);
+
+        document.getElementById('clientForm').reset();
+        renderTable();
+    }
+
+    function sendWhatsApp(phone, name, expiry) {
+        if (!phone) {
+            alert("Este cliente no tiene teléfono guardado.");
+            return;
+        }
+        const cleanPhone = phone.replace(/[^0-9]/g, '');
+        const text = encodeURIComponent(`Hola ${name}, te comento que tu suscripción vence el ${expiry}. ¿Te interesa renovar? ¡Muchas gracias!`);
+        window.open(`https://wa.me/${cleanPhone}?text=${text}`, '_blank');
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('clientTableBody');
+        const query = document.getElementById('searchBox').value.toLowerCase();
+        tbody.innerHTML = '';
+        
+        const filtered = clients.filter(c => 
+            (c.name && c.name.toLowerCase().includes(query)) || 
+            (c.phone && c.phone.includes(query)) ||
+            (c.user && c.user.toLowerCase().includes(query)) ||
+            (c.mac && c.mac.toLowerCase().includes(query)) || 
+            (c.server && c.server.toLowerCase().includes(query))
+        );
+
+        document.getElementById('clientCount').innerText = filtered.length;
+
+        filtered.forEach(c => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${c.name || '-'}</strong><br><small class="text-muted">${c.phone || '-'}</small></td>
+                <td><small>User: ${c.user || '-'}<br>Pass: ${c.pass || '-'}</small></td>
+                <td><span class="badge bg-primary">${c.server || '-'}</span><br><small>${c.app || '-'}</small></td>
+                <td><small>${c.mac || '-'}</small></td>
+                <td>${c.expiry || '-'}</td>
+                <td>
+                    <button class="btn btn-success btn-sm me-1" title="Enviar WhatsApp" onclick="sendWhatsApp('${c.phone}', '${c.name}', '${c.expiry}')"><i class="bi bi-whatsapp"></i></button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')"><i class="bi bi-trash"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function deleteClient(id) {
+        if(confirm('¿Eliminar cliente?')) {
+            clients = clients.filter(c => c.id !== id);
+            saveClients();
+            renderTable();
+        }
+    }
+
+    function exportBackup() {
+        const blob = new Blob([JSON.stringify(clients, null, 2)], {type: 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `backup_iptv_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+    }
+
     // TELEGRAM CONFIG
     function saveTgConfig() {
         const tgData = {
@@ -341,90 +448,6 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ chat_id: tgData.chatId, text: message })
         }).catch(err => console.error("Error Telegram:", err));
-    }
-
-    // CLIENTES & WHATSAPP
-    let clients = JSON.parse(localStorage.getItem('iptv_clients_full')) || [];
-
-    function addClient() {
-        const client = {
-            id: Date.now().toString(),
-            name: document.getElementById('cName').value,
-            user: document.getElementById('cUser').value,
-            phone: document.getElementById('cPhone').value,
-            app: document.getElementById('cApp').value,
-            pass: document.getElementById('cPass').value,
-            server: document.getElementById('cServer').value,
-            mac: document.getElementById('cMac').value,
-            expiry: document.getElementById('cExpiry').value,
-            notes: document.getElementById('cNotes').value
-        };
-        clients.push(client);
-        localStorage.setItem('iptv_clients_full', JSON.stringify(clients));
-
-        // Enviar aviso por Telegram si está configurado
-        sendTelegramAlert(`Nuevo cliente registrado:\nCliente: ${client.name}\nServidor: ${client.server}\nVence: ${client.expiry}`);
-
-        document.getElementById('clientForm').reset();
-        renderTable();
-    }
-
-    function sendWhatsApp(phone, name, expiry) {
-        if (!phone) {
-            alert("Este cliente no tiene teléfono guardado.");
-            return;
-        }
-        const cleanPhone = phone.replace(/[^0-9]/g, '');
-        const text = encodeURIComponent(`Hola ${name}, te comento que tu suscripción vence el ${expiry}. ¿Te interesa renovar? ¡Muchas gracias!`);
-        window.open(`https://wa.me/${cleanPhone}?text=${text}`, '_blank');
-    }
-
-    function renderTable() {
-        const tbody = document.getElementById('clientTableBody');
-        const query = document.getElementById('searchBox').value.toLowerCase();
-        tbody.innerHTML = '';
-        
-        const filtered = clients.filter(c => 
-            c.name.toLowerCase().includes(query) || 
-            (c.phone && c.phone.includes(query)) ||
-            (c.user && c.user.toLowerCase().includes(query)) ||
-            (c.mac && c.mac.toLowerCase().includes(query)) || 
-            c.server.toLowerCase().includes(query)
-        );
-
-        document.getElementById('clientCount').innerText = filtered.length;
-
-        filtered.forEach(c => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><strong>${c.name}</strong><br><small class="text-muted">${c.phone || '-'}</small></td>
-                <td><small>User: ${c.user || '-'}<br>Pass: ${c.pass || '-'}</small></td>
-                <td><span class="badge bg-primary">${c.server}</span><br><small>${c.app}</small></td>
-                <td><small>${c.mac || '-'}</small></td>
-                <td>${c.expiry}</td>
-                <td>
-                    <button class="btn btn-success btn-sm me-1" title="Enviar WhatsApp" onclick="sendWhatsApp('${c.phone}', '${c.name}', '${c.expiry}')"><i class="bi bi-whatsapp"></i></button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')"><i class="bi bi-trash"></i></button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function deleteClient(id) {
-        if(confirm('¿Eliminar cliente?')) {
-            clients = clients.filter(c => c.id !== id);
-            localStorage.setItem('iptv_clients_full', JSON.stringify(clients));
-            renderTable();
-        }
-    }
-
-    function exportBackup() {
-        const blob = new Blob([JSON.stringify(clients, null, 2)], {type: 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `backup_iptv_${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
     }
 
     renderButtons();
