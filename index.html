@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel IPTV - Apertura en Nuevas Pestañas</title>
+    <title>Panel IPTV Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
-        html, body {
-            background-color: #000000 !important;
+        body {
+            background-color: #0b0f19 !important;
             color: #ffffff !important;
             font-family: system-ui, -apple-system, sans-serif;
-            padding: 15px;
+            padding: 20px;
         }
 
         .section-box {
-            background-color: #111111 !important;
-            border: 2px solid #333333 !important;
+            background-color: #151c2c !important;
+            border: 2px solid #2d3748 !important;
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 25px;
         }
 
         .section-title {
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 800;
             text-transform: uppercase;
             margin-bottom: 15px;
@@ -46,7 +46,6 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: all 0.2s;
         }
         .btn-panel-box:hover {
             background-color: #334155 !important;
@@ -64,8 +63,8 @@
         .panel-link {
             color: #ffffff !important;
             text-decoration: none !important;
-            font-weight: 600;
-            font-size: 0.9rem;
+            font-weight: 700;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -74,52 +73,66 @@
 
         .btn-edit-icon {
             color: #fbbf24 !important;
-            font-size: 0.9rem;
-            padding: 2px 6px;
+            font-size: 1rem;
             cursor: pointer;
         }
 
+        /* ETIQUETAS Y TEXTO DE FORMULARIO CON MAXIMO CONTRASTE */
         label {
-            color: #f3f4f6 !important;
-            font-weight: 700 !important;
-            font-size: 0.85rem;
+            color: #38bdf8 !important;
+            font-weight: 800 !important;
+            font-size: 0.9rem;
             margin-bottom: 6px;
+            display: block;
+            text-transform: uppercase;
         }
 
         .form-control, .form-select {
-            background-color: #1a1a1a !important;
-            border: 1px solid #555555 !important;
+            background-color: #0f172a !important;
+            border: 2px solid #475569 !important;
             color: #ffffff !important;
-            font-size: 0.9rem !important;
-            font-weight: 500;
+            font-size: 0.95rem !important;
+            font-weight: 600 !important;
+            padding: 10px !important;
         }
+
         .form-control:focus, .form-select:focus {
-            background-color: #222222 !important;
+            background-color: #1e293b !important;
             border-color: #38bdf8 !important;
             color: #ffffff !important;
-            box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5) !important;
         }
-        .form-control::placeholder {
-            color: #888888 !important;
+
+        ::placeholder {
+            color: #94a3b8 !important;
+            opacity: 1 !important;
+        }
+
+        option {
+            background-color: #0f172a !important;
+            color: #ffffff !important;
         }
 
         input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(1);
+            cursor: pointer;
         }
 
+        /* TABLA DE CLIENTES */
         .table-custom {
             color: #ffffff !important;
             margin: 0;
         }
         .table-custom th {
-            background-color: #222222 !important;
+            background-color: #1e293b !important;
             color: #38bdf8 !important;
-            border-bottom: 2px solid #444444 !important;
+            border-bottom: 2px solid #475569 !important;
             padding: 12px;
+            font-weight: 800;
         }
         .table-custom td {
-            background-color: #111111 !important;
-            border-bottom: 1px solid #222222 !important;
+            background-color: #0f172a !important;
+            border-bottom: 1px solid #1e293b !important;
             padding: 12px;
             vertical-align: middle;
             color: #ffffff !important;
@@ -133,7 +146,6 @@
         }
         .btn-whatsapp:hover {
             background-color: #1da851 !important;
-            color: #ffffff !important;
         }
     </style>
 </head>
@@ -142,7 +154,7 @@
 <div class="container-fluid max-w-7xl mx-auto">
     <!-- CABECERA -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold m-0 text-white"><i class="bi bi-cpu-fill text-info me-2"></i>Panel IPTV Admin</h4>
+        <h3 class="fw-bold m-0 text-white"><i class="bi bi-cpu-fill text-info me-2"></i>Panel IPTV Admin</h3>
         <div>
             <button class="btn btn-outline-warning btn-sm me-2" onclick="resetLinks()"><i class="bi bi-arrow-counterclockwise"></i> Reset URLs</button>
             <button class="btn btn-outline-info btn-sm me-2" onclick="document.getElementById('importFile').click()"><i class="bi bi-upload"></i> Cargar Copia</button>
@@ -239,9 +251,9 @@
                     <input type="text" class="form-control" id="cNotes" placeholder="Dispositivo, observaciones, etc.">
                 </div>
             </div>
-            <div class="d-flex justify-content-end gap-2 mt-3">
-                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('clientForm').reset()">Limpiar</button>
-                <button type="submit" class="btn btn-success btn-sm px-4"><i class="bi bi-save me-1"></i> Guardar Cliente</button>
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn btn-outline-secondary btn-sm px-3" onclick="document.getElementById('clientForm').reset()">Limpiar</button>
+                <button type="submit" class="btn btn-success btn-sm px-4 fw-bold"><i class="bi bi-save me-1"></i> Guardar Cliente</button>
             </div>
         </form>
     </div>
@@ -322,7 +334,6 @@
         });
     }
 
-    /* CAMBIO A ABRIR EN PESTAÑA NUEVA: target="_blank" rel="noopener noreferrer" */
     function createButtonBox(item, url, isApp) {
         const div = document.createElement('div');
         div.className = `btn-panel-box ${isApp ? 'btn-app-box' : ''}`;
