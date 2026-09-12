@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control IPTV Portable V20 - Paneles y Apps</title>
+    <title>Control IPTV Portable V21 - Conexión Directa Apps y Paneles</title>
     <style>
         :root { --primary: #2563eb; --danger: #dc2626; --success: #16a34a; --warning: #d97706; --whatsapp: #25d366; --telegram: #0088cc; --bg: #f8fafc; }
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #1e293b; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1250px; margin: 0 auto; }
         .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
         .stat-card { background: white; padding: 12px; border-radius: 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .stat-card h3 { margin: 0; font-size: 13px; color: #64748b; }
@@ -63,7 +63,8 @@
         .btn-card { background: #0284c7; color: white; border: none; padding: 5px 8px; font-size: 11px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .btn-renew { background: var(--warning); padding: 5px 8px; font-size: 11px; }
         .btn-del { background: var(--danger); padding: 5px 8px; font-size: 11px; }
-        .btn-open-panel { background: #2563eb; color: white; padding: 5px 8px; font-size: 11px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold; }
+        .btn-open-panel { background: #2563eb; color: white; padding: 4px 7px; font-size: 11px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold; }
+        .btn-open-app { background: #0891b2; color: white; padding: 4px 7px; font-size: 11px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold; }
 
         /* Modal Ficha */
         .modal-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
@@ -78,7 +79,7 @@
 <body>
 
 <div class="container">
-    <h2>Gestor IPTV Portable (V20 - Paneles y Apps)</h2>
+    <h2>Gestor IPTV Portable (V21 - Enlaces Directos a Apps)</h2>
 
     <!-- Barra de Herramientas -->
     <div class="toolbar">
@@ -90,7 +91,7 @@
 
     <!-- ACCESOS DIRECTOS A PANELES Y APPS -->
     <div class="card" style="background: #eff6ff; border: 1px solid #bfdbfe;">
-        <h3 style="margin-top:0; color: #1e40af;">🚀 Enlaces Directos a Paneles y Apps:</h3>
+        <h3 style="margin-top:0; color: #1e40af;">🚀 Accesos Directos Rápidos:</h3>
         
         <div class="grid-paneles">
             <!-- Paneles IPTV -->
@@ -256,7 +257,7 @@
                         <th>Ir al Panel</th>
                         <th>Usuario</th>
                         <th>Teléfono</th>
-                        <th>App</th>
+                        <th>Ir a App</th>
                         <th>Vencimiento</th>
                         <th>Estado</th>
                         <th>Acciones</th>
@@ -296,7 +297,21 @@
         "DonIBO": "https://nertix.org/ibopanel4/users.php"
     };
 
-    let clients = JSON.parse(localStorage.getItem('iptv_v20_clients')) || JSON.parse(localStorage.getItem('iptv_v19_clients')) || JSON.parse(localStorage.getItem('iptv_v18_clients')) || [];
+    const appUrls = {
+        "iBox Player": "https://iboxxiptv.com/device/login",
+        "Max Player": "https://my.maxplayer.tv/auth/login",
+        "Smartone": "https://smartone-iptv.com/es/aplicacion-iptv-para-samsung",
+        "IBO Player": "https://iboplayer.com/",
+        "IBO Sol": "https://ibosol.com/login",
+        "IBO Lopes": "https://maxtvapps.pw/Apks/Ibo/Lopes/index.php",
+        "VU Player": "https://rgvipplus.site/vu2/marine",
+        "IBO Killer": "https://maxtvapps.pw/Apks/Ibo/Killer1/",
+        "XCIPTV Phoenix": "https://maxtvapps.pw/Apks/Xciptv/Phoenix/index.php",
+        "TiviMate": "https://maxtvapps.pw/Apks/Tivimate/Phoenix/",
+        "TiviMate VPN": "https://globalvip.website/rbatv/nuepp/tiviproat"
+    };
+
+    let clients = JSON.parse(localStorage.getItem('iptv_v21_clients')) || JSON.parse(localStorage.getItem('iptv_v20_clients')) || JSON.parse(localStorage.getItem('iptv_v19_clients')) || [];
     let savedUrls = JSON.parse(localStorage.getItem('iptv_panel_urls')) || {};
     let panelUrls = { ...defaultUrls, ...savedUrls };
 
@@ -334,7 +349,7 @@
     setDefaultDate();
 
     function saveAndRender() {
-        localStorage.setItem('iptv_v20_clients', JSON.stringify(clients));
+        localStorage.setItem('iptv_v21_clients', JSON.stringify(clients));
         render();
     }
 
@@ -432,13 +447,19 @@
                 ? `<a href="${urlPanel}" target="_blank" class="btn-open-panel">🔗 ${c.iptv}</a>`
                 : `<span style="font-size:11px; color:#94a3b8;">${c.iptv || '-'}</span>`;
 
+            // Enlace para abrir la aplicación directamente
+            const urlApp = appUrls[c.app_nombre];
+            const appBtn = urlApp
+                ? `<a href="${urlApp}" target="_blank" class="btn-open-app">📱 ${c.app_nombre}</a>`
+                : `<span style="font-size:11px; color:#64748b;">${c.app_nombre || '-'}</span>`;
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><strong>${c.nombre}</strong></td>
                 <td>${panelBtn}</td>
                 <td>${c.usuario || '-'}</td>
                 <td>${c.telefono || '-'}</td>
-                <td><small>${c.app_nombre || '-'}</small></td>
+                <td>${appBtn}</td>
                 <td>${c.vencimiento}</td>
                 <td><span class="badge ${isExpired ? 'bg-expired' : 'bg-active'}">${isExpired ? 'VENCIDO' : 'ACTIVO'}</span></td>
                 <td>
@@ -469,12 +490,17 @@
             ? `<a href="${urlPanel}" target="_blank" class="btn-open-panel">🔗 Abrir Panel ${activeClientCard.iptv}</a>`
             : (activeClientCard.iptv || '-');
 
+        const urlApp = appUrls[activeClientCard.app_nombre];
+        const appHtml = urlApp
+            ? `<a href="${urlApp}" target="_blank" class="btn-open-app">📱 Entrar a ${activeClientCard.app_nombre}</a>`
+            : (activeClientCard.app_nombre || '-');
+
         body.innerHTML = `
             <div class="info-row"><strong>Panel IPTV:</strong> ${panelHtml}</div>
             <div class="info-row"><strong>Usuario IPTV:</strong> ${activeClientCard.usuario || '-'}</div>
             <div class="info-row"><strong>Teléfono:</strong> ${activeClientCard.telefono || '-'}</div>
             <hr style="border:0; border-top:1px solid #f1f5f9; margin:10px 0;">
-            <div class="info-row"><strong>Aplicación Usada:</strong> ${activeClientCard.app_nombre || '-'}</div>
+            <div class="info-row"><strong>Aplicación:</strong> ${appHtml}</div>
             <div class="info-row"><strong>Dirección MAC:</strong> ${activeClientCard.app_mac || '-'}</div>
             <div class="info-row"><strong>Contraseña App/IPTV:</strong> ${activeClientCard.app_pass || '-'}</div>
             <hr style="border:0; border-top:1px solid #f1f5f9; margin:10px 0;">
