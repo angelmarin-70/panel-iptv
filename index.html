@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control IPTV Portable V17 - Full Pro</title>
+    <title>Control IPTV Portable V18 - Acceso Directo a Paneles</title>
     <style>
         :root { --primary: #2563eb; --danger: #dc2626; --success: #16a34a; --warning: #d97706; --whatsapp: #25d366; --telegram: #0088cc; --bg: #f8fafc; }
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #1e293b; }
@@ -16,6 +16,11 @@
         .toolbar { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
         .btn-tool { background: #475569; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
         .btn-tg { background: var(--telegram); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
+        
+        /* Acceso Directo a Paneles */
+        .direct-panels-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+        .btn-panel-direct { background: #1e293b; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-panel-direct:hover { background: #334155; }
         
         .filters-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 15px; align-items: center; }
         .btn-filter { background: #e2e8f0; color: #334155; border: none; padding: 6px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; }
@@ -41,9 +46,9 @@
         .btn-card { background: #0284c7; color: white; border: none; padding: 5px 8px; font-size: 11px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .btn-renew { background: var(--warning); padding: 5px 8px; font-size: 11px; }
         .btn-del { background: var(--danger); padding: 5px 8px; font-size: 11px; }
-        .panel-link { color: var(--primary); text-decoration: none; font-weight: bold; }
-        .panel-link:hover { text-decoration: underline; }
-        
+        .btn-open-panel { background: #2563eb; color: white; padding: 5px 8px; font-size: 11px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold; }
+        .btn-open-panel.disabled { background: #94a3b8; cursor: not-allowed; opacity: 0.6; }
+
         /* Modal Ficha */
         .modal-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 450px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: relative; }
@@ -57,7 +62,7 @@
 <body>
 
 <div class="container">
-    <h2>Gestor IPTV Portable (V17 - Full Pro)</h2>
+    <h2>Gestor IPTV Portable (V18 - Acceso Directo)</h2>
 
     <!-- Barra de Herramientas -->
     <div class="toolbar">
@@ -67,9 +72,36 @@
         <button class="btn-tg" onclick="enviarAlertaTelegram(true)">🔔 Comprobar Telegram</button>
     </div>
 
-    <!-- Configuración de URLs para Paneles -->
-    <details class="card" open>
-        <summary style="font-weight: bold; cursor: pointer;">🌐 Enlaces Preconfigurados de Paneles (URLs)</summary>
+    <!-- ACCESO DIRECTO A PANELES (DESPLEGABLE Y BOTONES DEDICADOS) -->
+    <div class="card" style="background: #eff6ff; border: 1px solid #bfdbfe;">
+        <h3 style="margin-top:0; color: #1e40af;">🚀 Acceso Directo a Paneles IPTV</h3>
+        <p style="font-size: 12px; color: #3b82f6; margin-bottom: 10px;">Selecciona en el desplegable para ir al panel al instante o usa los botones directos:</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; align-items: center;">
+            <div>
+                <label style="font-size: 11px; font-weight: bold; color: #1e40af;">Ir al Panel ahora:</label>
+                <select id="quick-panel-select" onchange="ticarIrPanel(this.value)">
+                    <option value="" disabled selected>-- Tica para entrar directo --</option>
+                    <option value="Emby">Emby</option>
+                    <option value="P2P">P2P</option>
+                    <option value="Zafiro">Zafiro</option>
+                    <option value="Dylan">Dylan</option>
+                    <option value="Regilón">Regilón</option>
+                    <option value="TS4K">TS4K</option>
+                    <option value="Nexon">Nexon</option>
+                    <option value="Joker">Joker</option>
+                    <option value="NetTV">NetTV</option>
+                    <option value="DonIPTV">DonIPTV</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="direct-panels-bar" id="direct-buttons-container"></div>
+    </div>
+
+    <!-- Configuración / Edición de URLs -->
+    <details class="card">
+        <summary style="font-weight: bold; cursor: pointer;">🌐 Editar / Cambiar URLs de Paneles</summary>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 10px;">
             <div class="field-group"><label>URL Emby</label><input type="url" id="url-Emby" onchange="guardarUrlsPaneles()"></div>
             <div class="field-group"><label>URL P2P</label><input type="url" id="url-P2P" onchange="guardarUrlsPaneles()"></div>
@@ -189,7 +221,7 @@
                 <thead>
                     <tr>
                         <th>Cliente</th>
-                        <th>Panel / Enlace</th>
+                        <th>Panel Directo</th>
                         <th>Usuario</th>
                         <th>Teléfono</th>
                         <th>App</th>
@@ -231,7 +263,7 @@
         "DonIPTV": "https://main.salsadetomate.shop:2096"
     };
 
-    let clients = JSON.parse(localStorage.getItem('iptv_v17_clients')) || JSON.parse(localStorage.getItem('iptv_v16_clients')) || JSON.parse(localStorage.getItem('iptv_v15_clients')) || [];
+    let clients = JSON.parse(localStorage.getItem('iptv_v18_clients')) || JSON.parse(localStorage.getItem('iptv_v17_clients')) || JSON.parse(localStorage.getItem('iptv_v16_clients')) || [];
     let savedUrls = JSON.parse(localStorage.getItem('iptv_panel_urls')) || {};
     let panelUrls = { ...defaultUrls, ...savedUrls };
 
@@ -239,15 +271,18 @@
     let currentPanelFilter = 'todos';
     let activeClientCard = null;
 
+    const servicios = ['Emby', 'P2P', 'Zafiro', 'Dylan', 'Regilón', 'TS4K', 'Nexon', 'Joker', 'NetTV', 'DonIPTV'];
+
     document.getElementById('tg-token').value = localStorage.getItem('tg_token') || '';
     document.getElementById('tg-chatid').value = localStorage.getItem('tg_chatid') || '';
 
-    // Cargar URLs en los campos de entrada
-    const servicios = ['Emby', 'P2P', 'Zafiro', 'Dylan', 'Regilón', 'TS4K', 'Nexon', 'Joker', 'NetTV', 'DonIPTV'];
-    servicios.forEach(s => {
-        const el = document.getElementById(`url-${s}`);
-        if (el) el.value = panelUrls[s] || '';
-    });
+    function cargarInputsUrls() {
+        servicios.forEach(s => {
+            const el = document.getElementById(`url-${s}`);
+            if (el) el.value = panelUrls[s] || '';
+        });
+        renderDirectButtons();
+    }
 
     function guardarUrlsPaneles() {
         servicios.forEach(s => {
@@ -255,7 +290,36 @@
             if (val) panelUrls[s] = val; else delete panelUrls[s];
         });
         localStorage.setItem('iptv_panel_urls', JSON.stringify(panelUrls));
+        renderDirectButtons();
         render();
+    }
+
+    // Ticar y abrir panel directo desde desplegable principal
+    function ticarIrPanel(panelNombre) {
+        if (!panelNombre) return;
+        const url = panelUrls[panelNombre];
+        if (url && url.trim() !== "") {
+            window.open(url, '_blank');
+        } else {
+            alert(`El panel ${panelNombre} no tiene una URL configurada.`);
+        }
+        document.getElementById('quick-panel-select').selectedIndex = 0;
+    }
+
+    function renderDirectButtons() {
+        const container = document.getElementById('direct-buttons-container');
+        container.innerHTML = '';
+        servicios.forEach(s => {
+            const url = panelUrls[s];
+            if (url) {
+                const a = document.createElement('a');
+                a.className = 'btn-panel-direct';
+                a.href = url;
+                a.target = '_blank';
+                a.innerHTML = `🔗 ${s}`;
+                container.appendChild(a);
+            }
+        });
     }
 
     function setDefaultDate() {
@@ -266,7 +330,7 @@
     setDefaultDate();
 
     function saveAndRender() {
-        localStorage.setItem('iptv_v17_clients', JSON.stringify(clients));
+        localStorage.setItem('iptv_v18_clients', JSON.stringify(clients));
         render();
     }
 
@@ -359,14 +423,14 @@
             }
 
             const urlPanel = panelUrls[c.iptv];
-            const panelCell = urlPanel 
-                ? `<a href="${urlPanel}" target="_blank" class="panel-link">🔗 ${c.iptv}</a>`
-                : `<small>${c.iptv || '-'}</small>`;
+            const panelBtn = urlPanel 
+                ? `<a href="${urlPanel}" target="_blank" class="btn-open-panel">🔗 Entrar a ${c.iptv}</a>`
+                : `<span class="btn-open-panel disabled" title="Sin URL guardada">⚠️ ${c.iptv || 'Sin Panel'}</span>`;
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><strong>${c.nombre}</strong></td>
-                <td>${panelCell}</td>
+                <td>${panelBtn}</td>
                 <td>${c.usuario || '-'}</td>
                 <td>${c.telefono || '-'}</td>
                 <td><small>${c.app_nombre || '-'}</small></td>
@@ -396,7 +460,7 @@
 
         const urlPanel = panelUrls[activeClientCard.iptv];
         const panelHtml = urlPanel 
-            ? `<a href="${urlPanel}" target="_blank" class="panel-link">🔗 ${activeClientCard.iptv} (Abrir Panel)</a>`
+            ? `<a href="${urlPanel}" target="_blank" class="btn-open-panel">🔗 Abrir Panel ${activeClientCard.iptv}</a>`
             : (activeClientCard.iptv || '-');
 
         body.innerHTML = `
@@ -480,6 +544,7 @@
     document.getElementById('search').addEventListener('input', render);
     
     window.onload = () => {
+        cargarInputsUrls();
         render();
         setTimeout(() => enviarAlertaTelegram(false), 1000);
     };
