@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control IPTV Portable V19 - Paneles Directos</title>
+    <title>Control IPTV Portable V20 - Paneles y Apps</title>
     <style>
         :root { --primary: #2563eb; --danger: #dc2626; --success: #16a34a; --warning: #d97706; --whatsapp: #25d366; --telegram: #0088cc; --bg: #f8fafc; }
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #1e293b; }
-        .container { max-width: 1100px; margin: 0 auto; }
+        .container { max-width: 1200px; margin: 0 auto; }
         .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
         .stat-card { background: white; padding: 12px; border-radius: 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .stat-card h3 { margin: 0; font-size: 13px; color: #64748b; }
@@ -17,17 +17,17 @@
         .btn-tool { background: #475569; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
         .btn-tg { background: var(--telegram); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
         
-        /* Botones de Acceso Directo Nativos */
+        /* Grid de Botones de Acceso Directo */
         .grid-paneles { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-top: 10px; }
         .btn-panel-direct { 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            padding: 10px; 
+            padding: 9px 6px; 
             background: #1e293b; 
             color: white; 
             text-decoration: none; 
-            font-size: 12px; 
+            font-size: 11px; 
             font-weight: bold; 
             border-radius: 6px; 
             text-align: center; 
@@ -36,6 +36,8 @@
         .btn-panel-direct:hover { background: #334155; }
         .btn-panel-direct.regilon { background: #dc2626; }
         .btn-panel-direct.regilon:hover { background: #b91c1c; }
+        .btn-panel-direct.app-link { background: #0891b2; }
+        .btn-panel-direct.app-link:hover { background: #0e7490; }
 
         .filters-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 15px; align-items: center; }
         .btn-filter { background: #e2e8f0; color: #334155; border: none; padding: 6px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; }
@@ -76,7 +78,7 @@
 <body>
 
 <div class="container">
-    <h2>Gestor IPTV Portable (V19 - Enlaces Directos)</h2>
+    <h2>Gestor IPTV Portable (V20 - Paneles y Apps)</h2>
 
     <!-- Barra de Herramientas -->
     <div class="toolbar">
@@ -86,11 +88,12 @@
         <button class="btn-tg" onclick="enviarAlertaTelegram(true)">🔔 Comprobar Telegram</button>
     </div>
 
-    <!-- ACCESO DIRECTO A PANELES (BOTONES NATIVOS DIRECTOS SIN NAVEGADOR BLOQUEADO) -->
+    <!-- ACCESOS DIRECTOS A PANELES Y APPS -->
     <div class="card" style="background: #eff6ff; border: 1px solid #bfdbfe;">
-        <h3 style="margin-top:0; color: #1e40af;">🚀 Tica para entrar directo a tus Paneles:</h3>
+        <h3 style="margin-top:0; color: #1e40af;">🚀 Enlaces Directos a Paneles y Apps:</h3>
         
         <div class="grid-paneles">
+            <!-- Paneles IPTV -->
             <a href="https://thorcrm.info/login" target="_blank" class="btn-panel-direct">🔗 Emby</a>
             <a href="https://p2pro.sigma.st" target="_blank" class="btn-panel-direct">🔗 P2P</a>
             <a href="https://koramendi.eu/dashboard" target="_blank" class="btn-panel-direct">🔗 Zafiro</a>
@@ -101,23 +104,40 @@
             <a href="https://respaneller.xyz/generalcOyYsDqo/login?referrer=dashboard" target="_blank" class="btn-panel-direct">🔗 Joker</a>
             <a href="https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100" target="_blank" class="btn-panel-direct">🔗 NetTV</a>
             <a href="https://main.salsadetomate.shop:2096" target="_blank" class="btn-panel-direct">🔗 DonIPTV</a>
+            <a href="https://cr7panel.com/" target="_blank" class="btn-panel-direct">🔗 CR7 Panel</a>
+            <a href="https://nertix.org/ibopanel4/users.php" target="_blank" class="btn-panel-direct">🔗 DonIBO</a>
+
+            <!-- Apps y Web Player -->
+            <a href="https://iboxxiptv.com/device/login" target="_blank" class="btn-panel-direct app-link">📱 iBox Player</a>
+            <a href="https://my.maxplayer.tv/auth/login" target="_blank" class="btn-panel-direct app-link">📱 Max Player</a>
+            <a href="https://smartone-iptv.com/es/aplicacion-iptv-para-samsung" target="_blank" class="btn-panel-direct app-link">📱 Smartone</a>
+            <a href="https://iboplayer.com/" target="_blank" class="btn-panel-direct app-link">📱 IBO Player</a>
+            <a href="https://ibosol.com/login" target="_blank" class="btn-panel-direct app-link">📱 IBO Sol</a>
+            <a href="https://maxtvapps.pw/Apks/Ibo/Lopes/index.php" target="_blank" class="btn-panel-direct app-link">📱 IBO Lopes</a>
+            <a href="https://rgvipplus.site/vu2/marine" target="_blank" class="btn-panel-direct app-link">📱 VU Player</a>
+            <a href="https://maxtvapps.pw/Apks/Ibo/Killer1/" target="_blank" class="btn-panel-direct app-link">📱 IBO Killer</a>
+            <a href="https://maxtvapps.pw/Apks/Xciptv/Phoenix/index.php" target="_blank" class="btn-panel-direct app-link">📱 XCIPTV Phoenix</a>
+            <a href="https://maxtvapps.pw/Apks/Tivimate/Phoenix/" target="_blank" class="btn-panel-direct app-link">📱 TiviMate</a>
+            <a href="https://globalvip.website/rbatv/nuepp/tiviproat" target="_blank" class="btn-panel-direct app-link">📱 TiviMate VPN</a>
         </div>
     </div>
 
-    <!-- Configuración / Edición de URLs -->
+    <!-- Personalizar URLs -->
     <details class="card">
-        <summary style="font-weight: bold; cursor: pointer;">🌐 Personalizar / Modificar URLs</summary>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 10px;">
-            <div class="field-group"><label>URL Emby</label><input type="url" id="url-Emby" onchange="guardarUrlsPaneles()"></div>
-            <div class="field-group"><label>URL P2P</label><input type="url" id="url-P2P" onchange="guardarUrlsPaneles()"></div>
-            <div class="field-group"><label>URL Zafiro</label><input type="url" id="url-Zafiro" onchange="guardarUrlsPaneles()"></div>
-            <div class="field-group"><label>URL Dylan</label><input type="url" id="url-Dylan" onchange="guardarUrlsPaneles()"></div>
-            <div class="field-group"><label>URL Regilón</label><input type="url" id="url-Regilon" onchange="guardarUrlsPaneles()"></div>
-            <div class="field-group"><label>URL TS4K</label><input type="url" id="url-TS4K" onchange="guardarUrlsPaneles()"></div>
-            <div class="field-group"><label>URL Nexon</label><input type="url" id="url-Nexon" onchange="guardarUrlsPaneles()"></div>
-            <div class="field-group"><label>URL Joker</label><input type="url" id="url-Joker" onchange="guardarUrlsPaneles()"></div>
-            <div class="field-group"><label>URL NetTV</label><input type="url" id="url-NetTV" onchange="guardarUrlsPaneles()"></div>
-            <div class="field-group"><label>URL DonIPTV</label><input type="url" id="url-DonIPTV" onchange="guardarUrlsPaneles()"></div>
+        <summary style="font-weight: bold; cursor: pointer;">🌐 Modificar URLs Guardadas</summary>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
+            <div class="field-group"><label>Emby</label><input type="url" id="url-Emby" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>P2P</label><input type="url" id="url-P2P" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>Zafiro</label><input type="url" id="url-Zafiro" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>Dylan</label><input type="url" id="url-Dylan" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>Regilón</label><input type="url" id="url-Regilon" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>TS4K</label><input type="url" id="url-TS4K" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>Nexon</label><input type="url" id="url-Nexon" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>Joker</label><input type="url" id="url-Joker" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>NetTV</label><input type="url" id="url-NetTV" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>DonIPTV</label><input type="url" id="url-DonIPTV" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>CR7 Panel</label><input type="url" id="url-CR7Panel" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>DonIBO</label><input type="url" id="url-DonIBO" onchange="guardarUrlsPaneles()"></div>
         </div>
     </details>
 
@@ -161,6 +181,8 @@
                     <option value="Joker">Joker</option>
                     <option value="NetTV">NetTV</option>
                     <option value="DonIPTV">DonIPTV</option>
+                    <option value="CR7 Panel">CR7 Panel</option>
+                    <option value="DonIBO">DonIBO</option>
                 </select>
             </div>
             <div class="field-group">
@@ -175,12 +197,17 @@
                 <label>Aplicación Usada</label>
                 <select id="app_nombre">
                     <option value="">Ninguna / Otra</option>
-                    <option value="Max Player">Max Player</option>
-                    <option value="IBO Player">IBO Player</option>
-                    <option value="VU Player">VU Player</option>
                     <option value="iBox Player">iBox Player</option>
-                    <option value="DonIPTV">DonIPTV</option>
-                    <option value="SmartOne">SmartOne</option>
+                    <option value="Max Player">Max Player</option>
+                    <option value="Smartone">Smartone</option>
+                    <option value="IBO Player">IBO Player</option>
+                    <option value="IBO Sol">IBO Sol</option>
+                    <option value="IBO Lopes">IBO Lopes</option>
+                    <option value="VU Player">VU Player</option>
+                    <option value="IBO Killer">IBO Killer</option>
+                    <option value="XCIPTV Phoenix">XCIPTV Phoenix</option>
+                    <option value="TiviMate">TiviMate</option>
+                    <option value="TiviMate VPN">TiviMate VPN</option>
                 </select>
             </div>
             <div class="field-group">
@@ -264,10 +291,12 @@
         "Nexon": "https://cms-nexon.org/nexon/login.php?referrer=subresellers.php",
         "Joker": "https://respaneller.xyz/generalcOyYsDqo/login?referrer=dashboard",
         "NetTV": "https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100",
-        "DonIPTV": "https://main.salsadetomate.shop:2096"
+        "DonIPTV": "https://main.salsadetomate.shop:2096",
+        "CR7Panel": "https://cr7panel.com/",
+        "DonIBO": "https://nertix.org/ibopanel4/users.php"
     };
 
-    let clients = JSON.parse(localStorage.getItem('iptv_v19_clients')) || JSON.parse(localStorage.getItem('iptv_v18_clients')) || JSON.parse(localStorage.getItem('iptv_v17_clients')) || [];
+    let clients = JSON.parse(localStorage.getItem('iptv_v20_clients')) || JSON.parse(localStorage.getItem('iptv_v19_clients')) || JSON.parse(localStorage.getItem('iptv_v18_clients')) || [];
     let savedUrls = JSON.parse(localStorage.getItem('iptv_panel_urls')) || {};
     let panelUrls = { ...defaultUrls, ...savedUrls };
 
@@ -275,7 +304,7 @@
     let currentPanelFilter = 'todos';
     let activeClientCard = null;
 
-    const servicios = ['Emby', 'P2P', 'Zafiro', 'Dylan', 'Regilón', 'TS4K', 'Nexon', 'Joker', 'NetTV', 'DonIPTV'];
+    const servicios = ['Emby', 'P2P', 'Zafiro', 'Dylan', 'Regilón', 'TS4K', 'Nexon', 'Joker', 'NetTV', 'DonIPTV', 'CR7Panel', 'DonIBO'];
 
     document.getElementById('tg-token').value = localStorage.getItem('tg_token') || '';
     document.getElementById('tg-chatid').value = localStorage.getItem('tg_chatid') || '';
@@ -305,7 +334,7 @@
     setDefaultDate();
 
     function saveAndRender() {
-        localStorage.setItem('iptv_v19_clients', JSON.stringify(clients));
+        localStorage.setItem('iptv_v20_clients', JSON.stringify(clients));
         render();
     }
 
@@ -397,7 +426,8 @@
                 wsBtn = `<a class="btn-ws" href="https://wa.me/${telLimpio}?text=${msg}" target="_blank">💬 WA</a>`;
             }
 
-            const urlPanel = panelUrls[c.iptv];
+            const urlKey = c.iptv === 'CR7 Panel' ? 'CR7Panel' : c.iptv;
+            const urlPanel = panelUrls[urlKey] || panelUrls[c.iptv];
             const panelBtn = urlPanel 
                 ? `<a href="${urlPanel}" target="_blank" class="btn-open-panel">🔗 ${c.iptv}</a>`
                 : `<span style="font-size:11px; color:#94a3b8;">${c.iptv || '-'}</span>`;
@@ -433,7 +463,8 @@
         const body = document.getElementById('modal-body');
         document.getElementById('modal-title').textContent = `Ficha: ${activeClientCard.nombre}`;
 
-        const urlPanel = panelUrls[activeClientCard.iptv];
+        const urlKey = activeClientCard.iptv === 'CR7 Panel' ? 'CR7Panel' : activeClientCard.iptv;
+        const urlPanel = panelUrls[urlKey] || panelUrls[activeClientCard.iptv];
         const panelHtml = urlPanel 
             ? `<a href="${urlPanel}" target="_blank" class="btn-open-panel">🔗 Abrir Panel ${activeClientCard.iptv}</a>`
             : (activeClientCard.iptv || '-');
