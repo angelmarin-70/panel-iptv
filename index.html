@@ -9,11 +9,10 @@
     <style>
         :root {
             --bg-color: #0b1120;
-            --card-bg: #1e293b;
-            --card-border: #334155;
-            --accent: #3b82f6;
-            --btn-bg: #0f172a;
-            --btn-hover: #1e293b;
+            --card-bg: #111827;
+            --card-border: #1f2937;
+            --btn-iptv: #1e293b;
+            --btn-app: #1d4ed8;
             --text-main: #f8fafc;
         }
         body {
@@ -26,112 +25,100 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         .section-box {
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 20px;
         }
         .section-title {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #94a3b8;
+            color: #9ca3af;
         }
         .btn-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
         }
-        .panel-btn {
-            background-color: var(--btn-bg);
-            border: 1px solid var(--card-border);
-            color: #e2e8f0;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
+        @media (max-width: 992px) { .btn-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 576px) { .btn-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .btn-panel {
+            background-color: var(--btn-iptv);
+            border: 1px solid #374151;
+            color: #e5e7eb;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            gap: 6px;
             text-decoration: none;
+            text-align: center;
         }
-        .panel-btn:hover {
-            background-color: var(--btn-hover);
-            border-color: var(--accent);
-            color: #ffffff;
-            transform: translateY(-2px);
-        }
-        .app-btn {
-            background-color: #1e1b4b;
-            border-color: #3730a3;
-            color: #c7d2fe;
-        }
-        .app-btn:hover {
-            background-color: #312e81;
-            border-color: #6366f1;
+        .btn-panel:hover { background-color: #374151; color: #fff; }
+
+        .btn-app {
+            background-color: var(--btn-app);
+            border: 1px solid #2563eb;
             color: #ffffff;
         }
+        .btn-app:hover { background-color: #2563eb; }
+
         .form-control, .form-select {
-            background-color: #0f172a;
-            border: 1px solid var(--card-border);
-            color: var(--text-main);
-        }
-        .table-custom {
-            color: var(--text-main);
-            margin: 0;
-        }
-        .table-custom th {
-            background-color: #0f172a;
-            border-bottom: 1px solid var(--card-border);
-            color: #94a3b8;
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            color: #ffffff;
             font-size: 0.85rem;
         }
-        .table-custom td {
-            border-bottom: 1px solid var(--card-border);
-            vertical-align: middle;
+        .form-control:focus, .form-select:focus {
+            background-color: #1f2937;
+            color: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: none;
         }
+        .table-custom { color: #ffffff; font-size: 0.85rem; margin: 0; }
+        .table-custom th { background-color: #1f2937; color: #9ca3af; border-bottom: 1px solid #374151; }
+        .table-custom td { border-bottom: 1px solid #1f2937; vertical-align: middle; }
     </style>
 </head>
 <body>
 
 <div class="container-fluid max-w-7xl mx-auto">
-    <!-- Header -->
+    <!-- Header principal -->
     <div class="header-bar">
         <div>
-            <h4 class="fw-bold m-0"><i class="bi bi-tv text-primary me-2"></i>Panel de Control IPTV</h4>
+            <h5 class="fw-bold m-0"><i class="bi bi-box-seam me-2"></i>Panel de Control IPTV</h5>
         </div>
-        <div>
-            <button class="btn btn-success btn-sm" onclick="exportBackup()"><i class="bi bi-download me-1"></i> Exportar Copia de Seguridad</button>
-        </div>
+        <button class="btn btn-emerald btn-sm btn-success" onclick="exportBackup()"><i class="bi bi-download me-1"></i> Exportar Copia de Seguridad</button>
     </div>
 
     <!-- PANELES IPTV -->
     <div class="section-box">
         <div class="section-title"><i class="bi bi-grid-fill"></i> PANELES IPTV</div>
         <div class="btn-grid">
-            <a href="https://maxplayer.xyz" target="_blank" class="panel-btn"><i class="bi bi-display text-primary"></i> Max Player</a>
-            <a href="https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100" target="_blank" class="panel-btn"><i class="bi bi-tv text-danger"></i> NetTV</a>
-            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-hdd-network text-info"></i> Emby</a>
-            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-gem text-warning"></i> Zafiro</a>
-            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-play-circle text-success"></i> Dylan</a>
-            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-lightning text-danger"></i> Joker</a>
-            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-box text-primary"></i> TS4K</a>
-            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-cpu text-info"></i> Nexon</a>
-            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-globe text-secondary"></i> Región</a>
-            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-broadcast text-warning"></i> DonIPTV</a>
-            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-diagram-3 text-success"></i> P2P</a>
+            <a href="https://maxplayer.xyz" target="_blank" class="btn-panel"><i class="bi bi-display"></i> Max Player</a>
+            <a href="https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100" target="_blank" class="btn-panel"><i class="bi bi-tv"></i> NetTV</a>
+            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-hdd-network"></i> Emby</a>
+            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-gem"></i> Zafiro</a>
+            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-play-circle"></i> Dylan</a>
+            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-lightning"></i> Joker</a>
+            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-box"></i> TS4K</a>
+            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-cpu"></i> Nexon</a>
+            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-globe"></i> Región</a>
+            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-broadcast"></i> DonIPTV</a>
+            <a href="#" target="_blank" class="btn-panel"><i class="bi bi-diagram-3"></i> P2P</a>
         </div>
     </div>
 
@@ -139,19 +126,19 @@
     <div class="section-box">
         <div class="section-title"><i class="bi bi-app-indicator"></i> PANELES APLICACIONES</div>
         <div class="btn-grid">
-            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-box"></i> iBox Player</a>
-            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-play"></i> Max Player App</a>
-            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-tv"></i> Smartone</a>
-            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-shield"></i> CR7 Panel</a>
-            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-play-circle"></i> IBO Player</a>
-            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-sun"></i> IBO Sol</a>
-            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-controller"></i> IBO Lepes</a>
-            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-check-circle"></i> DonIBO</a>
-            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-key"></i> Thimata VPN</a>
-            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-collection-play"></i> VU Player (Marine)</a>
-            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-x-circle"></i> IBO Killer</a>
-            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-fire"></i> XCIPTV Phoenix</a>
-            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-lightning-charge"></i> Thimata Phoenix</a>
+            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-box"></i> iBox Player</a>
+            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-play"></i> Max Player App</a>
+            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-tv"></i> Smartone</a>
+            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-shield"></i> CR7 Panel</a>
+            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-play-circle"></i> IBO Player</a>
+            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-sun"></i> IBO Sol</a>
+            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-controller"></i> IBO Lepes</a>
+            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-check-circle"></i> DonIBO</a>
+            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-key"></i> Thimata VPN</a>
+            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-collection-play"></i> VU Player (Marine)</a>
+            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-x-circle"></i> IBO Killer</a>
+            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-fire"></i> XCIPTV Phoenix</a>
+            <a href="#" target="_blank" class="btn-panel btn-app"><i class="bi bi-lightning-charge"></i> Thimata Phoenix</a>
         </div>
     </div>
 
@@ -166,14 +153,14 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small text-muted">Teléfono (WhatsApp)</label>
-                    <input type="text" class="form-control" id="cPhone">
+                    <input type="text" class="form-control" id="cPhone" value="+34123456789">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small text-muted">Aplicación Instalada</label>
                     <select class="form-select" id="cApp">
+                        <option value="IBO Player">IBO Player</option>
                         <option value="NetTV App">NetTV App</option>
                         <option value="Max Player">Max Player</option>
-                        <option value="IBO Player">IBO Player</option>
                         <option value="iBox Player">iBox Player</option>
                         <option value="Smartone">Smartone</option>
                     </select>
@@ -197,7 +184,7 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small text-muted">Dirección MAC</label>
-                    <input type="text" class="form-control" id="cMac">
+                    <input type="text" class="form-control" id="cMac" placeholder="00:1A:2B:3C:4D:5E">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small text-muted">Fecha de Vencimiento *</label>
@@ -205,12 +192,12 @@
                 </div>
                 <div class="col-md-8">
                     <label class="form-label small text-muted">Notas / Observaciones</label>
-                    <input type="text" class="form-control" id="cNotes">
+                    <input type="text" class="form-control" id="cNotes" placeholder="Ej: Dispositivo Samsung TV">
                 </div>
             </div>
-            <div class="d-flex justify-content-end gap-2 mt-4">
-                <button type="button" class="btn btn-secondary px-4" onclick="document.getElementById('clientForm').reset()">Cancelar / Limpiar</button>
-                <button type="submit" class="btn btn-success px-4"><i class="bi bi-floppy me-1"></i> Guardar Cliente</button>
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <button type="button" class="btn btn-secondary btn-sm px-3" onclick="document.getElementById('clientForm').reset()">Cancelar / Limpiar</button>
+                <button type="submit" class="btn btn-success btn-sm px-3"><i class="bi bi-floppy me-1"></i> Guardar Cliente</button>
             </div>
         </form>
     </div>
@@ -219,8 +206,8 @@
     <div class="section-box">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="section-title m-0"><i class="bi bi-people-fill"></i> Lista de Clientes (<span id="clientCount">0</span>)</div>
-            <div style="width: 300px;">
-                <input type="text" class="form-control form-control-sm" id="searchBox" placeholder="Buscar cliente..." onkeyup="renderTable()">
+            <div style="width: 280px;">
+                <input type="text" class="form-control form-control-sm" id="searchBox" placeholder="Q Buscar cliente, MAC, app..." onkeyup="renderTable()">
             </div>
         </div>
         <div class="table-responsive">
@@ -241,7 +228,7 @@
 </div>
 
 <script>
-    let clients = JSON.parse(localStorage.getItem('iptv_clients')) || [];
+    let clients = JSON.parse(localStorage.getItem('iptv_clients_photo')) || [];
 
     function addClient() {
         const client = {
@@ -256,7 +243,7 @@
             notes: document.getElementById('cNotes').value
         };
         clients.push(client);
-        localStorage.setItem('iptv_clients', JSON.stringify(clients));
+        localStorage.setItem('iptv_clients_photo', JSON.stringify(clients));
         document.getElementById('clientForm').reset();
         renderTable();
     }
@@ -292,7 +279,7 @@
     function deleteClient(id) {
         if(confirm('¿Eliminar cliente?')) {
             clients = clients.filter(c => c.id !== id);
-            localStorage.setItem('iptv_clients', JSON.stringify(clients));
+            localStorage.setItem('iptv_clients_photo', JSON.stringify(clients));
             renderTable();
         }
     }
