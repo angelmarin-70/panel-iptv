@@ -3,546 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Control IPTV - Gestión de Suscriptores v27.0</title>
+    <title>Panel de Control IPTV - v26</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
         :root {
-            --bg-color: #0f172a;
+            --bg-color: #0b1120;
             --card-bg: #1e293b;
-            --accent-color: #3b82f6;
-            --text-color: #f8fafc;
-            --border-color: #334155;
+            --card-border: #334155;
+            --accent: #3b82f6;
+            --btn-bg: #0f172a;
+            --btn-hover: #1e293b;
+            --text-main: #f8fafc;
         }
         body {
             background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            padding-bottom: 60px;
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px;
         }
-        .navbar {
-            background-color: #1e293b;
-            border-bottom: 1px solid var(--border-color);
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
         }
-        .card {
+        .section-box {
             background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
+            border: 1px solid var(--card-border);
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #94a3b8;
+        }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        .panel-btn {
+            background-color: var(--btn-bg);
+            border: 1px solid var(--card-border);
+            color: #e2e8f0;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .panel-btn:hover {
+            background-color: var(--btn-hover);
+            border-color: var(--accent);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+        .app-btn {
+            background-color: #1e1b4b;
+            border-color: #3730a3;
+            color: #c7d2fe;
+        }
+        .app-btn:hover {
+            background-color: #312e81;
+            border-color: #6366f1;
+            color: #ffffff;
         }
         .form-control, .form-select {
             background-color: #0f172a;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
         }
         .form-control:focus, .form-select:focus {
             background-color: #0f172a;
-            color: var(--text-color);
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+            color: var(--text-main);
+            border-color: var(--accent);
+            box-shadow: none;
         }
-        .table {
-            color: var(--text-color);
-            vertical-align: middle;
+        .table-custom {
+            color: var(--text-main);
+            margin: 0;
         }
-        .table-dark {
-            --bs-table-bg: var(--card-bg);
-            --bs-table-border-color: var(--border-color);
-        }
-        .btn-whatsapp {
-            background-color: #25d366;
-            color: white;
-            border: none;
-        }
-        .btn-whatsapp:hover {
-            background-color: #1da851;
-            color: white;
-        }
-        .badge-status {
+        .table-custom th {
+            background-color: #0f172a;
+            border-bottom: 1px solid var(--card-border);
+            color: #94a3b8;
             font-size: 0.85rem;
-            padding: 0.4em 0.8em;
-            border-radius: 20px;
         }
-        .panel-link-card {
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .panel-link-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.4);
-        }
-        .modal-content {
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
+        .table-custom td {
+            border-bottom: 1px solid var(--card-border);
+            vertical-align: middle;
         }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark mb-4">
-    <div class="container-fluid px-4">
-        <a class="navbar-brand fw-bold" href="#"><i class="bi bi-tv me-2 text-primary"></i>IPTV Manager Pro v27.0</a>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#configModal">
-                <i class="bi bi-gear-fill me-1"></i> Configurar Enlaces de Paneles
-            </button>
-            <button class="btn btn-outline-light btn-sm" onclick="exportData()"><i class="bi bi-download me-1"></i> Exportar Copia</button>
-            <label class="btn btn-outline-info btn-sm mb-0">
-                <i class="bi bi-upload me-1"></i> Importar Copia <input type="file" id="importFile" onchange="importData(event)" hidden>
-            </label>
+<div class="container-fluid max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="header-bar">
+        <div>
+            <h4 class="fw-bold m-0"><i class="bi bi-tv text-primary me-2"></i>Panel de Control IPTV</h4>
+            <small class="text-muted">Versión 26 — Unificado Max Player & NetTV Integrado</small>
         </div>
-    </div>
-</nav>
-
-<div class="container-fluid px-4">
-
-    <!-- Enlaces Personalizables a Paneles IPTV -->
-    <div class="row g-3 mb-4">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <h5 class="text-light fw-bold m-0"><i class="bi bi-box-arrow-up-right me-2"></i>Accesos Directos a Paneles y Apps</h5>
-            <small class="text-muted">Haz clic en un panel para abrirlo directamente o configúralo en el botón superior</small>
-        </div>
-        
-        <div class="col-6 col-sm-4 col-md-2">
-            <div onclick="openPanelUrl('maxplayer')" class="card panel-link-card text-center p-3 bg-dark">
-                <i class="bi bi-display fs-3 text-primary mb-1"></i>
-                <div class="fw-bold fs-6">Max Player</div>
-                <small class="text-muted" id="lbl-maxplayer">Configurado</small>
-            </div>
-        </div>
-        <div class="col-6 col-sm-4 col-md-2">
-            <div onclick="openPanelUrl('iboplayer')" class="card panel-link-card text-center p-3 bg-dark">
-                <i class="bi bi-play-circle fs-3 text-warning mb-1"></i>
-                <div class="fw-bold fs-6">IBO Player</div>
-                <small class="text-muted" id="lbl-iboplayer">Configurado</small>
-            </div>
-        </div>
-        <div class="col-6 col-sm-4 col-md-2">
-            <div onclick="openPanelUrl('vuplayer')" class="card panel-link-card text-center p-3 bg-dark">
-                <i class="bi bi-collection-play fs-3 text-success mb-1"></i>
-                <div class="fw-bold fs-6">VU Player</div>
-                <small class="text-muted" id="lbl-vuplayer">Configurado</small>
-            </div>
-        </div>
-        <div class="col-6 col-sm-4 col-md-2">
-            <div onclick="openPanelUrl('smartone')" class="card panel-link-card text-center p-3 bg-dark">
-                <i class="bi bi-tv-fill fs-3 text-danger mb-1"></i>
-                <div class="fw-bold fs-6">SmartOne</div>
-                <small class="text-muted" id="lbl-smartone">Configurado</small>
-            </div>
-        </div>
-        <div class="col-6 col-sm-4 col-md-2">
-            <div onclick="openPanelUrl('emby')" class="card panel-link-card text-center p-3 bg-dark">
-                <i class="bi bi-hdd-network fs-3 text-info mb-1"></i>
-                <div class="fw-bold fs-6">Emby / Zafiro</div>
-                <small class="text-muted" id="lbl-emby">Configurado</small>
-            </div>
-        </div>
-        <div class="col-6 col-sm-4 col-md-2">
-            <div onclick="openPanelUrl('whatsapp')" class="card panel-link-card text-center p-3 bg-dark">
-                <i class="bi bi-whatsapp fs-3 text-success mb-1"></i>
-                <div class="fw-bold fs-6">WhatsApp Web</div>
-                <small class="text-muted" id="lbl-whatsapp">Configurado</small>
-            </div>
+        <div>
+            <button class="btn btn-success btn-sm" onclick="exportBackup()"><i class="bi bi-download me-1"></i> Exportar Copia de Seguridad</button>
         </div>
     </div>
 
-    <!-- Indicadores Estadísticos -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="card p-3 border-start border-primary border-4">
-                <div class="text-muted small">Total Clientes</div>
-                <div class="fs-3 fw-bold" id="totalClients">0</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card p-3 border-start border-success border-4">
-                <div class="text-muted small">Activos</div>
-                <div class="fs-3 fw-bold text-success" id="activeClients">0</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card p-3 border-start border-warning border-4">
-                <div class="text-muted small">Por Caducar (<= 2 días)</div>
-                <div class="fs-3 fw-bold text-warning" id="expiringClients">0</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card p-3 border-start border-danger border-4">
-                <div class="text-muted small">Caducados</div>
-                <div class="fs-3 fw-bold text-danger" id="expiredClients">0</div>
-            </div>
+    <!-- PANELES IPTV -->
+    <div class="section-box">
+        <div class="section-title"><i class="bi bi-grid-fill"></i> PANELES IPTV</div>
+        <div class="btn-grid">
+            <a href="https://maxplayer.xyz" target="_blank" class="panel-btn"><i class="bi bi-display text-primary"></i> Max Player</a>
+            <a href="https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100" target="_blank" class="panel-btn"><i class="bi bi-tv text-danger"></i> NetTV</a>
+            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-hdd-network text-info"></i> Emby</a>
+            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-gem text-warning"></i> Zafiro</a>
+            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-play-circle text-success"></i> Dylan</a>
+            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-lightning text-danger"></i> Joker</a>
+            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-box text-primary"></i> TS4K</a>
+            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-cpu text-info"></i> Nexon</a>
+            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-globe text-secondary"></i> Región</a>
+            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-broadcast text-warning"></i> DonIPTV</a>
+            <a href="#" target="_blank" class="panel-btn"><i class="bi bi-diagram-3 text-success"></i> P2P</a>
         </div>
     </div>
 
-    <div class="row g-4">
-        <!-- Formulario Nuevo / Editar Cliente -->
-        <div class="col-lg-4">
-            <div class="card p-4">
-                <h5 class="mb-3 text-primary" id="formTitle"><i class="bi bi-person-plus me-2"></i>Registrar / Modificar Cliente</h5>
-                <form id="clientForm">
-                    <input type="hidden" id="clientId">
-                    <div class="mb-3">
-                        <label class="form-label small">Nombre del Cliente / Ref</label>
-                        <input type="text" class="form-control" id="clientName" placeholder="Ej: Juan Pérez" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small">Teléfono (WhatsApp sin el +)</label>
-                        <input type="text" class="form-control" id="clientPhone" placeholder="Ej: 34600000000" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small">Aplicación / Servidor</label>
-                        <select class="form-select" id="clientApp">
-                            <option value="Max Player">Max Player</option>
-                            <option value="IBO Player">IBO Player</option>
-                            <option value="VU Player">VU Player</option>
-                            <option value="SmartOne">SmartOne</option>
-                            <option value="Emby / Zafiro">Emby / Zafiro</option>
-                            <option value="Joker / TS4K">Joker / TS4K</option>
-                            <option value="Nexon / P2P">Nexon / P2P</option>
-                            <option value="Otro">Otro</option>
-                        </select>
-                    </div>
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <label class="form-label small">Dirección MAC / Usuario</label>
-                            <input type="text" class="form-control" id="clientMac" placeholder="AA:BB:CC:DD:EE:FF">
-                        </div>
-                        <div class="col-6 mb-3">
-                            <label class="form-label small">Clave / Contraseña</label>
-                            <input type="text" class="form-control" id="clientPass" placeholder="123456">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small">Fecha de Vencimiento</label>
-                        <input type="date" class="form-control" id="clientExpiry" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small">Notas Adicionales</label>
-                        <textarea class="form-control" id="clientNotes" rows="2" placeholder="Notas sobre el cliente o dispositivo..."></textarea>
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary" id="saveBtn"><i class="bi bi-save me-1"></i> Guardar Cliente</button>
-                        <button type="button" class="btn btn-outline-secondary d-none" id="cancelBtn" onclick="resetForm()"><i class="bi bi-x-circle me-1"></i> Cancelar</button>
-                    </div>
-                </form>
-            </div>
+    <!-- PANELES APLICACIONES -->
+    <div class="section-box">
+        <div class="section-title"><i class="bi bi-app-indicator"></i> PANELES APLICACIONES</div>
+        <div class="btn-grid">
+            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-box"></i> iBox Player</a>
+            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-play"></i> Max Player App</a>
+            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-tv"></i> Smartone</a>
+            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-shield"></i> CR7 Panel</a>
+            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-play-circle"></i> IBO Player</a>
+            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-sun"></i> IBO Sol</a>
+            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-controller"></i> IBO Lepes</a>
+            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-check-circle"></i> DonIBO</a>
+            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-key"></i> Thimata VPN</a>
+            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-collection-play"></i> VU Player (Marine)</a>
+            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-x-circle"></i> IBO Killer</a>
+            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-fire"></i> XCIPTV Phoenix</a>
+            <a href="#" target="_blank" class="panel-btn app-btn"><i class="bi bi-lightning-charge"></i> Thimata Phoenix</a>
         </div>
+    </div>
 
-        <!-- Tabla de Clientes -->
-        <div class="col-lg-8">
-            <div class="card p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="m-0 text-light"><i class="bi bi-people me-2"></i>Lista de Suscriptores</h5>
-                    <div class="w-50">
-                        <input type="text" class="form-control" id="searchBox" placeholder="Buscar por nombre, app, MAC o teléfono..." onkeyup="renderClients()">
-                    </div>
+    <!-- REGISTRAR NUEVO CLIENTE -->
+    <div class="section-box">
+        <div class="section-title text-success"><i class="bi bi-person-plus-fill"></i> Registrar Nuevo Cliente</div>
+        <form id="clientForm" onsubmit="event.preventDefault(); addClient();">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">Nombre del Cliente *</label>
+                    <input type="text" class="form-control" id="cName" required placeholder="Ej: Juan Pérez">
                 </div>
-
-                <div class="table-responsive">
-                    <table class="table table-dark table-hover align-middle">
-                        <thead>
-                            <tr>
-                                <th>Cliente / App</th>
-                                <th>MAC / Clave</th>
-                                <th>Vencimiento</th>
-                                <th>Estado</th>
-                                <th>Acciones Rápidas</th>
-                            </tr>
-                        </thead>
-                        <tbody id="clientTableBody">
-                            <!-- Inyección JS -->
-                        </tbody>
-                    </table>
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">Teléfono (WhatsApp)</label>
+                    <input type="text" class="form-control" id="cPhone" placeholder="+34123456789">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">Aplicación Instalada</label>
+                    <select class="form-select" id="cApp">
+                        <option value="NetTV App">NetTV App</option>
+                        <option value="Max Player">Max Player</option>
+                        <option value="IBO Player">IBO Player</option>
+                        <option value="iBox Player">iBox Player</option>
+                        <option value="Smartone">Smartone</option>
+                        <option value="VU Player">VU Player</option>
+                        <option value="XCIPTV">XCIPTV</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">Contraseña App</label>
+                    <input type="text" class="form-control" id="cPass" placeholder="123456">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">Panel IPTV / Servidor</label>
+                    <select class="form-select" id="cServer">
+                        <option value="Max Player">Max Player</option>
+                        <option value="NetTV">NetTV</option>
+                        <option value="Emby">Emby</option>
+                        <option value="Zafiro">Zafiro</option>
+                        <option value="Dylan">Dylan</option>
+                        <option value="Joker">Joker</option>
+                        <option value="TS4K">TS4K</option>
+                        <option value="Nexon">Nexon</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">Dirección MAC</label>
+                    <input type="text" class="form-control" id="cMac" placeholder="00:1A:2B:3C:4D:5E">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">Fecha de Vencimiento *</label>
+                    <input type="date" class="form-control" id="cExpiry" required>
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label small text-muted">Notas / Observaciones</label>
+                    <input type="text" class="form-control" id="cNotes" placeholder="Ej: Dispositivo Samsung TV">
                 </div>
             </div>
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn btn-secondary px-4" onclick="document.getElementById('clientForm').reset()">Cancelar / Limpiar</button>
+                <button type="submit" class="btn btn-success px-4"><i class="bi bi-floppy me-1"></i> Guardar Cliente</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- LISTA DE CLIENTES -->
+    <div class="section-box">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="section-title m-0"><i class="bi bi-people-fill"></i> Lista de Clientes (<span id="clientCount">0</span>)</div>
+            <div style="width: 300px;">
+                <input type="text" class="form-control form-control-sm" id="searchBox" placeholder="Buscar cliente, MAC, app..." onkeyup="renderTable()">
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>Cliente / Teléfono</th>
+                        <th>Servidor / App</th>
+                        <th>MAC / Clave</th>
+                        <th>Vencimiento</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="clientTableBody">
+                    <!-- Dinámico -->
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<!-- Modal de Configuración de Enlaces de Paneles -->
-<div class="modal fade" id="configModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-gear-fill me-2 text-warning"></i>Configurar URLs de Paneles Reseller</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p class="small text-muted">Introduce la URL exacta de tus paneles de revendedor. Si dejas alguno en blanco, usará la URL oficial predeterminada.</p>
-                <div class="mb-3">
-                    <label class="form-label small">URL Panel Max Player</label>
-                    <input type="url" class="form-control" id="url-maxplayer" placeholder="https://tu-panel-maxplayer.com">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small">URL Panel IBO Player</label>
-                    <input type="url" class="form-control" id="url-iboplayer" placeholder="https://iboplayer.com">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small">URL Panel VU Player</label>
-                    <input type="url" class="form-control" id="url-vuplayer" placeholder="https://vuplayer.org">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small">URL Panel SmartOne</label>
-                    <input type="url" class="form-control" id="url-smartone" placeholder="https://smartone-iptv.com">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small">URL Panel Emby / Zafiro</label>
-                    <input type="url" class="form-control" id="url-emby" placeholder="https://app.emby.media">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small">URL WhatsApp Web</label>
-                    <input type="url" class="form-control" id="url-whatsapp" placeholder="https://web.whatsapp.com">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="savePanelUrls()"><i class="bi bi-save me-1"></i> Guardar Enlaces</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Valores predeterminados para URLs de paneles
-    const defaultUrls = {
-        maxplayer: 'https://maxplayer.com/',
-        iboplayer: 'https://iboplayer.com/',
-        vuplayer: 'https://vuplayer.org/',
-        smartone: 'https://smartone-iptv.com/',
-        emby: 'https://app.emby.media/',
-        whatsapp: 'https://web.whatsapp.com/'
-    };
+    let clients = JSON.parse(localStorage.getItem('iptv_v26_clients')) || [];
 
-    let panelUrls = JSON.parse(localStorage.getItem('iptv_panel_urls_v27')) || defaultUrls;
-    let clients = JSON.parse(localStorage.getItem('iptv_subscribers_v27')) || [];
-
-    // Inicializar modal con valores
-    function loadConfigInputs() {
-        for (let key in defaultUrls) {
-            document.getElementById(`url-${key}`).value = panelUrls[key] || defaultUrls[key];
-        }
+    function addClient() {
+        const client = {
+            id: Date.now().toString(),
+            name: document.getElementById('cName').value,
+            phone: document.getElementById('cPhone').value,
+            app: document.getElementById('cApp').value,
+            pass: document.getElementById('cPass').value,
+            server: document.getElementById('cServer').value,
+            mac: document.getElementById('cMac').value,
+            expiry: document.getElementById('cExpiry').value,
+            notes: document.getElementById('cNotes').value
+        };
+        clients.push(client);
+        localStorage.setItem('iptv_v26_clients', JSON.stringify(clients));
+        document.getElementById('clientForm').reset();
+        renderTable();
     }
 
-    function savePanelUrls() {
-        for (let key in defaultUrls) {
-            const val = document.getElementById(`url-${key}`).value.trim();
-            panelUrls[key] = val || defaultUrls[key];
-        }
-        localStorage.setItem('iptv_panel_urls_v27', JSON.stringify(panelUrls));
-        const modalEl = document.getElementById('configModal');
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        if (modal) modal.hide();
-        alert('¡Enlaces de paneles guardados correctamente!');
-    }
-
-    function openPanelUrl(key) {
-        const url = panelUrls[key] || defaultUrls[key];
-        if (url) {
-            window.open(url, '_blank');
-        } else {
-            alert('Enlace no configurado. Haz clic en "Configurar Enlaces de Paneles" para establecer la URL.');
-        }
-    }
-
-    document.getElementById('clientForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const id = document.getElementById('clientId').value;
-        const name = document.getElementById('clientName').value.trim();
-        let phone = document.getElementById('clientPhone').value.trim().replace(/[^0-9]/g, '');
-        const app = document.getElementById('clientApp').value;
-        const mac = document.getElementById('clientMac').value.trim();
-        const pass = document.getElementById('clientPass').value.trim();
-        const expiry = document.getElementById('clientExpiry').value;
-        const notes = document.getElementById('clientNotes').value.trim();
-
-        if (id) {
-            const index = clients.findIndex(c => c.id === id);
-            if (index !== -1) {
-                clients[index] = { id, name, phone, app, mac, pass, expiry, notes };
-            }
-        } else {
-            const newClient = {
-                id: Date.now().toString(),
-                name, phone, app, mac, pass, expiry, notes
-            };
-            clients.push(newClient);
-        }
-
-        saveToLocalStorage();
-        resetForm();
-        renderClients();
-    });
-
-    function saveToLocalStorage() {
-        localStorage.setItem('iptv_subscribers_v27', JSON.stringify(clients));
-    }
-
-    function calculateDaysLeft(expiryDateStr) {
-        const today = new Date();
-        today.setHours(0,0,0,0);
-        const exp = new Date(expiryDateStr);
-        exp.setHours(0,0,0,0);
-        const diffTime = exp - today;
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    }
-
-    function renderClients() {
+    function renderTable() {
         const tbody = document.getElementById('clientTableBody');
-        const search = document.getElementById('searchBox').value.toLowerCase();
+        const query = document.getElementById('searchBox').value.toLowerCase();
         tbody.innerHTML = '';
-
-        let activeCount = 0;
-        let expiringCount = 0;
-        let expiredCount = 0;
-
+        
         const filtered = clients.filter(c => 
-            c.name.toLowerCase().includes(search) || 
-            c.app.toLowerCase().includes(search) || 
-            c.mac.toLowerCase().includes(search) || 
-            c.phone.includes(search)
+            c.name.toLowerCase().includes(query) || 
+            c.mac.toLowerCase().includes(query) || 
+            c.server.toLowerCase().includes(query)
         );
 
+        document.getElementById('clientCount').innerText = filtered.length;
+
         filtered.forEach(c => {
-            const daysLeft = calculateDaysLeft(c.expiry);
-            let statusBadge = '';
-            
-            if (daysLeft < 0) {
-                statusBadge = `<span class="badge bg-danger badge-status">Caducado (${Math.abs(daysLeft)}d)</span>`;
-                expiredCount++;
-            } else if (daysLeft <= 2) {
-                statusBadge = `<span class="badge bg-warning text-dark badge-status">Por caducar (${daysLeft}d)</span>`;
-                expiringCount++;
-            } else {
-                statusBadge = `<span class="badge bg-success badge-status">Activo (${daysLeft}d)</span>`;
-                activeCount++;
-            }
-
-            // Validar que exista teléfono antes de armar WhatsApp
-            let waBtnHtml = '';
-            if (c.phone && c.phone.length >= 7) {
-                const msg = `Hola ${c.name}, te recordamos que tu suscripción de la aplicación ${c.app} ` + 
-                            (daysLeft < 0 ? `ha CADUCADO.` : (daysLeft === 0 ? `caduca HOY.` : `vence en ${daysLeft} día(s).`)) + 
-                            ` ¿Te interesa renovar para seguir disfrutando del servicio? ¡Gracias!`;
-                const waUrl = `https://wa.me/${c.phone}?text=${encodeURIComponent(msg)}`;
-                waBtnHtml = `<a href="${waUrl}" target="_blank" class="btn btn-whatsapp" title="Enviar WhatsApp"><i class="bi bi-whatsapp"></i> Aviso</a>`;
-            } else {
-                waBtnHtml = `<button class="btn btn-secondary" onclick="alert('Teléfono no configurado o inválido para este cliente.')" title="Sin teléfono válido"><i class="bi bi-telephone-x"></i> Sin Tel.</button>`;
-            }
-
             const tr = document.createElement('tr');
             tr.innerHTML = `
+                <td><strong>${c.name}</strong><br><small class="text-muted">${c.phone || '-'}</small></td>
+                <td><span class="badge bg-primary">${c.server}</span><br><small>${c.app}</small></td>
+                <td><small>MAC: ${c.mac || '-'}<br>Pass: ${c.pass || '-'}</small></td>
+                <td>${c.expiry}</td>
                 <td>
-                    <div class="fw-bold">${c.name}</div>
-                    <small class="text-muted"><i class="bi bi-tv me-1"></i>${c.app}</small>
-                </td>
-                <td>
-                    <div class="small"><strong>MAC:</strong> ${c.mac || '-'}</div>
-                    <div class="small text-muted"><strong>Pass:</strong> ${c.pass || '-'}</div>
-                </td>
-                <td>
-                    <div>${c.expiry}</div>
-                </td>
-                <td>${statusBadge}</td>
-                <td>
-                    <div class="btn-group btn-group-sm">
-                        ${waBtnHtml}
-                        <button class="btn btn-outline-info" onclick="editClient('${c.id}')" title="Editar"><i class="bi bi-pencil"></i></button>
-                        <button class="btn btn-outline-danger" onclick="deleteClient('${c.id}')" title="Eliminar"><i class="bi bi-trash"></i></button>
-                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')"><i class="bi bi-trash"></i></button>
                 </td>
             `;
             tbody.appendChild(tr);
         });
-
-        // Actualizar contadores
-        document.getElementById('totalClients').innerText = clients.length;
-        document.getElementById('activeClients').innerText = activeCount;
-        document.getElementById('expiringClients').innerText = expiringCount;
-        document.getElementById('expiredClients').innerText = expiredCount;
-    }
-
-    function editClient(id) {
-        const c = clients.find(item => item.id === id);
-        if (!c) return;
-
-        document.getElementById('clientId').value = c.id;
-        document.getElementById('clientName').value = c.name;
-        document.getElementById('clientPhone').value = c.phone;
-        document.getElementById('clientApp').value = c.app;
-        document.getElementById('clientMac').value = c.mac;
-        document.getElementById('clientPass').value = c.pass;
-        document.getElementById('clientExpiry').value = c.expiry;
-        document.getElementById('clientNotes').value = c.notes;
-
-        document.getElementById('formTitle').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Editar Cliente';
-        document.getElementById('saveBtn').innerHTML = '<i class="bi bi-check-circle me-1"></i> Actualizar Cliente';
-        document.getElementById('cancelBtn').classList.remove('d-none');
     }
 
     function deleteClient(id) {
-        if (confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
+        if(confirm('¿Eliminar cliente?')) {
             clients = clients.filter(c => c.id !== id);
-            saveToLocalStorage();
-            renderClients();
+            localStorage.setItem('iptv_v26_clients', JSON.stringify(clients));
+            renderTable();
         }
     }
 
-    function resetForm() {
-        document.getElementById('clientId').value = '';
-        document.getElementById('clientForm').reset();
-        document.getElementById('formTitle').innerHTML = '<i class="bi bi-person-plus me-2"></i>Registrar / Modificar Cliente';
-        document.getElementById('saveBtn').innerHTML = '<i class="bi bi-save me-1"></i> Guardar Cliente';
-        document.getElementById('cancelBtn').classList.add('d-none');
+    function exportBackup() {
+        const blob = new Blob([JSON.stringify(clients, null, 2)], {type: 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `backup_iptv_v26_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
     }
 
-    function exportData() {
-        const data = {
-            clients: clients,
-            panelUrls: panelUrls
-        };
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
-        const dlAnchorElem = document.createElement('a');
-        dlAnchorElem.setAttribute("href", dataStr);
-        dlAnchorElem.setAttribute("download", `iptv_backup_completo_${new Date().toISOString().slice(0,10)}.json`);
-        dlAnchorElem.click();
-    }
-
-    function importData(event) {
-        const fileReader = new FileReader();
-        fileReader.onload = function(e) {
-            try {
-                const imported = JSON.parse(e.target.result);
-                if (imported.clients && Array.isArray(imported.clients)) {
-                    clients = imported.clients;
-                    if (imported.panelUrls) panelUrls = imported.panelUrls;
-                    saveToLocalStorage();
-                    localStorage.setItem('iptv_panel_urls_v27', JSON.stringify(panelUrls));
-                    loadConfigInputs();
-                    renderClients();
-                    alert('¡Datos y enlaces importados con éxito!');
-                } else if (Array.isArray(imported)) {
-                    clients = imported;
-                    saveToLocalStorage();
-                    renderClients();
-                    alert('¡Clientes importados con éxito!');
-                } else {
-                    alert('El archivo no tiene un formato válido.');
-                }
-            } catch (err) {
-                alert('Error al leer el archivo JSON.');
-            }
-        };
-        fileReader.readAsText(event.target.files[0]);
-    }
-
-    // Inicialización
-    loadConfigInputs();
-    renderClients();
+    renderTable();
 </script>
 </body>
 </html>
