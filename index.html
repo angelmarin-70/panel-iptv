@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control IPTV Portable V15 - Full Pro</title>
+    <title>Control IPTV Portable V17 - Full Pro</title>
     <style>
         :root { --primary: #2563eb; --danger: #dc2626; --success: #16a34a; --warning: #d97706; --whatsapp: #25d366; --telegram: #0088cc; --bg: #f8fafc; }
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #1e293b; }
@@ -41,6 +41,8 @@
         .btn-card { background: #0284c7; color: white; border: none; padding: 5px 8px; font-size: 11px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .btn-renew { background: var(--warning); padding: 5px 8px; font-size: 11px; }
         .btn-del { background: var(--danger); padding: 5px 8px; font-size: 11px; }
+        .panel-link { color: var(--primary); text-decoration: none; font-weight: bold; }
+        .panel-link:hover { text-decoration: underline; }
         
         /* Modal Ficha */
         .modal-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
@@ -55,7 +57,7 @@
 <body>
 
 <div class="container">
-    <h2>Gestor IPTV Portable (V15 - Full Pro)</h2>
+    <h2>Gestor IPTV Portable (V17 - Full Pro)</h2>
 
     <!-- Barra de Herramientas -->
     <div class="toolbar">
@@ -64,6 +66,23 @@
         <input type="file" id="import-file" style="display:none" accept=".json" onchange="importData(event)">
         <button class="btn-tg" onclick="enviarAlertaTelegram(true)">🔔 Comprobar Telegram</button>
     </div>
+
+    <!-- Configuración de URLs para Paneles -->
+    <details class="card" open>
+        <summary style="font-weight: bold; cursor: pointer;">🌐 Enlaces Preconfigurados de Paneles (URLs)</summary>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 10px;">
+            <div class="field-group"><label>URL Emby</label><input type="url" id="url-Emby" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>URL P2P</label><input type="url" id="url-P2P" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>URL Zafiro</label><input type="url" id="url-Zafiro" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>URL Dylan</label><input type="url" id="url-Dylan" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>URL Regilón</label><input type="url" id="url-Regilon" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>URL TS4K</label><input type="url" id="url-TS4K" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>URL Nexon</label><input type="url" id="url-Nexon" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>URL Joker</label><input type="url" id="url-Joker" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>URL NetTV</label><input type="url" id="url-NetTV" onchange="guardarUrlsPaneles()"></div>
+            <div class="field-group"><label>URL DonIPTV</label><input type="url" id="url-DonIPTV" onchange="guardarUrlsPaneles()"></div>
+        </div>
+    </details>
 
     <!-- Ajustes Bot Telegram -->
     <details class="card">
@@ -97,11 +116,14 @@
                     <option value="" disabled selected>Seleccionar Servicio</option>
                     <option value="Emby">Emby</option>
                     <option value="P2P">P2P</option>
+                    <option value="Zafiro">Zafiro</option>
                     <option value="Dylan">Dylan</option>
-                    <option value="Joker">Joker</option>
+                    <option value="Regilón">Regilón</option>
                     <option value="TS4K">TS4K</option>
                     <option value="Nexon">Nexon</option>
-                    <option value="Zafiro">Zafiro</option>
+                    <option value="Joker">Joker</option>
+                    <option value="NetTV">NetTV</option>
+                    <option value="DonIPTV">DonIPTV</option>
                 </select>
             </div>
             <div class="field-group">
@@ -158,6 +180,8 @@
             <button class="btn-filter" onclick="setFilterPanel('Emby', this)">Emby</button>
             <button class="btn-filter" onclick="setFilterPanel('Zafiro', this)">Zafiro</button>
             <button class="btn-filter" onclick="setFilterPanel('P2P', this)">P2P</button>
+            <button class="btn-filter" onclick="setFilterPanel('Regilón', this)">Regilón</button>
+            <button class="btn-filter" onclick="setFilterPanel('NetTV', this)">NetTV</button>
         </div>
 
         <div class="table-responsive">
@@ -165,7 +189,7 @@
                 <thead>
                     <tr>
                         <th>Cliente</th>
-                        <th>Panel</th>
+                        <th>Panel / Enlace</th>
                         <th>Usuario</th>
                         <th>Teléfono</th>
                         <th>App</th>
@@ -193,13 +217,46 @@
 </div>
 
 <script>
-    let clients = JSON.parse(localStorage.getItem('iptv_v15_clients')) || JSON.parse(localStorage.getItem('iptv_v14_clients')) || JSON.parse(localStorage.getItem('iptv_v13_clients')) || [];
+    // URLs por defecto integradas directamente
+    const defaultUrls = {
+        "Emby": "https://thorcrm.info/login",
+        "P2P": "https://p2pro.sigma.st",
+        "Zafiro": "https://koramendi.eu/dashboard",
+        "Dylan": "https://599.iglesiadecristoredentor.org:2053/piruletas@@2020/login",
+        "Regilón": "https://treemor.uk/TARANTULA2/login",
+        "TS4K": "https://storm-panel.pro/login.php",
+        "Nexon": "https://cms-nexon.org/nexon/login.php?referrer=subresellers.php",
+        "Joker": "https://respaneller.xyz/generalcOyYsDqo/login?referrer=dashboard",
+        "NetTV": "https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100",
+        "DonIPTV": "https://main.salsadetomate.shop:2096"
+    };
+
+    let clients = JSON.parse(localStorage.getItem('iptv_v17_clients')) || JSON.parse(localStorage.getItem('iptv_v16_clients')) || JSON.parse(localStorage.getItem('iptv_v15_clients')) || [];
+    let savedUrls = JSON.parse(localStorage.getItem('iptv_panel_urls')) || {};
+    let panelUrls = { ...defaultUrls, ...savedUrls };
+
     let currentStatusFilter = 'todos';
     let currentPanelFilter = 'todos';
     let activeClientCard = null;
 
     document.getElementById('tg-token').value = localStorage.getItem('tg_token') || '';
     document.getElementById('tg-chatid').value = localStorage.getItem('tg_chatid') || '';
+
+    // Cargar URLs en los campos de entrada
+    const servicios = ['Emby', 'P2P', 'Zafiro', 'Dylan', 'Regilón', 'TS4K', 'Nexon', 'Joker', 'NetTV', 'DonIPTV'];
+    servicios.forEach(s => {
+        const el = document.getElementById(`url-${s}`);
+        if (el) el.value = panelUrls[s] || '';
+    });
+
+    function guardarUrlsPaneles() {
+        servicios.forEach(s => {
+            const val = document.getElementById(`url-${s}`).value.trim();
+            if (val) panelUrls[s] = val; else delete panelUrls[s];
+        });
+        localStorage.setItem('iptv_panel_urls', JSON.stringify(panelUrls));
+        render();
+    }
 
     function setDefaultDate() {
         let fecha = new Date();
@@ -209,7 +266,7 @@
     setDefaultDate();
 
     function saveAndRender() {
-        localStorage.setItem('iptv_v15_clients', JSON.stringify(clients));
+        localStorage.setItem('iptv_v17_clients', JSON.stringify(clients));
         render();
     }
 
@@ -283,7 +340,6 @@
             const isExpired = c.vencimiento < hoyStr;
             if (isExpired) expired++; else { active++; revenue += parseFloat(c.precio || 0); }
 
-            // Aplicar Filtros
             if (currentStatusFilter === 'activos' && isExpired) return;
             if (currentStatusFilter === 'vencidos' && !isExpired) return;
             if (currentPanelFilter !== 'todos' && c.iptv !== currentPanelFilter) return;
@@ -302,10 +358,15 @@
                 wsBtn = `<a class="btn-ws" href="https://wa.me/${telLimpio}?text=${msg}" target="_blank">💬 WA</a>`;
             }
 
+            const urlPanel = panelUrls[c.iptv];
+            const panelCell = urlPanel 
+                ? `<a href="${urlPanel}" target="_blank" class="panel-link">🔗 ${c.iptv}</a>`
+                : `<small>${c.iptv || '-'}</small>`;
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><strong>${c.nombre}</strong></td>
-                <td><small>${c.iptv || '-'}</small></td>
+                <td>${panelCell}</td>
                 <td>${c.usuario || '-'}</td>
                 <td>${c.telefono || '-'}</td>
                 <td><small>${c.app_nombre || '-'}</small></td>
@@ -333,8 +394,13 @@
         const body = document.getElementById('modal-body');
         document.getElementById('modal-title').textContent = `Ficha: ${activeClientCard.nombre}`;
 
+        const urlPanel = panelUrls[activeClientCard.iptv];
+        const panelHtml = urlPanel 
+            ? `<a href="${urlPanel}" target="_blank" class="panel-link">🔗 ${activeClientCard.iptv} (Abrir Panel)</a>`
+            : (activeClientCard.iptv || '-');
+
         body.innerHTML = `
-            <div class="info-row"><strong>Panel IPTV:</strong> ${activeClientCard.iptv || '-'}</div>
+            <div class="info-row"><strong>Panel IPTV:</strong> ${panelHtml}</div>
             <div class="info-row"><strong>Usuario IPTV:</strong> ${activeClientCard.usuario || '-'}</div>
             <div class="info-row"><strong>Teléfono:</strong> ${activeClientCard.telefono || '-'}</div>
             <hr style="border:0; border-top:1px solid #f1f5f9; margin:10px 0;">
@@ -413,7 +479,6 @@
 
     document.getElementById('search').addEventListener('input', render);
     
-    // Auto-comprobar al cargar la web
     window.onload = () => {
         render();
         setTimeout(() => enviarAlertaTelegram(false), 1000);
