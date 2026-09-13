@@ -211,7 +211,7 @@
             </div>
             <div class="d-flex align-items-center gap-2">
                 <select class="form-select form-select-sm" id="noteCategorySelect" style="width: 240px;" onchange="changeNoteCategory()">
-                    <option value="dns_iptv">🌐 DNS IPTV / Servidores</option>
+                    <option value="dns_iptv">🌐 DNS</option>
                     <option value="mag_portals">📺 Portales MAG / Stalker</option>
                     <option value="app_codes">🔑 Códigos & Activaciones App</option>
                     <option value="general_notes">📝 Notas Generales</option>
@@ -227,7 +227,7 @@
     <div class="notepad-modal" id="notepadModal">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="m-0 fw-bold text-warning" id="modalTitle">
-                <i class="bi bi-file-earmark-code me-2"></i> Bloc de Notas - DNS IPTV
+                <i class="bi bi-file-earmark-code me-2"></i> Bloc de Notas - DNS
             </h4>
             <div class="d-flex gap-2">
                 <button class="btn btn-outline-secondary btn-sm" onclick="clearCurrentNote()"><i class="bi bi-eraser"></i> Limpiar Texto</button>
@@ -464,9 +464,23 @@
         loadCurrentNote();
     }
 
+    function generateDnsTemplate() {
+        let template = "--- LISTADO DE DNS POR SERVIDOR IPTV ---\n\n";
+        defaultIptvLinks.forEach(item => {
+            template += `[ ${item.name} ]\nDNS 1: \nDNS 2: \n\n`;
+        });
+        return template;
+    }
+
     function loadCurrentNote() {
         const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
-        document.getElementById('noteTextArea').value = savedNotes[currentCategoryKey] || '';
+        
+        // Si la categoría es DNS y está vacía, cargar la plantilla con todas las IPTVs
+        if (currentCategoryKey === 'dns_iptv' && (!savedNotes[currentCategoryKey] || savedNotes[currentCategoryKey].trim() === '')) {
+            document.getElementById('noteTextArea').value = generateDnsTemplate();
+        } else {
+            document.getElementById('noteTextArea').value = savedNotes[currentCategoryKey] || '';
+        }
     }
 
     function saveCurrentNote(showAlert = true) {
