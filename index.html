@@ -183,11 +183,20 @@
     <!-- CABECERA -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold m-0 text-white"><i class="bi bi-cpu-fill text-info me-2"></i>Panel IPTV Admin</h3>
-        <div>
-            <button class="btn btn-outline-warning btn-sm me-2" onclick="resetLinks()"><i class="bi bi-arrow-counterclockwise"></i> Reset URLs</button>
-            <button class="btn btn-outline-info btn-sm me-2" onclick="document.getElementById('importFile').click()"><i class="bi bi-upload"></i> Cargar Copia</button>
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-primary btn-sm" onclick="requestNotificationPermission()">
+                <i class="bi bi-bell-fill"></i> Activar Notificaciones
+            </button>
+            <button class="btn btn-outline-warning btn-sm" onclick="resetLinks()">
+                <i class="bi bi-arrow-counterclockwise"></i> Reset URLs
+            </button>
+            <button class="btn btn-outline-info btn-sm" onclick="document.getElementById('importFile').click()">
+                <i class="bi bi-upload"></i> Cargar Copia
+            </button>
             <input type="file" id="importFile" style="display:none;" onchange="importBackup(event)">
-            <button class="btn btn-success btn-sm" onclick="exportBackup()"><i class="bi bi-download"></i> Guardar Copia</button>
+            <button class="btn btn-success btn-sm" onclick="exportBackup()">
+                <i class="bi bi-download"></i> Guardar Copia
+            </button>
         </div>
     </div>
 
@@ -439,6 +448,38 @@
         }
     }
 
+    // --- NOTIFICACIONES DEL NAVEGADOR ---
+    function requestNotificationPermission() {
+        if (!("Notification" in window)) {
+            alert("Este navegador no soporta notificaciones de escritorio.");
+            return;
+        }
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                new Notification("Panel IPTV Admin", {
+                    body: "¡Las notificaciones en el navegador están activadas!",
+                    icon: "https://cdn-icons-png.flaticon.com/512/3602/3602145.png"
+                });
+            } else {
+                alert("Las notificaciones fueron rechazadas.");
+            }
+        });
+    }
+
+    function checkExpiryNotifications() {
+        if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const todayClients = clients.filter(c => c.expiry === todayStr);
+
+        if (todayClients.length > 0) {
+            new Notification("⚠️ Clientes Vencen Hoy", {
+                body: `Tienes ${todayClients.length} cliente(s) cuya suscripción vence el día de hoy.`,
+                icon: "https://cdn-icons-png.flaticon.com/512/3602/3602145.png"
+            });
+        }
+    }
+
     // GESTIÓN DEL BLOC DE NOTAS PANTALLA COMPLETA
     let currentCategoryKey = 'dns_iptv';
 
@@ -475,7 +516,6 @@
     function loadCurrentNote() {
         const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
         
-        // Si la categoría es DNS y está vacía, cargar la plantilla con todas las IPTVs
         if (currentCategoryKey === 'dns_iptv' && (!savedNotes[currentCategoryKey] || savedNotes[currentCategoryKey].trim() === '')) {
             document.getElementById('noteTextArea').value = generateDnsTemplate();
         } else {
@@ -545,6 +585,7 @@
         saveClients();
         resetForm();
         renderTable();
+        checkExpiryNotifications();
     }
 
     function editClient(id) {
@@ -724,9 +765,13 @@
         }).catch(e => console.error("Error enviado a Telegram:", e));
     }
 
+    // Inicializar app
     renderButtons();
     loadTgConfig();
     renderTable();
+    
+    // Comprobar alertas al iniciar la página
+    setTimeout(checkExpiryNotifications, 1000);
 </script>
 </body>
 </html>
