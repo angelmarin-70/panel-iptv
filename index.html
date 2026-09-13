@@ -173,18 +173,24 @@
         <div class="btn-grid" id="appGrid"></div>
     </div>
 
-    <!-- NUEVA SECCIÓN: ANOTACIONES DNS Y NOTAS -->
+    <!-- SECCIÓN DE NOTAS Y DNS POR CATEGORÍA -->
     <div class="section-box">
-        <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
             <div class="section-title text-warning m-0">
-                <i class="bi bi-journal-code"></i> Anotaciones DNS y Notas Rápidas
+                <i class="bi bi-journal-text me-1"></i> Bloc de Notas / DNS por Categoría
             </div>
-            <div>
-                <button class="btn btn-outline-secondary btn-sm me-1" onclick="clearDnsNotes()"><i class="bi bi-eraser"></i> Limpiar</button>
-                <button class="btn btn-warning btn-sm fw-bold" onclick="saveDnsNotes()"><i class="bi bi-save me-1"></i> Guardar Notas</button>
+            <div class="d-flex align-items-center gap-2">
+                <select class="form-select form-select-sm" id="noteCategorySelect" style="width: 220px;" onchange="changeNoteCategory()">
+                    <option value="dns_iptv">🌐 DNS IPTV / Servidores</option>
+                    <option value="mag_portals">📺 Portales MAG / Stalker</option>
+                    <option value="app_codes">🔑 Códigos & Activaciones App</option>
+                    <option value="general_notes">📝 Notas Generales</option>
+                </select>
+                <button class="btn btn-outline-secondary btn-sm" onclick="clearCurrentNote()"><i class="bi bi-eraser"></i> Limpiar</button>
+                <button class="btn btn-warning btn-sm fw-bold" onclick="saveCurrentNote()"><i class="bi bi-save me-1"></i> Guardar Nota</button>
             </div>
         </div>
-        <textarea class="form-control" id="dnsNotesText" rows="4" placeholder="Escribe aquí tus DNS, URLs de portales o notas rápidas... (ej: http://portal.dns.com:8080/c/)"></textarea>
+        <textarea class="form-control" id="noteTextArea" rows="5" placeholder="Selecciona una categoría arriba y escribe tus notas aquí..."></textarea>
     </div>
 
     <!-- BOT TELEGRAM -->
@@ -278,7 +284,6 @@
                 <i class="bi bi-people-fill"></i> Clientes (<span id="clientCount">0</span>)
             </div>
             
-            <!-- FILTROS RÁPIDOS -->
             <div class="btn-group btn-group-sm" role="group">
                 <button type="button" class="btn btn-outline-info active" id="filterAll" onclick="setFilter('all')">Todos</button>
                 <button type="button" class="btn btn-outline-warning" id="filterToday" onclick="setFilter('today')">Vencen Hoy</button>
@@ -389,22 +394,32 @@
         }
     }
 
-    // GESTIÓN DE ANOTACIONES DNS
-    function loadDnsNotes() {
-        const saved = localStorage.getItem('iptv_dns_notes');
-        if (saved) document.getElementById('dnsNotesText').value = saved;
+    // GESTIÓN DE NOTAS MULTI-CATEGORÍA
+    let currentCategoryKey = 'dns_iptv';
+
+    function changeNoteCategory() {
+        // Guardar la nota previa automáticamente antes de cambiar
+        saveCurrentNote(false);
+        currentCategoryKey = document.getElementById('noteCategorySelect').value;
+        loadCurrentNote();
     }
 
-    function saveDnsNotes() {
-        const val = document.getElementById('dnsNotesText').value;
-        localStorage.setItem('iptv_dns_notes', val);
-        alert('¡Notas guardadas correctamente!');
+    function loadCurrentNote() {
+        const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
+        document.getElementById('noteTextArea').value = savedNotes[currentCategoryKey] || '';
     }
 
-    function clearDnsNotes() {
-        if(confirm('¿Deseas borrar las anotaciones?')) {
-            document.getElementById('dnsNotesText').value = '';
-            localStorage.removeItem('iptv_dns_notes');
+    function saveCurrentNote(showAlert = true) {
+        const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
+        savedNotes[currentCategoryKey] = document.getElementById('noteTextArea').value;
+        localStorage.setItem('iptv_multi_notes', JSON.stringify(savedNotes));
+        if (showAlert) alert('¡Nota guardada correctamente!');
+    }
+
+    function clearCurrentNote() {
+        if(confirm('¿Borrar el texto de esta categoría?')) {
+            document.getElementById('noteTextArea').value = '';
+            saveCurrentNote(false);
         }
     }
 
@@ -636,7 +651,7 @@
     }
 
     renderButtons();
-    loadDnsNotes();
+    loadCurrentNote();
     loadTgConfig();
     renderTable();
 </script>
