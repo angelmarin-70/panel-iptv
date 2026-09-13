@@ -145,6 +145,36 @@
         .btn-whatsapp:hover {
             background-color: #1da851 !important;
         }
+
+        /* MODAL PANTALLA COMPLETA PARA EL BLOC DE NOTAS */
+        .notepad-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(11, 15, 25, 0.98);
+            z-index: 99999;
+            padding: 25px;
+            box-sizing: border-box;
+            flex-direction: column;
+        }
+        .notepad-modal.active {
+            display: flex;
+        }
+        .notepad-textarea {
+            width: 100%;
+            height: 100%;
+            background-color: #050811 !important;
+            color: #00ffcc !important;
+            font-family: monospace, monospace;
+            font-size: 1.1rem !important;
+            padding: 20px !important;
+            border: 2px solid #38bdf8 !important;
+            border-radius: 8px;
+            resize: none;
+        }
     </style>
 </head>
 <body>
@@ -173,24 +203,39 @@
         <div class="btn-grid" id="appGrid"></div>
     </div>
 
-    <!-- SECCIÓN DE NOTAS Y DNS POR CATEGORÍA -->
+    <!-- SECCIÓN CONTROL DE BLOC DE NOTAS / DNS -->
     <div class="section-box">
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
             <div class="section-title text-warning m-0">
-                <i class="bi bi-journal-text me-1"></i> Bloc de Notas / DNS por Categoría
+                <i class="bi bi-journal-text me-1"></i> Bloc de Notas & DNS
             </div>
             <div class="d-flex align-items-center gap-2">
-                <select class="form-select form-select-sm" id="noteCategorySelect" style="width: 220px;" onchange="changeNoteCategory()">
+                <select class="form-select form-select-sm" id="noteCategorySelect" style="width: 240px;" onchange="changeNoteCategory()">
                     <option value="dns_iptv">🌐 DNS IPTV / Servidores</option>
                     <option value="mag_portals">📺 Portales MAG / Stalker</option>
                     <option value="app_codes">🔑 Códigos & Activaciones App</option>
                     <option value="general_notes">📝 Notas Generales</option>
                 </select>
-                <button class="btn btn-outline-secondary btn-sm" onclick="clearCurrentNote()"><i class="bi bi-eraser"></i> Limpiar</button>
-                <button class="btn btn-warning btn-sm fw-bold" onclick="saveCurrentNote()"><i class="bi bi-save me-1"></i> Guardar Nota</button>
+                <button class="btn btn-warning btn-sm fw-bold px-3" onclick="openNotepadModal()">
+                    <i class="bi bi-arrows-fullscreen me-1"></i> Abrir a Pantalla Completa
+                </button>
             </div>
         </div>
-        <textarea class="form-control" id="noteTextArea" rows="5" placeholder="Selecciona una categoría arriba y escribe tus notas aquí..."></textarea>
+    </div>
+
+    <!-- VENTANA FLOTANTE A PANTALLA COMPLETA (BLOC DE NOTAS) -->
+    <div class="notepad-modal" id="notepadModal">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="m-0 fw-bold text-warning" id="modalTitle">
+                <i class="bi bi-file-earmark-code me-2"></i> Bloc de Notas - DNS IPTV
+            </h4>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm" onclick="clearCurrentNote()"><i class="bi bi-eraser"></i> Limpiar Texto</button>
+                <button class="btn btn-success btn-sm fw-bold px-4" onclick="saveCurrentNote()"><i class="bi bi-save me-1"></i> Guardar Cambios</button>
+                <button class="btn btn-danger btn-sm px-3" onclick="closeNotepadModal()"><i class="bi bi-x-lg me-1"></i> Cerrar</button>
+            </div>
+        </div>
+        <textarea class="notepad-textarea" id="noteTextArea" placeholder="Escribe o pega aquí tus direcciones DNS, notas o claves..."></textarea>
     </div>
 
     <!-- BOT TELEGRAM -->
@@ -394,13 +439,28 @@
         }
     }
 
-    // GESTIÓN DE NOTAS MULTI-CATEGORÍA
+    // GESTIÓN DEL BLOC DE NOTAS PANTALLA COMPLETA
     let currentCategoryKey = 'dns_iptv';
 
-    function changeNoteCategory() {
-        // Guardar la nota previa automáticamente antes de cambiar
+    function openNotepadModal() {
         saveCurrentNote(false);
         currentCategoryKey = document.getElementById('noteCategorySelect').value;
+        const selectText = document.getElementById('noteCategorySelect').options[document.getElementById('noteCategorySelect').selectedIndex].text;
+        document.getElementById('modalTitle').innerHTML = `<i class="bi bi-file-earmark-code me-2"></i> ${selectText}`;
+        loadCurrentNote();
+        document.getElementById('notepadModal').classList.add('active');
+    }
+
+    function closeNotepadModal() {
+        saveCurrentNote(false);
+        document.getElementById('notepadModal').classList.remove('active');
+    }
+
+    function changeNoteCategory() {
+        saveCurrentNote(false);
+        currentCategoryKey = document.getElementById('noteCategorySelect').value;
+        const selectText = document.getElementById('noteCategorySelect').options[document.getElementById('noteCategorySelect').selectedIndex].text;
+        document.getElementById('modalTitle').innerHTML = `<i class="bi bi-file-earmark-code me-2"></i> ${selectText}`;
         loadCurrentNote();
     }
 
@@ -417,7 +477,7 @@
     }
 
     function clearCurrentNote() {
-        if(confirm('¿Borrar el texto de esta categoría?')) {
+        if(confirm('¿Borrar todo el texto de esta categoría?')) {
             document.getElementById('noteTextArea').value = '';
             saveCurrentNote(false);
         }
@@ -651,7 +711,6 @@
     }
 
     renderButtons();
-    loadCurrentNote();
     loadTgConfig();
     renderTable();
 </script>
