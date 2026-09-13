@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel IPTV Admin</title>
+    <title>Panel IPTV Admin - Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
@@ -77,7 +77,6 @@
             cursor: pointer;
         }
 
-        /* ETIQUETAS Y TEXTO DE FORMULARIO CON MAXIMO CONTRASTE */
         label {
             color: #38bdf8 !important;
             font-weight: 800 !important;
@@ -118,7 +117,6 @@
             cursor: pointer;
         }
 
-        /* TABLA DE CLIENTES */
         .table-custom {
             color: #ffffff !important;
             margin: 0;
@@ -175,6 +173,20 @@
         <div class="btn-grid" id="appGrid"></div>
     </div>
 
+    <!-- NUEVA SECCIÓN: ANOTACIONES DNS Y NOTAS -->
+    <div class="section-box">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="section-title text-warning m-0">
+                <i class="bi bi-journal-code"></i> Anotaciones DNS y Notas Rápidas
+            </div>
+            <div>
+                <button class="btn btn-outline-secondary btn-sm me-1" onclick="clearDnsNotes()"><i class="bi bi-eraser"></i> Limpiar</button>
+                <button class="btn btn-warning btn-sm fw-bold" onclick="saveDnsNotes()"><i class="bi bi-save me-1"></i> Guardar Notas</button>
+            </div>
+        </div>
+        <textarea class="form-control" id="dnsNotesText" rows="4" placeholder="Escribe aquí tus DNS, URLs de portales o notas rápidas... (ej: http://portal.dns.com:8080/c/)"></textarea>
+    </div>
+
     <!-- BOT TELEGRAM -->
     <div class="section-box">
         <div class="section-title text-warning"><i class="bi bi-telegram"></i> Alertas por Telegram</div>
@@ -192,8 +204,9 @@
 
     <!-- REGISTRO DE CLIENTE -->
     <div class="section-box">
-        <div class="section-title text-success"><i class="bi bi-person-plus-fill"></i> Registrar Nuevo Cliente</div>
-        <form id="clientForm" onsubmit="event.preventDefault(); addClient();">
+        <div class="section-title text-success" id="formTitle"><i class="bi bi-person-plus-fill"></i> Registrar Nuevo Cliente</div>
+        <form id="clientForm" onsubmit="event.preventDefault(); saveClientForm();">
+            <input type="hidden" id="editClientId" value="">
             <div class="row g-3">
                 <div class="col-md-3">
                     <label>Nombre del Cliente *</label>
@@ -252,20 +265,32 @@
                 </div>
             </div>
             <div class="d-flex justify-content-end gap-2 mt-4">
-                <button type="button" class="btn btn-outline-secondary btn-sm px-3" onclick="document.getElementById('clientForm').reset()">Limpiar</button>
-                <button type="submit" class="btn btn-success btn-sm px-4 fw-bold"><i class="bi bi-save me-1"></i> Guardar Cliente</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm px-3" onclick="resetForm()">Limpiar / Cancelar</button>
+                <button type="submit" class="btn btn-success btn-sm px-4 fw-bold" id="btnSaveClient"><i class="bi bi-save me-1"></i> Guardar Cliente</button>
             </div>
         </form>
     </div>
 
     <!-- LISTA DE CLIENTES -->
     <div class="section-box">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="section-title text-warning m-0"><i class="bi bi-people-fill"></i> Clientes Registrados (<span id="clientCount">0</span>)</div>
-            <div style="width: 280px;">
-                <input type="text" class="form-control form-control-sm" id="searchBox" placeholder="Buscar por nombre, tel, MAC..." onkeyup="renderTable()">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+            <div class="section-title text-warning m-0">
+                <i class="bi bi-people-fill"></i> Clientes (<span id="clientCount">0</span>)
+            </div>
+            
+            <!-- FILTROS RÁPIDOS -->
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-outline-info active" id="filterAll" onclick="setFilter('all')">Todos</button>
+                <button type="button" class="btn btn-outline-warning" id="filterToday" onclick="setFilter('today')">Vencen Hoy</button>
+                <button type="button" class="btn btn-outline-primary" id="filterWeek" onclick="setFilter('week')">Esta Semana</button>
+                <button type="button" class="btn btn-outline-danger" id="filterExpired" onclick="setFilter('expired')">Caducados</button>
+            </div>
+
+            <div style="width: 250px;">
+                <input type="text" class="form-control form-control-sm" id="searchBox" placeholder="Buscar cliente, tel, MAC..." onkeyup="renderTable()">
             </div>
         </div>
+
         <div class="table-responsive">
             <table class="table table-custom">
                 <thead>
@@ -316,6 +341,7 @@
     ];
 
     let customLinks = JSON.parse(localStorage.getItem('iptv_custom_urls')) || {};
+    let activeFilter = 'all';
 
     function renderButtons() {
         const iptvGrid = document.getElementById('iptvGrid');
@@ -363,6 +389,26 @@
         }
     }
 
+    // GESTIÓN DE ANOTACIONES DNS
+    function loadDnsNotes() {
+        const saved = localStorage.getItem('iptv_dns_notes');
+        if (saved) document.getElementById('dnsNotesText').value = saved;
+    }
+
+    function saveDnsNotes() {
+        const val = document.getElementById('dnsNotesText').value;
+        localStorage.setItem('iptv_dns_notes', val);
+        alert('¡Notas guardadas correctamente!');
+    }
+
+    function clearDnsNotes() {
+        if(confirm('¿Deseas borrar las anotaciones?')) {
+            document.getElementById('dnsNotesText').value = '';
+            localStorage.removeItem('iptv_dns_notes');
+        }
+    }
+
+    // GESTIÓN DE CLIENTES
     function loadStoredClients() {
         const keys = ['iptv_clients_full', 'iptv_clients_v27', 'iptv_clients'];
         for (let key of keys) {
@@ -383,9 +429,11 @@
         localStorage.setItem('iptv_clients_full', JSON.stringify(clients));
     }
 
-    function addClient() {
-        const client = {
-            id: Date.now().toString(),
+    function saveClientForm() {
+        const editId = document.getElementById('editClientId').value;
+        
+        const clientData = {
+            id: editId ? editId : Date.now().toString(),
             name: document.getElementById('cName').value,
             phone: document.getElementById('cPhone').value,
             user: document.getElementById('cUser').value,
@@ -396,12 +444,56 @@
             expiry: document.getElementById('cExpiry').value,
             notes: document.getElementById('cNotes').value
         };
-        clients.push(client);
+
+        if (editId) {
+            const index = clients.findIndex(c => c.id === editId);
+            if (index !== -1) clients[index] = clientData;
+        } else {
+            clients.push(clientData);
+            sendTelegramAlert(`🟢 *Nuevo Cliente Registrado*\n\n👤 *Cliente:* ${clientData.name}\n📱 *Tel:* ${clientData.phone}\n🖥 *Servidor:* ${clientData.server}\n📅 *Vence:* ${clientData.expiry}`);
+        }
+
         saveClients();
+        resetForm();
+        renderTable();
+    }
 
-        sendTelegramAlert(`🟢 *Nuevo Cliente Registrado*\n\n👤 *Cliente:* ${client.name}\n📱 *Tel:* ${client.phone}\n🖥 *Servidor:* ${client.server}\n📅 *Vence:* ${client.expiry}`);
+    function editClient(id) {
+        const client = clients.find(c => c.id === id);
+        if (!client) return;
 
+        document.getElementById('editClientId').value = client.id;
+        document.getElementById('cName').value = client.name || '';
+        document.getElementById('cPhone').value = client.phone || '';
+        document.getElementById('cUser').value = client.user || '';
+        document.getElementById('cPass').value = client.pass || '';
+        document.getElementById('cServer').value = client.server || 'NetTV';
+        document.getElementById('cApp').value = client.app || 'Max Player';
+        document.getElementById('cMac').value = client.mac || '';
+        document.getElementById('cExpiry').value = client.expiry || '';
+        document.getElementById('cNotes').value = client.notes || '';
+
+        document.getElementById('formTitle').innerHTML = `<i class="bi bi-pencil-square text-warning"></i> Editando a: ${client.name}`;
+        document.getElementById('btnSaveClient').className = "btn btn-warning btn-sm px-4 fw-bold";
+        document.getElementById('btnSaveClient').innerHTML = `<i class="bi bi-check-circle me-1"></i> Actualizar Cliente`;
+        window.scrollTo({ top: document.getElementById('clientForm').offsetTop - 20, behavior: 'smooth' });
+    }
+
+    function resetForm() {
+        document.getElementById('editClientId').value = '';
         document.getElementById('clientForm').reset();
+        document.getElementById('formTitle').innerHTML = `<i class="bi bi-person-plus-fill"></i> Registrar Nuevo Cliente`;
+        document.getElementById('btnSaveClient').className = "btn btn-success btn-sm px-4 fw-bold";
+        document.getElementById('btnSaveClient').innerHTML = `<i class="bi bi-save me-1"></i> Guardar Cliente`;
+    }
+
+    function setFilter(filterType) {
+        activeFilter = filterType;
+        document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+        if (filterType === 'all') document.getElementById('filterAll').classList.add('active');
+        if (filterType === 'today') document.getElementById('filterToday').classList.add('active');
+        if (filterType === 'week') document.getElementById('filterWeek').classList.add('active');
+        if (filterType === 'expired') document.getElementById('filterExpired').classList.add('active');
         renderTable();
     }
 
@@ -411,8 +503,19 @@
             return;
         }
         const cleanPhone = phone.replace(/[^0-9]/g, '');
-        const message = `Buenas, te caduca la aplicación ${app || ''} el día ${expiry}, ¿te interesa renovar? Gracias.`;
-        const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+        
+        const today = new Date().toISOString().slice(0, 10);
+        let msgIntro = `Buenas ${name}, te comento que la suscripción de tu servicio (${app || 'IPTV'}) `;
+        
+        if (expiry < today) {
+            msgIntro += `caducó el día ${expiry}. ¿Te interesa renovar? Gracias.`;
+        } else if (expiry === today) {
+            msgIntro += `caduca HOY (${expiry}). ¿Te interesa renovar para no perder acceso? Gracias.`;
+        } else {
+            msgIntro += `vence el próximo ${expiry}. ¿Te gustaría gestionarla ya? Gracias.`;
+        }
+
+        const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msgIntro)}`;
         window.open(waUrl, '_blank');
     }
 
@@ -421,30 +524,50 @@
         const query = document.getElementById('searchBox').value.toLowerCase();
         tbody.innerHTML = '';
 
-        const filtered = clients.filter(c => 
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        const nextWeekStr = nextWeek.toISOString().slice(0, 10);
+
+        let filtered = clients.filter(c => 
             (c.name && c.name.toLowerCase().includes(query)) || 
             (c.phone && c.phone.includes(query)) ||
             (c.user && c.user.toLowerCase().includes(query)) ||
             (c.mac && c.mac.toLowerCase().includes(query))
         );
 
+        if (activeFilter === 'today') {
+            filtered = filtered.filter(c => c.expiry === todayStr);
+        } else if (activeFilter === 'week') {
+            filtered = filtered.filter(c => c.expiry >= todayStr && c.expiry <= nextWeekStr);
+        } else if (activeFilter === 'expired') {
+            filtered = filtered.filter(c => c.expiry < todayStr);
+        }
+
         document.getElementById('clientCount').innerText = filtered.length;
 
         filtered.forEach(c => {
             const tr = document.createElement('tr');
+            
+            let badgeClass = 'bg-outline-light';
+            if (c.expiry < todayStr) badgeClass = 'bg-danger';
+            else if (c.expiry === todayStr) badgeClass = 'bg-warning text-dark';
+            else if (c.expiry <= nextWeekStr) badgeClass = 'bg-info text-dark';
+
             tr.innerHTML = `
                 <td><strong>${c.name || '-'}</strong><br><small class="text-info">${c.phone || '-'}</small></td>
                 <td><small>U: ${c.user || '-'}<br>C: ${c.pass || '-'}</small></td>
                 <td><span class="badge bg-primary">${c.server || '-'}</span><br><small class="text-light">${c.app || '-'}</small></td>
                 <td><small class="text-warning">${c.mac || '-'}</small></td>
-                <td><span class="badge bg-outline-light">${c.expiry || '-'}</span></td>
+                <td><span class="badge ${badgeClass}">${c.expiry || '-'}</span></td>
                 <td class="text-center">
                     <button class="btn btn-whatsapp btn-sm px-3" onclick="sendWhatsApp('${c.phone}', '${c.name}', '${c.expiry}', '${c.app}')">
                         <i class="bi bi-whatsapp me-1"></i> Contactar
                     </button>
                 </td>
                 <td class="text-center">
-                    <button class="btn btn-outline-danger btn-sm" onclick="deleteClient('${c.id}')"><i class="bi bi-trash"></i></button>
+                    <button class="btn btn-outline-warning btn-sm me-1" onclick="editClient('${c.id}')" title="Editar"><i class="bi bi-pencil-fill"></i></button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteClient('${c.id}')" title="Eliminar"><i class="bi bi-trash"></i></button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -513,6 +636,7 @@
     }
 
     renderButtons();
+    loadDnsNotes();
     loadTgConfig();
     renderTable();
 </script>
