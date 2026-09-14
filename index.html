@@ -225,21 +225,21 @@
 <script>
     const FIREBASE_URL = "https://mi-panel-iptv-1954-default-rtdb.firebaseio.com/";
 
-    // PANELES IPTV FIJOS (REVISADOS)
+    // PANELES IPTV CON TUS URLS REALES EXACTAS
     const defaultIptvLinks = [
         { id: 'nettv', name: 'NetTV', icon: 'bi-tv', url: 'https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100' },
-        { id: 'emby', name: 'Emby', icon: 'bi-hdd-network', url: 'http://31.220.73.197:8096' },
-        { id: 'zafiro', name: 'Zafiro', icon: 'bi-gem', url: 'http://panel.zafiro.pro' },
-        { id: 'dylan', name: 'Dylan', icon: 'bi-play-circle', url: 'http://dylan.ott-panel.com' },
-        { id: 'joker', name: 'Joker', icon: 'bi-lightning', url: 'http://joker-tv.top' },
-        { id: 'ts4k', name: 'TS4K', icon: 'bi-box', url: 'http://ts4k.vip' },
-        { id: 'nexon', name: 'Nexon', icon: 'bi-cpu', url: 'http://nexon.pro' },
-        { id: 'regilon', name: 'Regilón', icon: 'bi-globe', url: 'http://regioniptv.com' },
-        { id: 'doniptv', name: 'DonIPTV', icon: 'bi-broadcast', url: 'http://doniptv.org' },
-        { id: 'p2p', name: 'P2P', icon: 'bi-diagram-3', url: 'http://p2p-panel.net' }
+        { id: 'emby', name: 'Emby', icon: 'bi-hdd-network', url: 'https://thorcrm.info/login' },
+        { id: 'zafiro', name: 'Zafiro', icon: 'bi-gem', url: 'https://koramendi.eu/dashboard' },
+        { id: 'dylan', name: 'Dylan', icon: 'bi-play-circle', url: 'https://599.iglesiadecristoredentor.org:2053/piruletas@@2020/login' },
+        { id: 'joker', name: 'Joker', icon: 'bi-lightning', url: 'https://respaneller.xyz/generalcOyYsDqo/login?referrer=dashboard' },
+        { id: 'ts4k', name: 'TS4K', icon: 'bi-box', url: 'https://storm-panel.pro/login.php' },
+        { id: 'nexon', name: 'Nexon', icon: 'bi-cpu', url: 'https://cms-nexon.org/nexon/login.php?referrer=subresellers.php' },
+        { id: 'regilon', name: 'Regilón', icon: 'bi-globe', url: 'https://treemor.uk/TARANTULA2/login' },
+        { id: 'doniptv', name: 'DonIPTV', icon: 'bi-broadcast', url: 'https://main.salsadetomate.shop:2096' },
+        { id: 'p2p', name: 'P2P', icon: 'bi-diagram-3', url: 'https://p2pro.sigma.st' }
     ];
 
-    // PANELES APLICACIONES FIJOS (REVISADOS)
+    // PANELES APLICACIONES
     const defaultAppLinks = [
         { id: 'maxplayer', name: 'Max Player', icon: 'bi-display', url: 'https://my.maxplayer.tv/auth/login' },
         { id: 'ibox', name: 'iBox Player', icon: 'bi-box', url: 'https://iboxxiptv.com/device/login' },
@@ -339,7 +339,7 @@
     }
 
     function resetLinks() {
-        if(confirm('¿Restablecer todas las URLs al estado original fijado en GitHub?')) {
+        if(confirm('¿Restablecer todas las URLs al estado original de GitHub?')) {
             localStorage.removeItem('iptv_custom_urls');
             customLinks = {};
             renderButtons();
