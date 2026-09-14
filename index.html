@@ -98,17 +98,17 @@
         <textarea class="notepad-textarea" id="noteTextArea" placeholder="Escribe o pega aquí tus direcciones DNS, APKs, notas o claves..."></textarea>
     </div>
 
-    <!-- BOT TELEGRAM -->
+    <!-- BOT TELEGRAM (CON VALORES GRABADOS POR DEFECTO) -->
     <div class="section-box">
         <div class="section-title text-warning"><i class="bi bi-telegram"></i> Alertas por Telegram</div>
         <div class="row g-3">
             <div class="col-md-6">
                 <label>Telegram Bot Token</label>
-                <input type="text" class="form-control" id="tgToken" placeholder="123456789:ABCdef..." onchange="saveTgConfig()">
+                <input type="text" class="form-control" id="tgToken" value="8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOS5Sg" onchange="saveTgConfig()">
             </div>
             <div class="col-md-6">
                 <label>Telegram Chat ID</label>
-                <input type="text" class="form-control" id="tgChatId" placeholder="987654321" onchange="saveTgConfig()">
+                <input type="text" class="form-control" id="tgChatId" value="1417906399" onchange="saveTgConfig()">
             </div>
         </div>
     </div>
@@ -225,7 +225,11 @@
 <script>
     const FIREBASE_URL = "https://mi-panel-iptv-1954-default-rtdb.firebaseio.com/";
 
-    // PANELES IPTV CON TUS URLS REALES EXACTAS
+    // VALORES DE TELEGRAM FIJOS
+    const DEFAULT_TG_TOKEN = "8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOS5Sg";
+    const DEFAULT_TG_CHAT_ID = "1417906399";
+
+    // PANELES IPTV CON TUS URLS REALES FIJAS
     const defaultIptvLinks = [
         { id: 'nettv', name: 'NetTV', icon: 'bi-tv', url: 'https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100' },
         { id: 'emby', name: 'Emby', icon: 'bi-hdd-network', url: 'https://thorcrm.info/login' },
@@ -239,7 +243,7 @@
         { id: 'p2p', name: 'P2P', icon: 'bi-diagram-3', url: 'https://p2pro.sigma.st' }
     ];
 
-    // PANELES APLICACIONES
+    // PANELES APLICACIONES FIJOS
     const defaultAppLinks = [
         { id: 'maxplayer', name: 'Max Player', icon: 'bi-display', url: 'https://my.maxplayer.tv/auth/login' },
         { id: 'ibox', name: 'iBox Player', icon: 'bi-box', url: 'https://iboxxiptv.com/device/login' },
@@ -261,6 +265,38 @@
     let dbRef = null;
     let clients = [];
 
+    // COMPROBAR Y NOTIFICAR CADUCIDADES A TELEGRAM
+    function checkExpirationsAndNotify() {
+        const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || { token: DEFAULT_TG_TOKEN, chatId: DEFAULT_TG_CHAT_ID };
+        if (!tgData.token || !tgData.chatId) return;
+
+        const today = new Date();
+        const todayStr = today.toISOString().slice(0, 10);
+
+        const inThreeDays = new Date();
+        inThreeDays.setDate(today.getDate() + 3);
+        const inThreeDaysStr = inThreeDays.toISOString().slice(0, 10);
+
+        const lastCheck = localStorage.getItem('iptv_last_tg_check');
+        if (lastCheck === todayStr) return; 
+
+        let messages = [];
+
+        clients.forEach(c => {
+            if (c.expiry === todayStr) {
+                messages.push(`🔴 *CADUCA HOY*\n👤 *Cliente:* ${c.name}\n📱 *Tel:* ${c.phone}\n📺 *App/Servidor:* ${c.app || '-'} / ${c.server || '-'}`);
+            } else if (c.expiry === inThreeDaysStr) {
+                messages.push(`🟡 *CADUCA EN 3 DÍAS*\n👤 *Cliente:* ${c.name}\n📱 *Tel:* ${c.phone}\n📅 *Vence:* ${c.expiry}`);
+            }
+        });
+
+        if (messages.length > 0) {
+            const fullMessage = `📊 *RESUMEN DIARIO DE VENCIMIENTOS*\n\n` + messages.join('\n\n-------------------\n\n');
+            sendTelegramAlert(fullMessage);
+            localStorage.setItem('iptv_last_tg_check', todayStr);
+        }
+    }
+
     function initFirebase() {
         try {
             if (!firebase.apps.length) {
@@ -275,6 +311,7 @@
                         clients = data.clients;
                         saveClientsLocal();
                         renderTable();
+                        checkExpirationsAndNotify();
                     }
                     if (data.notes) {
                         localStorage.setItem('iptv_multi_notes', JSON.stringify(data.notes));
@@ -339,7 +376,7 @@
     }
 
     function resetLinks() {
-        if(confirm('¿Restablecer todas las URLs al estado original de GitHub?')) {
+        if(confirm('¿Restablecer todas las URLs al estado original fijado en GitHub?')) {
             localStorage.removeItem('iptv_custom_urls');
             customLinks = {};
             renderButtons();
@@ -426,7 +463,7 @@
             if (index !== -1) clients[index] = clientData;
         } else {
             clients.push(clientData);
-            sendTelegramAlert(`🟢 *Nuevo Cliente*\n👤 *Cliente:* ${clientData.name}\n📱 *Tel:* ${clientData.phone}\n📅 *Vence:* ${clientData.expiry}`);
+            sendTelegramAlert(`🟢 *Nuevo Cliente Registrado*\n👤 *Cliente:* ${clientData.name}\n📱 *Tel:* ${clientData.phone}\n📅 *Vence:* ${clientData.expiry}\n📺 *App/Servidor:* ${clientData.app} / ${clientData.server}`);
         }
 
         saveClients();
@@ -551,18 +588,22 @@
     }
 
     function saveTgConfig() {
-        const tgData = { token: document.getElementById('tgToken').value, chatId: document.getElementById('tgChatId').value };
+        const tgData = { 
+            token: document.getElementById('tgToken').value, 
+            chatId: document.getElementById('tgChatId').value 
+        };
         localStorage.setItem('iptv_tg_config', JSON.stringify(tgData));
     }
 
     function loadTgConfig() {
-        const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || {};
-        if (tgData.token) document.getElementById('tgToken').value = tgData.token;
-        if (tgData.chatId) document.getElementById('tgChatId').value = tgData.chatId;
+        const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || { token: DEFAULT_TG_TOKEN, chatId: DEFAULT_TG_CHAT_ID };
+        document.getElementById('tgToken').value = tgData.token;
+        document.getElementById('tgChatId').value = tgData.chatId;
+        saveTgConfig();
     }
 
     function sendTelegramAlert(msg) {
-        const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || {};
+        const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || { token: DEFAULT_TG_TOKEN, chatId: DEFAULT_TG_CHAT_ID };
         if (!tgData.token || !tgData.chatId) return;
         fetch(`https://api.telegram.org/bot${tgData.token}/sendMessage`, {
             method: 'POST',
