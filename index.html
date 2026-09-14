@@ -131,8 +131,8 @@
                     <input type="text" class="form-control" id="cUser" placeholder="Ej: usuario123">
                 </div>
                 <div class="col-md-3">
-                    <label>Contraseña</label>
-                    <input type="text" class="form-control" id="cPass" placeholder="Ej: clave123">
+                    <label>Device</label>
+                    <input type="text" class="form-control" id="cDevice" placeholder="Ej: Firestick, LG, Samsung">
                 </div>
                 <div class="col-md-3">
                     <label>Servidor / Panel IPTV</label>
@@ -207,9 +207,9 @@
                 <thead>
                     <tr>
                         <th>Cliente / Teléfono</th>
-                        <th>Credenciales</th>
+                        <th>Usuario</th>
                         <th>Servidor / App</th>
-                        <th>MAC</th>
+                        <th>MAC / Device</th>
                         <th>Vencimiento</th>
                         <th class="text-center">Aviso WhatsApp</th>
                         <th class="text-center">Acciones</th>
@@ -315,7 +315,6 @@
                         loadCurrentNote();
                     }
                 } else {
-                    // Si Firebase está totalmente vacío, sube los datos locales actuales
                     syncToCloud();
                 }
             });
@@ -450,7 +449,7 @@
             name: document.getElementById('cName').value,
             phone: document.getElementById('cPhone').value,
             user: document.getElementById('cUser').value,
-            pass: document.getElementById('cPass').value,
+            device: document.getElementById('cDevice').value,
             server: document.getElementById('cServer').value,
             app: document.getElementById('cApp').value,
             mac: document.getElementById('cMac').value,
@@ -478,7 +477,7 @@
         document.getElementById('cName').value = client.name || '';
         document.getElementById('cPhone').value = client.phone || '';
         document.getElementById('cUser').value = client.user || '';
-        document.getElementById('cPass').value = client.pass || '';
+        document.getElementById('cDevice').value = client.device || client.pass || '';
         document.getElementById('cServer').value = client.server || 'NetTV';
         document.getElementById('cApp').value = client.app || 'Max Player';
         document.getElementById('cMac').value = client.mac || '';
@@ -528,7 +527,8 @@
             (c.name && c.name.toLowerCase().includes(query)) || 
             (c.phone && c.phone.includes(query)) ||
             (c.user && c.user.toLowerCase().includes(query)) ||
-            (c.mac && c.mac.toLowerCase().includes(query))
+            (c.mac && c.mac.toLowerCase().includes(query)) ||
+            (c.device && c.device.toLowerCase().includes(query))
         );
 
         if (activeFilter === 'today') filtered = filtered.filter(c => c.expiry === todayStr);
@@ -540,11 +540,12 @@
         filtered.forEach(c => {
             const tr = document.createElement('tr');
             let badgeClass = c.expiry < todayStr ? 'bg-danger' : (c.expiry === todayStr ? 'bg-warning text-dark' : 'bg-info text-dark');
+            const deviceVal = c.device || c.pass || '-';
             tr.innerHTML = `
                 <td><strong>${c.name || '-'}</strong><br><small class="text-info">${c.phone || '-'}</small></td>
-                <td><small>U: ${c.user || '-'}<br>C: ${c.pass || '-'}</small></td>
+                <td><small>U: ${c.user || '-'}</small></td>
                 <td><span class="badge bg-primary">${c.server || '-'}</span><br><small class="text-light">${c.app || '-'}</small></td>
-                <td><small class="text-warning">${c.mac || '-'}</small></td>
+                <td><small class="text-warning">MAC: ${c.mac || '-'}<br>Dev: ${deviceVal}</small></td>
                 <td><span class="badge ${badgeClass}">${c.expiry || '-'}</span></td>
                 <td class="text-center"><button class="btn btn-whatsapp btn-sm px-3" onclick="sendWhatsApp('${c.phone}', '${c.name}', '${c.expiry}', '${c.app}')"><i class="bi bi-whatsapp me-1"></i> Contactar</button></td>
                 <td class="text-center">
