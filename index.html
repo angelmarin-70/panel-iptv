@@ -69,14 +69,14 @@
         <div class="btn-grid" id="appGrid"></div>
     </div>
 
-    <!-- BLOC DE NOTAS / DNS -->
+    <!-- BLOC DE NOTAS / DNS / APKS -->
     <div class="section-box">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
             <div class="section-title text-warning m-0"><i class="bi bi-journal-text me-1"></i> Bloc de Notas & DNS</div>
             <div class="d-flex align-items-center gap-2">
                 <select class="form-select form-select-sm" id="noteCategorySelect" style="width: 240px;" onchange="changeNoteCategory()">
+                    <option value="apks">📲 APKs (Códigos Downloader)</option>
                     <option value="dns_iptv">🌐 DNS</option>
-                    <option value="apks">📲 APKs</option>
                     <option value="app_codes">🔑 Códigos & Activaciones App</option>
                     <option value="general_notes">📝 Notas Generales</option>
                 </select>
@@ -88,7 +88,7 @@
     <!-- VENTANA FLOTANTE BLOC DE NOTAS -->
     <div class="notepad-modal" id="notepadModal">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="m-0 fw-bold text-warning" id="modalTitle"><i class="bi bi-file-earmark-code me-2"></i> Bloc de Notas - DNS</h4>
+            <h4 class="m-0 fw-bold text-warning" id="modalTitle"><i class="bi bi-file-earmark-code me-2"></i> Bloc de Notas - APKs</h4>
             <div class="d-flex gap-2">
                 <button class="btn btn-outline-secondary btn-sm" onclick="clearCurrentNote()"><i class="bi bi-eraser"></i> Limpiar</button>
                 <button class="btn btn-success btn-sm fw-bold px-4" onclick="saveCurrentNote()"><i class="bi bi-save me-1"></i> Guardar Cambios</button>
@@ -230,7 +230,7 @@
     const DEFAULT_TG_TOKEN = "8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOS5Sg";
     const DEFAULT_TG_CHAT_ID = "1417906399";
 
-    // TEXTO POR DEFECTO PARA APKS CON TUS CÓDIGOS DOWNLOADER
+    // TEXTO POR DEFECTO CON TUS CÓDIGOS DOWNLOADER
     const DEFAULT_APKS_TEXT = `--- CÓDIGOS DOWNLOADER ---
 
 2026 ZAFIRO:
@@ -287,6 +287,7 @@ P2P - Videoclub:
     let activeFilter = 'all';
     let dbRef = null;
     let clients = [];
+    let currentCategoryKey = 'apks';
 
     function checkExpirationsAndNotify() {
         const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || { token: DEFAULT_TG_TOKEN, chatId: DEFAULT_TG_CHAT_ID };
@@ -335,12 +336,13 @@ P2P - Videoclub:
                         renderTable();
                         checkExpirationsAndNotify();
                     }
-                    if (data.notes) {
-                        localStorage.setItem('iptv_multi_notes', JSON.stringify(data.notes));
-                        loadCurrentNote();
+                    let savedNotes = data.notes || {};
+                    if (!savedNotes.apks || savedNotes.apks.trim() === '') {
+                        savedNotes.apks = DEFAULT_APKS_TEXT;
                     }
+                    localStorage.setItem('iptv_multi_notes', JSON.stringify(savedNotes));
+                    loadCurrentNote();
                 } else {
-                    // Si la BD está vacía, iniciamos con la lista de APKs por defecto
                     const initialNotes = { apks: DEFAULT_APKS_TEXT };
                     localStorage.setItem('iptv_multi_notes', JSON.stringify(initialNotes));
                     dbRef.set({ clients: [], notes: initialNotes });
@@ -348,11 +350,11 @@ P2P - Videoclub:
             });
 
             document.getElementById('syncStatus').className = "badge bg-success sync-badge mt-1";
-            document.getElementById('syncStatus').innerHTML = '<i class="bi bi-cloud-check-fill me-1"></i> Conectado a Firebase (Nube Activa)';
+            document.getElementById('syncStatus').innerHTML = '<i class="bi bi-cloud-check-fill me-1"></i> Conectado a Firebase (Sincronización Nube Activa)';
         } catch(e) {
             console.error(e);
             document.getElementById('syncStatus').className = "badge bg-danger sync-badge mt-1";
-            document.getElementById('syncStatus').innerText = "Error de conexión";
+            document.getElementById('syncStatus').innerText = "Error de conexión con la nube";
         }
     }
 
@@ -418,9 +420,7 @@ P2P - Videoclub:
         });
     }
 
-    // BLOC DE NOTAS
-    let currentCategoryKey = 'dns_iptv';
-
+    // BLOC DE NOTAS / APKs
     function openNotepadModal() {
         saveCurrentNote(false);
         currentCategoryKey = document.getElementById('noteCategorySelect').value;
@@ -445,7 +445,7 @@ P2P - Videoclub:
 
     function loadCurrentNote() {
         const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
-        if (currentCategoryKey === 'apks' && !savedNotes.apks) {
+        if (currentCategoryKey === 'apks' && (!savedNotes.apks || savedNotes.apks.trim() === '')) {
             savedNotes.apks = DEFAULT_APKS_TEXT;
             localStorage.setItem('iptv_multi_notes', JSON.stringify(savedNotes));
         }
@@ -457,7 +457,7 @@ P2P - Videoclub:
         savedNotes[currentCategoryKey] = document.getElementById('noteTextArea').value;
         localStorage.setItem('iptv_multi_notes', JSON.stringify(savedNotes));
         syncToCloud();
-        if (showAlert) alert('Nota guardada y sincronizada.');
+        if (showAlert) alert('Nota guardada y sincronizada en todos tus dispositivos.');
     }
 
     function clearCurrentNote() {
