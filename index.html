@@ -6,175 +6,37 @@
     <title>Panel IPTV Admin - Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <style>
-        body {
-            background-color: #0b0f19 !important;
-            color: #ffffff !important;
-            font-family: system-ui, -apple-system, sans-serif;
-            padding: 20px;
-        }
-
-        .section-box {
-            background-color: #151c2c !important;
-            border: 2px solid #2d3748 !important;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 12px;
-        }
-
-        .btn-panel-box {
-            background-color: #1e293b !important;
-            border: 1px solid #475569 !important;
-            border-radius: 8px;
-            padding: 10px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .btn-panel-box:hover {
-            background-color: #334155 !important;
-            border-color: #38bdf8 !important;
-        }
-
-        .btn-app-box {
-            background-color: #1d4ed8 !important;
-            border: 1px solid #3b82f6 !important;
-        }
-        .btn-app-box:hover {
-            background-color: #2563eb !important;
-        }
-
-        .panel-link {
-            color: #ffffff !important;
-            text-decoration: none !important;
-            font-weight: 700;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            width: 100%;
-        }
-
-        .btn-edit-icon {
-            color: #fbbf24 !important;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        label {
-            color: #38bdf8 !important;
-            font-weight: 800 !important;
-            font-size: 0.9rem;
-            margin-bottom: 6px;
-            display: block;
-            text-transform: uppercase;
-        }
-
-        .form-control, .form-select {
-            background-color: #0f172a !important;
-            border: 2px solid #475569 !important;
-            color: #ffffff !important;
-            font-size: 0.95rem !important;
-            font-weight: 600 !important;
-            padding: 10px !important;
-        }
-
-        .form-control:focus, .form-select:focus {
-            background-color: #1e293b !important;
-            border-color: #38bdf8 !important;
-            color: #ffffff !important;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5) !important;
-        }
-
-        ::placeholder {
-            color: #94a3b8 !important;
-            opacity: 1 !important;
-        }
-
-        option {
-            background-color: #0f172a !important;
-            color: #ffffff !important;
-        }
-
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-            cursor: pointer;
-        }
-
-        .table-custom {
-            color: #ffffff !important;
-            margin: 0;
-        }
-        .table-custom th {
-            background-color: #1e293b !important;
-            color: #38bdf8 !important;
-            border-bottom: 2px solid #475569 !important;
-            padding: 12px;
-            font-weight: 800;
-        }
-        .table-custom td {
-            background-color: #0f172a !important;
-            border-bottom: 1px solid #1e293b !important;
-            padding: 12px;
-            vertical-align: middle;
-            color: #ffffff !important;
-        }
-
-        .btn-whatsapp {
-            background-color: #25d366 !important;
-            color: #ffffff !important;
-            font-weight: bold;
-            border: none !important;
-        }
-        .btn-whatsapp:hover {
-            background-color: #1da851 !important;
-        }
-
-        /* MODAL PANTALLA COMPLETA PARA EL BLOC DE NOTAS */
-        .notepad-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(11, 15, 25, 0.98);
-            z-index: 99999;
-            padding: 25px;
-            box-sizing: border-box;
-            flex-direction: column;
-        }
-        .notepad-modal.active {
-            display: flex;
-        }
-        .notepad-textarea {
-            width: 100%;
-            height: 100%;
-            background-color: #050811 !important;
-            color: #00ffcc !important;
-            font-family: monospace, monospace;
-            font-size: 1.1rem !important;
-            padding: 20px !important;
-            border: 2px solid #38bdf8 !important;
-            border-radius: 8px;
-            resize: none;
-        }
+        body { background-color: #0b0f19 !important; color: #ffffff !important; font-family: system-ui, -apple-system, sans-serif; padding: 20px; }
+        .section-box { background-color: #151c2c !important; border: 2px solid #2d3748 !important; border-radius: 12px; padding: 20px; margin-bottom: 25px; }
+        .section-title { font-size: 1.1rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .btn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+        .btn-panel-box { background-color: #1e293b !important; border: 1px solid #475569 !important; border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+        .btn-panel-box:hover { background-color: #334155 !important; border-color: #38bdf8 !important; }
+        .btn-app-box { background-color: #1d4ed8 !important; border: 1px solid #3b82f6 !important; }
+        .btn-app-box:hover { background-color: #2563eb !important; }
+        .panel-link { color: #ffffff !important; text-decoration: none !important; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; width: 100%; }
+        .btn-edit-icon { color: #fbbf24 !important; font-size: 1rem; cursor: pointer; }
+        label { color: #38bdf8 !important; font-weight: 800 !important; font-size: 0.9rem; margin-bottom: 6px; display: block; text-transform: uppercase; }
+        .form-control, .form-select { background-color: #0f172a !important; border: 2px solid #475569 !important; color: #ffffff !important; font-size: 0.95rem !important; font-weight: 600 !important; padding: 10px !important; }
+        .form-control:focus, .form-select:focus { background-color: #1e293b !important; border-color: #38bdf8 !important; color: #ffffff !important; box-shadow: 0 0 10px rgba(56, 189, 248, 0.5) !important; }
+        ::placeholder { color: #94a3b8 !important; opacity: 1 !important; }
+        option { background-color: #0f172a !important; color: #ffffff !important; }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+        .table-custom { color: #ffffff !important; margin: 0; }
+        .table-custom th { background-color: #1e293b !important; color: #38bdf8 !important; border-bottom: 2px solid #475569 !important; padding: 12px; font-weight: 800; }
+        .table-custom td { background-color: #0f172a !important; border-bottom: 1px solid #1e293b !important; padding: 12px; vertical-align: middle; color: #ffffff !important; }
+        .btn-whatsapp { background-color: #25d366 !important; color: #ffffff !important; font-weight: bold; border: none !important; }
+        .btn-whatsapp:hover { background-color: #1da851 !important; }
+        .notepad-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(11, 15, 25, 0.98); z-index: 99999; padding: 25px; box-sizing: border-box; flex-direction: column; }
+        .notepad-modal.active { display: flex; }
+        .notepad-textarea { width: 100%; height: 100%; background-color: #050811 !important; color: #00ffcc !important; font-family: monospace; font-size: 1.1rem !important; padding: 20px !important; border: 2px solid #38bdf8 !important; border-radius: 8px; resize: none; }
+        .sync-badge { font-size: 0.85rem; padding: 5px 12px; border-radius: 20px; }
     </style>
 </head>
 <body>
@@ -182,21 +44,16 @@
 <div class="container-fluid max-w-7xl mx-auto">
     <!-- CABECERA -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold m-0 text-white"><i class="bi bi-cpu-fill text-info me-2"></i>Panel IPTV Admin</h3>
+        <div>
+            <h3 class="fw-bold m-0 text-white"><i class="bi bi-cpu-fill text-info me-2"></i>Panel IPTV Admin</h3>
+            <span id="syncStatus" class="badge bg-secondary sync-badge mt-1"><i class="bi bi-cloud-slash me-1"></i> Conectando a Firebase...</span>
+        </div>
         <div class="d-flex align-items-center gap-2">
-            <button class="btn btn-outline-primary btn-sm" onclick="requestNotificationPermission()">
-                <i class="bi bi-bell-fill"></i> Activar Notificaciones
-            </button>
-            <button class="btn btn-outline-warning btn-sm" onclick="resetLinks()">
-                <i class="bi bi-arrow-counterclockwise"></i> Reset URLs
-            </button>
-            <button class="btn btn-outline-info btn-sm" onclick="document.getElementById('importFile').click()">
-                <i class="bi bi-upload"></i> Cargar Copia
-            </button>
+            <button class="btn btn-outline-primary btn-sm" onclick="requestNotificationPermission()"><i class="bi bi-bell-fill"></i> Notificaciones</button>
+            <button class="btn btn-outline-warning btn-sm" onclick="resetLinks()"><i class="bi bi-arrow-counterclockwise"></i> Reset URLs</button>
+            <button class="btn btn-outline-info btn-sm" onclick="document.getElementById('importFile').click()"><i class="bi bi-upload"></i> Cargar Copia</button>
             <input type="file" id="importFile" style="display:none;" onchange="importBackup(event)">
-            <button class="btn btn-success btn-sm" onclick="exportBackup()">
-                <i class="bi bi-download"></i> Guardar Copia
-            </button>
+            <button class="btn btn-success btn-sm" onclick="exportBackup()"><i class="bi bi-download"></i> Guardar Copia</button>
         </div>
     </div>
 
@@ -212,39 +69,33 @@
         <div class="btn-grid" id="appGrid"></div>
     </div>
 
-    <!-- SECCIÓN CONTROL DE BLOC DE NOTAS / DNS -->
+    <!-- BLOC DE NOTAS / DNS -->
     <div class="section-box">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <div class="section-title text-warning m-0">
-                <i class="bi bi-journal-text me-1"></i> Bloc de Notas & DNS
-            </div>
+            <div class="section-title text-warning m-0"><i class="bi bi-journal-text me-1"></i> Bloc de Notas & DNS</div>
             <div class="d-flex align-items-center gap-2">
                 <select class="form-select form-select-sm" id="noteCategorySelect" style="width: 240px;" onchange="changeNoteCategory()">
                     <option value="dns_iptv">🌐 DNS</option>
-                    <option value="mag_portals">📺 Portales MAG / Stalker</option>
+                    <option value="apks">📲 APKs</option>
                     <option value="app_codes">🔑 Códigos & Activaciones App</option>
                     <option value="general_notes">📝 Notas Generales</option>
                 </select>
-                <button class="btn btn-warning btn-sm fw-bold px-3" onclick="openNotepadModal()">
-                    <i class="bi bi-arrows-fullscreen me-1"></i> Abrir a Pantalla Completa
-                </button>
+                <button class="btn btn-warning btn-sm fw-bold px-3" onclick="openNotepadModal()"><i class="bi bi-arrows-fullscreen me-1"></i> Abrir a Pantalla Completa</button>
             </div>
         </div>
     </div>
 
-    <!-- VENTANA FLOTANTE A PANTALLA COMPLETA (BLOC DE NOTAS) -->
+    <!-- VENTANA FLOTANTE BLOC DE NOTAS -->
     <div class="notepad-modal" id="notepadModal">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="m-0 fw-bold text-warning" id="modalTitle">
-                <i class="bi bi-file-earmark-code me-2"></i> Bloc de Notas - DNS
-            </h4>
+            <h4 class="m-0 fw-bold text-warning" id="modalTitle"><i class="bi bi-file-earmark-code me-2"></i> Bloc de Notas - DNS</h4>
             <div class="d-flex gap-2">
-                <button class="btn btn-outline-secondary btn-sm" onclick="clearCurrentNote()"><i class="bi bi-eraser"></i> Limpiar Texto</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="clearCurrentNote()"><i class="bi bi-eraser"></i> Limpiar</button>
                 <button class="btn btn-success btn-sm fw-bold px-4" onclick="saveCurrentNote()"><i class="bi bi-save me-1"></i> Guardar Cambios</button>
                 <button class="btn btn-danger btn-sm px-3" onclick="closeNotepadModal()"><i class="bi bi-x-lg me-1"></i> Cerrar</button>
             </div>
         </div>
-        <textarea class="notepad-textarea" id="noteTextArea" placeholder="Escribe o pega aquí tus direcciones DNS, notas o claves..."></textarea>
+        <textarea class="notepad-textarea" id="noteTextArea" placeholder="Escribe o pega aquí tus direcciones DNS, APKs, notas o claves..."></textarea>
     </div>
 
     <!-- BOT TELEGRAM -->
@@ -334,17 +185,13 @@
     <!-- LISTA DE CLIENTES -->
     <div class="section-box">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-            <div class="section-title text-warning m-0">
-                <i class="bi bi-people-fill"></i> Clientes (<span id="clientCount">0</span>)
-            </div>
-            
+            <div class="section-title text-warning m-0"><i class="bi bi-people-fill"></i> Clientes (<span id="clientCount">0</span>)</div>
             <div class="btn-group btn-group-sm" role="group">
                 <button type="button" class="btn btn-outline-info active" id="filterAll" onclick="setFilter('all')">Todos</button>
                 <button type="button" class="btn btn-outline-warning" id="filterToday" onclick="setFilter('today')">Vencen Hoy</button>
                 <button type="button" class="btn btn-outline-primary" id="filterWeek" onclick="setFilter('week')">Esta Semana</button>
                 <button type="button" class="btn btn-outline-danger" id="filterExpired" onclick="setFilter('expired')">Caducados</button>
             </div>
-
             <div style="width: 250px;">
                 <input type="text" class="form-control form-control-sm" id="searchBox" placeholder="Buscar cliente, tel, MAC..." onkeyup="renderTable()">
             </div>
@@ -370,6 +217,8 @@
 </div>
 
 <script>
+    const FIREBASE_URL = "https://mi-panel-iptv-1954-default-rtdb.firebaseio.com/";
+
     const defaultIptvLinks = [
         { id: 'nettv', name: 'NetTV', icon: 'bi-tv', url: 'https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100' },
         { id: 'emby', name: 'Emby', icon: 'bi-hdd-network', url: 'http://31.220.73.197:8096' },
@@ -401,12 +250,51 @@
 
     let customLinks = JSON.parse(localStorage.getItem('iptv_custom_urls')) || {};
     let activeFilter = 'all';
+    let dbRef = null;
+    let clients = [];
+
+    function initFirebase() {
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp({ databaseURL: FIREBASE_URL });
+            }
+            dbRef = firebase.database().ref('iptv_admin_data');
+
+            dbRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (data.clients) {
+                        clients = data.clients;
+                        saveClientsLocal();
+                        renderTable();
+                    }
+                    if (data.notes) {
+                        localStorage.setItem('iptv_multi_notes', JSON.stringify(data.notes));
+                        loadCurrentNote();
+                    }
+                }
+            });
+
+            document.getElementById('syncStatus').className = "badge bg-success sync-badge mt-1";
+            document.getElementById('syncStatus').innerHTML = '<i class="bi bi-cloud-check-fill me-1"></i> Conectado a Firebase (Nube Activa)';
+        } catch(e) {
+            console.error(e);
+            document.getElementById('syncStatus').className = "badge bg-danger sync-badge mt-1";
+            document.getElementById('syncStatus').innerText = "Error de conexión";
+        }
+    }
+
+    function syncToCloud() {
+        if (dbRef) {
+            const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
+            dbRef.set({ clients: clients, notes: savedNotes });
+        }
+    }
 
     function renderButtons() {
         const iptvGrid = document.getElementById('iptvGrid');
         const appGrid = document.getElementById('appGrid');
-        iptvGrid.innerHTML = '';
-        appGrid.innerHTML = '';
+        iptvGrid.innerHTML = ''; appGrid.innerHTML = '';
 
         defaultIptvLinks.forEach(item => {
             const finalUrl = customLinks[item.id] || item.url;
@@ -448,39 +336,14 @@
         }
     }
 
-    // --- NOTIFICACIONES DEL NAVEGADOR ---
     function requestNotificationPermission() {
-        if (!("Notification" in window)) {
-            alert("Este navegador no soporta notificaciones de escritorio.");
-            return;
-        }
+        if (!("Notification" in window)) return alert("Tu navegador no soporta notificaciones.");
         Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-                new Notification("Panel IPTV Admin", {
-                    body: "¡Las notificaciones en el navegador están activadas!",
-                    icon: "https://cdn-icons-png.flaticon.com/512/3602/3602145.png"
-                });
-            } else {
-                alert("Las notificaciones fueron rechazadas.");
-            }
+            if (permission === "granted") new Notification("Panel IPTV Admin", { body: "Notificaciones activadas correctamente." });
         });
     }
 
-    function checkExpiryNotifications() {
-        if (!("Notification" in window) || Notification.permission !== "granted") return;
-
-        const todayStr = new Date().toISOString().slice(0, 10);
-        const todayClients = clients.filter(c => c.expiry === todayStr);
-
-        if (todayClients.length > 0) {
-            new Notification("⚠️ Clientes Vencen Hoy", {
-                body: `Tienes ${todayClients.length} cliente(s) cuya suscripción vence el día de hoy.`,
-                icon: "https://cdn-icons-png.flaticon.com/512/3602/3602145.png"
-            });
-        }
-    }
-
-    // GESTIÓN DEL BLOC DE NOTAS PANTALLA COMPLETA
+    // BLOC DE NOTAS
     let currentCategoryKey = 'dns_iptv';
 
     function openNotepadModal() {
@@ -505,62 +368,36 @@
         loadCurrentNote();
     }
 
-    function generateDnsTemplate() {
-        let template = "--- LISTADO DE DNS POR SERVIDOR IPTV ---\n\n";
-        defaultIptvLinks.forEach(item => {
-            template += `[ ${item.name} ]\nDNS 1: \nDNS 2: \n\n`;
-        });
-        return template;
-    }
-
     function loadCurrentNote() {
         const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
-        
-        if (currentCategoryKey === 'dns_iptv' && (!savedNotes[currentCategoryKey] || savedNotes[currentCategoryKey].trim() === '')) {
-            document.getElementById('noteTextArea').value = generateDnsTemplate();
-        } else {
-            document.getElementById('noteTextArea').value = savedNotes[currentCategoryKey] || '';
-        }
+        document.getElementById('noteTextArea').value = savedNotes[currentCategoryKey] || '';
     }
 
     function saveCurrentNote(showAlert = true) {
         const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
         savedNotes[currentCategoryKey] = document.getElementById('noteTextArea').value;
         localStorage.setItem('iptv_multi_notes', JSON.stringify(savedNotes));
-        if (showAlert) alert('¡Nota guardada correctamente!');
+        syncToCloud();
+        if (showAlert) alert('Nota guardada y sincronizada.');
     }
 
     function clearCurrentNote() {
-        if(confirm('¿Borrar todo el texto de esta categoría?')) {
+        if(confirm('¿Borrar texto de esta categoría?')) {
             document.getElementById('noteTextArea').value = '';
             saveCurrentNote(false);
         }
     }
 
-    // GESTIÓN DE CLIENTES
-    function loadStoredClients() {
-        const keys = ['iptv_clients_full', 'iptv_clients_v27', 'iptv_clients'];
-        for (let key of keys) {
-            const data = localStorage.getItem(key);
-            if (data) {
-                try {
-                    const parsed = JSON.parse(data);
-                    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-                } catch(e) {}
-            }
-        }
-        return [];
-    }
-
-    let clients = loadStoredClients();
+    // CLIENTES
+    function saveClientsLocal() { localStorage.setItem('iptv_clients_full', JSON.stringify(clients)); }
 
     function saveClients() {
-        localStorage.setItem('iptv_clients_full', JSON.stringify(clients));
+        saveClientsLocal();
+        syncToCloud();
     }
 
     function saveClientForm() {
         const editId = document.getElementById('editClientId').value;
-        
         const clientData = {
             id: editId ? editId : Date.now().toString(),
             name: document.getElementById('cName').value,
@@ -579,19 +416,17 @@
             if (index !== -1) clients[index] = clientData;
         } else {
             clients.push(clientData);
-            sendTelegramAlert(`🟢 *Nuevo Cliente Registrado*\n\n👤 *Cliente:* ${clientData.name}\n📱 *Tel:* ${clientData.phone}\n🖥 *Servidor:* ${clientData.server}\n📅 *Vence:* ${clientData.expiry}`);
+            sendTelegramAlert(`🟢 *Nuevo Cliente*\n👤 *Cliente:* ${clientData.name}\n📱 *Tel:* ${clientData.phone}\n📅 *Vence:* ${clientData.expiry}`);
         }
 
         saveClients();
         resetForm();
         renderTable();
-        checkExpiryNotifications();
     }
 
     function editClient(id) {
         const client = clients.find(c => c.id === id);
         if (!client) return;
-
         document.getElementById('editClientId').value = client.id;
         document.getElementById('cName').value = client.name || '';
         document.getElementById('cPhone').value = client.phone || '';
@@ -602,10 +437,7 @@
         document.getElementById('cMac').value = client.mac || '';
         document.getElementById('cExpiry').value = client.expiry || '';
         document.getElementById('cNotes').value = client.notes || '';
-
-        document.getElementById('formTitle').innerHTML = `<i class="bi bi-pencil-square text-warning"></i> Editando a: ${client.name}`;
-        document.getElementById('btnSaveClient').className = "btn btn-warning btn-sm px-4 fw-bold";
-        document.getElementById('btnSaveClient').innerHTML = `<i class="bi bi-check-circle me-1"></i> Actualizar Cliente`;
+        document.getElementById('formTitle').innerHTML = `<i class="bi bi-pencil-square text-warning"></i> Editando: ${client.name}`;
         window.scrollTo({ top: document.getElementById('clientForm').offsetTop - 20, behavior: 'smooth' });
     }
 
@@ -613,8 +445,6 @@
         document.getElementById('editClientId').value = '';
         document.getElementById('clientForm').reset();
         document.getElementById('formTitle').innerHTML = `<i class="bi bi-person-plus-fill"></i> Registrar Nuevo Cliente`;
-        document.getElementById('btnSaveClient').className = "btn btn-success btn-sm px-4 fw-bold";
-        document.getElementById('btnSaveClient').innerHTML = `<i class="bi bi-save me-1"></i> Guardar Cliente`;
     }
 
     function setFilter(filterType) {
@@ -628,25 +458,14 @@
     }
 
     function sendWhatsApp(phone, name, expiry, app) {
-        if (!phone || phone.trim() === '') {
-            alert("No se ha registrado ningún teléfono para este cliente.");
-            return;
-        }
+        if (!phone) return alert("No hay teléfono registrado.");
         const cleanPhone = phone.replace(/[^0-9]/g, '');
-        
         const today = new Date().toISOString().slice(0, 10);
-        let msgIntro = `Buenas ${name}, te comento que la suscripción de tu servicio (${app || 'IPTV'}) `;
-        
-        if (expiry < today) {
-            msgIntro += `caducó el día ${expiry}. ¿Te interesa renovar? Gracias.`;
-        } else if (expiry === today) {
-            msgIntro += `caduca HOY (${expiry}). ¿Te interesa renovar para no perder acceso? Gracias.`;
-        } else {
-            msgIntro += `vence el próximo ${expiry}. ¿Te gustaría gestionarla ya? Gracias.`;
-        }
-
-        const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msgIntro)}`;
-        window.open(waUrl, '_blank');
+        let msg = `Buenas ${name}, tu suscripción (${app || 'IPTV'}) `;
+        if (expiry < today) msg += `caducó el ${expiry}. ¿Te interesa renovar? Gracias.`;
+        else if (expiry === today) msg += `caduca HOY. ¿Quieres renovarla? Gracias.`;
+        else msg += `vence el ${expiry}. ¿Te la gestiono? Gracias.`;
+        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
     function renderTable() {
@@ -655,8 +474,7 @@
         tbody.innerHTML = '';
 
         const todayStr = new Date().toISOString().slice(0, 10);
-        const nextWeek = new Date();
-        nextWeek.setDate(nextWeek.getDate() + 7);
+        const nextWeek = new Date(); nextWeek.setDate(nextWeek.getDate() + 7);
         const nextWeekStr = nextWeek.toISOString().slice(0, 10);
 
         let filtered = clients.filter(c => 
@@ -666,38 +484,25 @@
             (c.mac && c.mac.toLowerCase().includes(query))
         );
 
-        if (activeFilter === 'today') {
-            filtered = filtered.filter(c => c.expiry === todayStr);
-        } else if (activeFilter === 'week') {
-            filtered = filtered.filter(c => c.expiry >= todayStr && c.expiry <= nextWeekStr);
-        } else if (activeFilter === 'expired') {
-            filtered = filtered.filter(c => c.expiry < todayStr);
-        }
+        if (activeFilter === 'today') filtered = filtered.filter(c => c.expiry === todayStr);
+        else if (activeFilter === 'week') filtered = filtered.filter(c => c.expiry >= todayStr && c.expiry <= nextWeekStr);
+        else if (activeFilter === 'expired') filtered = filtered.filter(c => c.expiry < todayStr);
 
         document.getElementById('clientCount').innerText = filtered.length;
 
         filtered.forEach(c => {
             const tr = document.createElement('tr');
-            
-            let badgeClass = 'bg-outline-light';
-            if (c.expiry < todayStr) badgeClass = 'bg-danger';
-            else if (c.expiry === todayStr) badgeClass = 'bg-warning text-dark';
-            else if (c.expiry <= nextWeekStr) badgeClass = 'bg-info text-dark';
-
+            let badgeClass = c.expiry < todayStr ? 'bg-danger' : (c.expiry === todayStr ? 'bg-warning text-dark' : 'bg-info text-dark');
             tr.innerHTML = `
                 <td><strong>${c.name || '-'}</strong><br><small class="text-info">${c.phone || '-'}</small></td>
                 <td><small>U: ${c.user || '-'}<br>C: ${c.pass || '-'}</small></td>
                 <td><span class="badge bg-primary">${c.server || '-'}</span><br><small class="text-light">${c.app || '-'}</small></td>
                 <td><small class="text-warning">${c.mac || '-'}</small></td>
                 <td><span class="badge ${badgeClass}">${c.expiry || '-'}</span></td>
+                <td class="text-center"><button class="btn btn-whatsapp btn-sm px-3" onclick="sendWhatsApp('${c.phone}', '${c.name}', '${c.expiry}', '${c.app}')"><i class="bi bi-whatsapp me-1"></i> Contactar</button></td>
                 <td class="text-center">
-                    <button class="btn btn-whatsapp btn-sm px-3" onclick="sendWhatsApp('${c.phone}', '${c.name}', '${c.expiry}', '${c.app}')">
-                        <i class="bi bi-whatsapp me-1"></i> Contactar
-                    </button>
-                </td>
-                <td class="text-center">
-                    <button class="btn btn-outline-warning btn-sm me-1" onclick="editClient('${c.id}')" title="Editar"><i class="bi bi-pencil-fill"></i></button>
-                    <button class="btn btn-outline-danger btn-sm" onclick="deleteClient('${c.id}')" title="Eliminar"><i class="bi bi-trash"></i></button>
+                    <button class="btn btn-outline-warning btn-sm me-1" onclick="editClient('${c.id}')"><i class="bi bi-pencil-fill"></i></button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteClient('${c.id}')"><i class="bi bi-trash"></i></button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -705,7 +510,7 @@
     }
 
     function deleteClient(id) {
-        if(confirm('¿Seguro que deseas eliminar este registro?')) {
+        if(confirm('¿Eliminar cliente?')) {
             clients = clients.filter(c => c.id !== id);
             saveClients();
             renderTable();
@@ -726,25 +531,17 @@
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
-                const data = JSON.parse(e.target.result);
-                if (Array.isArray(data)) {
-                    clients = data;
-                    saveClients();
-                    renderTable();
-                    alert('¡Datos cargados con éxito!');
-                }
-            } catch(err) {
-                alert('El archivo no contiene un JSON válido.');
-            }
+                clients = JSON.parse(e.target.result);
+                saveClients();
+                renderTable();
+                alert('¡Copia cargada!');
+            } catch(err) { alert('Archivo JSON inválido.'); }
         };
         reader.readAsText(file);
     }
 
     function saveTgConfig() {
-        const tgData = {
-            token: document.getElementById('tgToken').value,
-            chatId: document.getElementById('tgChatId').value
-        };
+        const tgData = { token: document.getElementById('tgToken').value, chatId: document.getElementById('tgChatId').value };
         localStorage.setItem('iptv_tg_config', JSON.stringify(tgData));
     }
 
@@ -754,24 +551,20 @@
         if (tgData.chatId) document.getElementById('tgChatId').value = tgData.chatId;
     }
 
-    function sendTelegramAlert(message) {
+    function sendTelegramAlert(msg) {
         const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || {};
         if (!tgData.token || !tgData.chatId) return;
-
         fetch(`https://api.telegram.org/bot${tgData.token}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: tgData.chatId, text: message, parse_mode: 'Markdown' })
-        }).catch(e => console.error("Error enviado a Telegram:", e));
+            body: JSON.stringify({ chat_id: tgData.chatId, text: msg, parse_mode: 'Markdown' })
+        });
     }
 
-    // Inicializar app
+    // Inicialización
     renderButtons();
     loadTgConfig();
-    renderTable();
-    
-    // Comprobar alertas al iniciar la página
-    setTimeout(checkExpiryNotifications, 1000);
+    initFirebase();
 </script>
 </body>
 </html>
