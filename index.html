@@ -222,14 +222,11 @@
 </div>
 
 <script>
-    // URL EXACTA FIREBASE REGIONALIZADA
     const FIREBASE_URL = "https://mi-panel-iptv-1954-default-rtdb.europe-west1.firebasedatabase.app/";
 
-    // TELEGRAM CONFIG
     const DEFAULT_TG_TOKEN = "8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOS5Sg";
     const DEFAULT_TG_CHAT_ID = "1417906399";
 
-    // PANELES IPTV FIJOS
     const defaultIptvLinks = [
         { id: 'nettv', name: 'NetTV', icon: 'bi-tv', url: 'https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100' },
         { id: 'emby', name: 'Emby', icon: 'bi-hdd-network', url: 'https://thorcrm.info/login' },
@@ -243,7 +240,6 @@
         { id: 'p2p', name: 'P2P', icon: 'bi-diagram-3', url: 'https://p2pro.sigma.st' }
     ];
 
-    // PANELES APLICACIONES FIJOS
     const defaultAppLinks = [
         { id: 'maxplayer', name: 'Max Player', icon: 'bi-display', url: 'https://my.maxplayer.tv/auth/login' },
         { id: 'ibox', name: 'iBox Player', icon: 'bi-box', url: 'https://iboxxiptv.com/device/login' },
@@ -263,7 +259,7 @@
     let customLinks = JSON.parse(localStorage.getItem('iptv_custom_urls')) || {};
     let activeFilter = 'all';
     let dbRef = null;
-    let clients = [];
+    let clients = JSON.parse(localStorage.getItem('iptv_clients_full')) || [];
 
     function checkExpirationsAndNotify() {
         const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || { token: DEFAULT_TG_TOKEN, chatId: DEFAULT_TG_CHAT_ID };
@@ -277,7 +273,7 @@
         const inThreeDaysStr = inThreeDays.toISOString().slice(0, 10);
 
         const lastCheck = localStorage.getItem('iptv_last_tg_check');
-        if (lastCheck === todayStr) return; 
+        if (lastCheck === todayStr) return;
 
         let messages = [];
 
@@ -303,6 +299,26 @@
             }
             dbRef = firebase.database().ref('iptv_admin_data');
 
+            // Carga inicial
+            dbRef.once('value').then((snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (data.clients) {
+                        clients = data.clients;
+                        saveClientsLocal();
+                        renderTable();
+                    }
+                    if (data.notes) {
+                        localStorage.setItem('iptv_multi_notes', JSON.stringify(data.notes));
+                        loadCurrentNote();
+                    }
+                } else {
+                    // Si Firebase está vacío, subir lo que haya localmente
+                    syncToCloud();
+                }
+            });
+
+            // Escuchar cambios en tiempo real
             dbRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -320,7 +336,7 @@
             });
 
             document.getElementById('syncStatus').className = "badge bg-success sync-badge mt-1";
-            document.getElementById('syncStatus').innerHTML = '<i class="bi bi-cloud-check-fill me-1"></i> Conectado a Firebase (Nube Activa)';
+            document.getElementById('syncStatus').innerHTML = '<i class="bi bi-cloud-check-fill me-1"></i> Conectado a Firebase';
         } catch(e) {
             console.error(e);
             document.getElementById('syncStatus').className = "badge bg-danger sync-badge mt-1";
@@ -331,7 +347,7 @@
     function syncToCloud() {
         if (dbRef) {
             const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
-            dbRef.set({ clients: clients, notes: savedNotes });
+            dbRef.set({ clients: clients, notes: savedNotes }).catch(err => console.error("Error al sincronizar:", err));
         }
     }
 
@@ -613,6 +629,7 @@
 
     // Inicialización
     renderButtons();
+    renderTable();
     loadTgConfig();
     initFirebase();
 </script>
