@@ -36,6 +36,7 @@
   <h2>Registrar Cliente IPTV</h2>
   <form id="clientForm">
     <div class="grid-form">
+      <!-- FILA 1 -->
       <div>
         <label for="nombre">Nombre del Cliente:</label>
         <input type="text" id="nombre" required placeholder="Ej: Juan Pérez">
@@ -46,13 +47,12 @@
         <input type="tel" id="telefono" placeholder="Ej: 34600000000">
       </div>
 
+      <!-- FILA 2: MAC Y FECHA DE VENCIMIENTO ARRIBA -->
       <div>
         <label for="mac">Dirección MAC:</label>
-        <!-- Añadido maxlength="17" -->
         <input type="text" id="mac" placeholder="Ej: 00:1A:79:XX:XX:XX" maxlength="17">
       </div>
 
-      <!-- FECHA DE VENCIMIENTO ARRIBA -->
       <div>
         <label for="vencimiento">Fecha de Vencimiento:</label>
         <input type="date" id="vencimiento" required>
@@ -64,7 +64,7 @@
         </div>
       </div>
 
-      <!-- DEVICE / DISPOSITIVO ABAJO -->
+      <!-- FILA 3: DEVICE Y APLICACIÓN ABAJO -->
       <div>
         <label for="device">Device / Dispositivo:</label>
         <input type="text" id="device" placeholder="Ej: Fire Stick, Smart TV LG, MAG...">
@@ -97,7 +97,7 @@
       </tr>
     </thead>
     <tbody id="listaClientes">
-      <!-- Los clientes guardados se cargan aquí dinámicamente -->
+      <!-- Se agregan clientes guardados dinámicamente -->
     </tbody>
   </table>
 </div>
@@ -105,28 +105,21 @@
 <script>
   let clientes = JSON.parse(localStorage.getItem('iptv_clientes')) || [];
 
-  // -----------------------------------------------------------
-  // NUEVO: Formateo automático de la MAC (pone los ":" y en mayúscula)
-  // -----------------------------------------------------------
+  // Poner dos puntos (:) automáticamente en la dirección MAC mientras se escribe
   document.getElementById('mac').addEventListener('input', function (e) {
-    // Elimina todo lo que no sean letras o números y lo pasa a mayúsculas
     let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-    
-    // Agrupa de 2 en 2 y les añade los dos puntos ":"
     let formattedValue = value.match(/.{1,2}/g)?.join(':') || '';
-    
-    // Asigna el nuevo valor formateado al input
-    e.target.value = formattedValue;
+    e.target.value = formattedValue.slice(0, 17);
   });
 
-  // Función para establecer vencimiento automático
+  // Sumar meses automáticamente a la fecha de vencimiento
   function sumarTiempo(meses) {
     let fecha = new Date();
     fecha.setMonth(fecha.getMonth() + meses);
     document.getElementById('vencimiento').value = fecha.toISOString().split('T')[0];
   }
 
-  // Cargar lista al iniciar
+  // Renderizar la lista de clientes en la tabla
   function renderClientes() {
     const lista = document.getElementById('listaClientes');
     lista.innerHTML = '';
@@ -134,7 +127,6 @@
     clientes.forEach((cliente, index) => {
       const tr = document.createElement('tr');
       
-      // Mensaje predefinido para WhatsApp
       const mensajeWs = encodeURIComponent(`Hola ${cliente.nombre}, te informamos que tu suscripción vence el día ${cliente.vencimiento}. ¿Te interesa renovar? ¡Gracias!`);
       const linkWs = cliente.telefono ? `https://wa.me/${cliente.telefono}?text=${mensajeWs}` : '#';
 
@@ -153,7 +145,7 @@
     });
   }
 
-  // Guardar cliente
+  // Registrar e ingresar nuevo cliente
   document.getElementById('clientForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -174,7 +166,7 @@
     this.reset();
   });
 
-  // Eliminar cliente
+  // Borrar cliente
   function eliminarCliente(index) {
     if (confirm('¿Deseas eliminar este cliente?')) {
       clientes.splice(index, 1);
@@ -183,7 +175,7 @@
     }
   }
 
-  // Render inicial al cargar la página
+  // Cargar lista al abrir la página
   renderClientes();
 </script>
 
