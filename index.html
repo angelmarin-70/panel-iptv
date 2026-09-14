@@ -222,7 +222,8 @@
 </div>
 
 <script>
-    const FIREBASE_URL = "https://mi-panel-iptv-1954-default-rtdb.europe-west1.firebasedatabase.app/";
+    // URL DE FIREBASE CORREGIDA EXACTAMENTE A TU CONSOLA
+    const FIREBASE_URL = "https://mi-panel-iptv-d1954-default-rtdb.firebaseio.com/";
 
     const DEFAULT_TG_TOKEN = "8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOS5Sg";
     const DEFAULT_TG_CHAT_ID = "1417906399";
@@ -299,26 +300,7 @@
             }
             dbRef = firebase.database().ref('iptv_admin_data');
 
-            // Carga inicial
-            dbRef.once('value').then((snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    if (data.clients) {
-                        clients = data.clients;
-                        saveClientsLocal();
-                        renderTable();
-                    }
-                    if (data.notes) {
-                        localStorage.setItem('iptv_multi_notes', JSON.stringify(data.notes));
-                        loadCurrentNote();
-                    }
-                } else {
-                    // Si Firebase está vacío, subir lo que haya localmente
-                    syncToCloud();
-                }
-            });
-
-            // Escuchar cambios en tiempo real
+            // Escuchar cambios en tiempo real desde Firebase
             dbRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -332,6 +314,9 @@
                         localStorage.setItem('iptv_multi_notes', JSON.stringify(data.notes));
                         loadCurrentNote();
                     }
+                } else {
+                    // Si Firebase está totalmente vacío, sube los datos locales actuales
+                    syncToCloud();
                 }
             });
 
@@ -347,7 +332,7 @@
     function syncToCloud() {
         if (dbRef) {
             const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
-            dbRef.set({ clients: clients, notes: savedNotes }).catch(err => console.error("Error al sincronizar:", err));
+            dbRef.set({ clients: clients, notes: savedNotes }).catch(err => console.error("Error al escribir en Firebase:", err));
         }
     }
 
