@@ -3,138 +3,247 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Gestión IPTV</title>
+  <title>Panel IPTV Admin</title>
   <style>
-    * { box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
-    .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    h2 { border-bottom: 2px solid #007bff; padding-bottom: 8px; color: #007bff; margin-top: 0; }
-    .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    /* Encabezado */
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .header h1 { font-size: 22px; color: #38bdf8; margin: 0; display: flex; align-items: center; gap: 10px; }
+    .status-badge { background: #064e3b; color: #34d399; font-size: 12px; padding: 4px 10px; border-radius: 20px; border: 1px solid #059669; }
+
+    /* Secciones / Tarjetas */
+    .card { background: #111827; border: 1px solid #1f2937; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5); }
+    .card-title { font-size: 15px; font-weight: bold; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #1f2937; padding-bottom: 8px; }
+
+    /* Botones de accesos rápidos */
+    .grid-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+    .link-btn { background: #1f2937; color: #f3f4f6; padding: 10px; border-radius: 6px; border: 1px solid #374151; text-align: center; text-decoration: none; font-size: 13px; font-weight: 500; transition: all 0.2s; display: flex; justify-content: space-between; align-items: center; }
+    .link-btn:hover { background: #2563eb; color: white; border-color: #3b82f6; }
+    .link-btn.app-btn { background: #1e1b4b; border-color: #312e81; color: #c7d2fe; }
+    .link-btn.app-btn:hover { background: #4338ca; color: white; }
+
+    /* Formularios e Inputs */
+    .grid-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
     .full-width { grid-column: span 2; }
-    label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
-    
-    .btn-group { display: flex; gap: 5px; margin-top: 5px; }
-    .btn-group button { background: #e9ecef; color: #333; border: 1px solid #ccc; padding: 5px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; }
-    .btn-group button:hover { background: #dee2e6; }
+    label { display: block; font-size: 12px; font-weight: 600; color: #9ca3af; text-transform: uppercase; margin-bottom: 6px; }
+    input, select, textarea { width: 100%; background: #0f172a; border: 1px solid #334155; color: #f8fafc; padding: 10px; border-radius: 6px; font-size: 14px; outline: none; }
+    input:focus, textarea:focus { border-color: #38bdf8; }
 
-    .btn-submit { background: #007bff; color: white; padding: 12px 20px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; width: 100%; font-weight: bold; }
-    .btn-submit:hover { background: #0056b3; }
+    /* Botones de incremento de fecha */
+    .btn-group { display: flex; gap: 6px; margin-top: 6px; }
+    .btn-group button { background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 6px 12px; font-size: 12px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+    .btn-group button:hover { background: #334155; color: #f8fafc; }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 25px; font-size: 14px; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-    th { background: #f8f9fa; color: #007bff; }
-    tr:nth-child(even) { background-color: #f9f9f9; }
+    /* Botón Submit */
+    .btn-submit { background: #2563eb; color: white; border: none; padding: 12px; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; transition: 0.2s; }
+    .btn-submit:hover { background: #1d4ed8; }
 
-    .btn-danger { background: #dc3545; color: white; border: none; padding: 5px 8px; border-radius: 3px; cursor: pointer; font-size: 12px; }
-    .btn-ws { background: #25d366; color: white; border: none; padding: 5px 8px; border-radius: 3px; cursor: pointer; font-size: 12px; text-decoration: none; display: inline-block; }
+    /* Tabla */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+    th { background: #0f172a; color: #38bdf8; text-align: left; padding: 12px; border-bottom: 2px solid #1f2937; font-size: 12px; text-transform: uppercase; }
+    td { padding: 12px; border-bottom: 1px solid #1f2937; color: #e2e8f0; }
+    tr:nth-child(even) { background-color: #0f172a; }
+
+    /* Botones de acción en la tabla */
+    .btn-ws { background: #059669; color: white; border: none; padding: 6px 10px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 500; display: inline-block; }
+    .btn-ws:hover { background: #10b981; }
+    .btn-danger { background: #991b1b; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+    .btn-danger:hover { background: #dc2626; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>Registrar Cliente IPTV</h2>
-  <form id="clientForm">
+  <!-- ENCABEZADO -->
+  <div class="header">
+    <h1>🌐 Panel IPTV Admin <span class="status-badge">● Conectado a Firebase</span></h1>
+  </div>
+
+  <!-- PANELES IPTV -->
+  <div class="card">
+    <div class="card-title">🌐 PANELES IPTV</div>
+    <div class="grid-links">
+      <a href="#" class="link-btn">NetTV ✏️</a>
+      <a href="#" class="link-btn">Emby ✏️</a>
+      <a href="#" class="link-btn">Zafiro ✏️</a>
+      <a href="#" class="link-btn">Dylan ✏️</a>
+      <a href="#" class="link-btn">Joker ✏️</a>
+      <a href="#" class="link-btn">TS4K ✏️</a>
+      <a href="#" class="link-btn">Nexon ✏️</a>
+      <a href="#" class="link-btn">Regilon ✏️</a>
+      <a href="#" class="link-btn">DonIPTV ✏️</a>
+      <a href="#" class="link-btn">P2P ✏️</a>
+    </div>
+  </div>
+
+  <!-- PANELES APLICACIONES -->
+  <div class="card">
+    <div class="card-title">📱 PANELES APLICACIONES</div>
+    <div class="grid-links">
+      <a href="#" class="link-btn app-btn">Max Player ✏️</a>
+      <a href="#" class="link-btn app-btn">Smartone ✏️</a>
+      <a href="#" class="link-btn app-btn">CR7 Panel ✏️</a>
+      <a href="#" class="link-btn app-btn">IBO Player ✏️</a>
+      <a href="#" class="link-btn app-btn">IBO Sol ✏️</a>
+      <a href="#" class="link-btn app-btn">IBO Lopes ✏️</a>
+      <a href="#" class="link-btn app-btn">DonIBO ✏️</a>
+      <a href="#" class="link-btn app-btn">TiviMate VPN ✏️</a>
+      <a href="#" class="link-btn app-btn">VU Player ✏️</a>
+      <a href="#" class="link-btn app-btn">IBO Killer ✏️</a>
+      <a href="#" class="link-btn app-btn">XCIPTV Phoenix ✏️</a>
+      <a href="#" class="link-btn app-btn">TiviMate Phoenix ✏️</a>
+    </div>
+  </div>
+
+  <!-- BLOC DE NOTAS & DNS -->
+  <div class="card">
+    <div class="card-title">📝 BLOC DE NOTAS & DNS</div>
     <div class="grid-form">
-      <!-- FILA 1 -->
       <div>
-        <label for="nombre">Nombre del Cliente:</label>
-        <input type="text" id="nombre" required placeholder="Ej: Juan Pérez">
+        <label>Panel / Servidor:</label>
+        <select id="dnsSelect">
+          <option>Seleccionar DNS...</option>
+        </select>
       </div>
-
-      <div>
-        <label for="telefono">Teléfono (con prefijo):</label>
-        <input type="tel" id="telefono" placeholder="Ej: 34600000000">
+      <div class="full-width">
+        <textarea id="blocNotas" rows="3" placeholder="Anota aquí tus DNS, credenciales o notas rápidas..."></textarea>
       </div>
+    </div>
+  </div>
 
-      <!-- FILA 2: MAC Y FECHA DE VENCIMIENTO ARRIBA -->
+  <!-- ALERTAS POR TELEGRAM -->
+  <div class="card">
+    <div class="card-title">✈️ ALERTAS POR TELEGRAM</div>
+    <div class="grid-form">
       <div>
-        <label for="mac">Dirección MAC:</label>
-        <input type="text" id="mac" placeholder="Ej: 00:1A:79:XX:XX:XX" maxlength="17">
+        <label>Telegram Bot Token:</label>
+        <input type="text" id="telegramToken" placeholder="Introduce el Token del Bot">
       </div>
-
       <div>
-        <label for="vencimiento">Fecha de Vencimiento:</label>
-        <input type="date" id="vencimiento" required>
-        <div class="btn-group">
-          <button type="button" onclick="sumarTiempo(1)">+1 Mes</button>
-          <button type="button" onclick="sumarTiempo(3)">+3 Meses</button>
-          <button type="button" onclick="sumarTiempo(6)">+6 Meses</button>
-          <button type="button" onclick="sumarTiempo(12)">+1 Año</button>
+        <label>Telegram Chat ID:</label>
+        <input type="text" id="telegramChatId" placeholder="Introduce tu Chat ID">
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTRAR NUEVO CLIENTE (FORMULARIO CORREGIDO) -->
+  <div class="card">
+    <div class="card-title">👤 REGISTRAR NUEVO CLIENTE</div>
+    <form id="clientForm">
+      <div class="grid-form">
+        <!-- FILA 1 -->
+        <div>
+          <label for="nombre">Nombre del Cliente *</label>
+          <input type="text" id="nombre" required placeholder="Ej: Juan Pérez">
+        </div>
+        <div>
+          <label for="telefono">Teléfono (WhatsApp)</label>
+          <input type="tel" id="telefono" placeholder="Ej: 34600000000">
+        </div>
+
+        <!-- FILA 2: DIRECCIÓN MAC Y DEVICE EN LA MISMA FILA -->
+        <div>
+          <label for="mac">Dirección MAC</label>
+          <input type="text" id="mac" placeholder="Ej: 00:1A:79:XX:XX:XX" maxlength="17">
+        </div>
+        <div>
+          <label for="device">Device / Dispositivo</label>
+          <input type="text" id="device" placeholder="Ej: Fire Stick, Smart TV LG, MAG...">
+        </div>
+
+        <!-- FILA 3: FECHA DE VENCIMIENTO Y APLICACIÓN -->
+        <div>
+          <label for="vencimiento">Fecha de Vencimiento *</label>
+          <input type="date" id="vencimiento" required>
+          <div class="btn-group">
+            <button type="button" onclick="sumarTiempo(1)">+1 Mes</button>
+            <button type="button" onclick="sumarTiempo(3)">+3 Meses</button>
+            <button type="button" onclick="sumarTiempo(6)">+6 Meses</button>
+            <button type="button" onclick="sumarTiempo(12)">+1 Año</button>
+          </div>
+        </div>
+        <div>
+          <label for="app">Aplicación / Panel</label>
+          <input type="text" id="app" placeholder="Ej: Max Player, TiviMate, IBO Player...">
+        </div>
+
+        <!-- FILA 4: NOTAS -->
+        <div class="full-width">
+          <label for="notas">Notas / Usuario / Contraseña</label>
+          <textarea id="notas" rows="2" placeholder="Observaciones adicionales, datos de acceso..."></textarea>
         </div>
       </div>
 
-      <!-- FILA 3: DEVICE Y APLICACIÓN ABAJO -->
-      <div>
-        <label for="device">Device / Dispositivo:</label>
-        <input type="text" id="device" placeholder="Ej: Fire Stick, Smart TV LG, MAG...">
-      </div>
+      <button type="submit" class="btn-submit">Guardar Cliente</button>
+    </form>
+  </div>
 
-      <div>
-        <label for="app">Aplicación / Panel:</label>
-        <input type="text" id="app" placeholder="Ej: Max Player, TiviMate, IBO Player...">
-      </div>
-
-      <div class="full-width">
-        <label for="notas">Notas / DNS / Observaciones:</label>
-        <textarea id="notas" rows="2" placeholder="Anotaciones técnicas, DNS del servidor, usuario, contraseña..."></textarea>
-      </div>
-    </div>
-
-    <button type="submit" class="btn-submit">Guardar Cliente</button>
-  </form>
-
-  <h2>Clientes Registrados</h2>
-  <table id="tablaClientes">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Dirección MAC</th>
-        <th>Device</th>
-        <th>Vencimiento</th>
-        <th>App / Panel</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody id="listaClientes">
-      <!-- Se agregan clientes guardados dinámicamente -->
-    </tbody>
-  </table>
+  <!-- TABLA DE CLIENTES REGISTRADOS -->
+  <div class="card">
+    <div class="card-title">📋 CLIENTES REGISTRADOS</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Dirección MAC</th>
+          <th>Device</th>
+          <th>Vencimiento</th>
+          <th>App / Panel</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="listaClientes">
+        <!-- Los clientes se cargarán dinámicamente -->
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <script>
-  let clientes = JSON.parse(localStorage.getItem('iptv_clientes')) || [];
+  let clientes = [];
+  try {
+    clientes = JSON.parse(localStorage.getItem('iptv_clientes')) || [];
+  } catch (e) {
+    clientes = [];
+  }
 
   // Poner dos puntos (:) automáticamente en la dirección MAC mientras se escribe
-  document.getElementById('mac').addEventListener('input', function (e) {
-    let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-    let formattedValue = value.match(/.{1,2}/g)?.join(':') || '';
-    e.target.value = formattedValue.slice(0, 17);
-  });
+  const macInput = document.getElementById('mac');
+  if (macInput) {
+    macInput.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+      let formattedValue = value.match(/.{1,2}/g)?.join(':') || '';
+      e.target.value = formattedValue.slice(0, 17);
+    });
+  }
 
-  // Sumar meses automáticamente a la fecha de vencimiento
+  // Sumar tiempo a la fecha de vencimiento
   function sumarTiempo(meses) {
     let fecha = new Date();
     fecha.setMonth(fecha.getMonth() + meses);
     document.getElementById('vencimiento').value = fecha.toISOString().split('T')[0];
   }
 
-  // Renderizar la lista de clientes en la tabla
+  // Cargar tabla de clientes
   function renderClientes() {
     const lista = document.getElementById('listaClientes');
+    if (!lista) return;
     lista.innerHTML = '';
 
     clientes.forEach((cliente, index) => {
       const tr = document.createElement('tr');
       
-      const mensajeWs = encodeURIComponent(`Hola ${cliente.nombre}, te informamos que tu suscripción vence el día ${cliente.vencimiento}. ¿Te interesa renovar? ¡Gracias!`);
+      const mensajeWs = encodeURIComponent(`Hola ${cliente.nombre || ''}, te informamos que tu suscripción vence el día ${cliente.vencimiento || ''}. ¿Te interesa renovar? ¡Gracias!`);
       const linkWs = cliente.telefono ? `https://wa.me/${cliente.telefono}?text=${mensajeWs}` : '#';
 
       tr.innerHTML = `
-        <td><strong>${cliente.nombre}</strong></td>
+        <td><strong>${cliente.nombre || '-'}</strong></td>
         <td>${cliente.mac || '-'}</td>
         <td>${cliente.device || '-'}</td>
-        <td>${cliente.vencimiento}</td>
+        <td>${cliente.vencimiento || '-'}</td>
         <td>${cliente.app || '-'}</td>
         <td>
           ${cliente.telefono ? `<a href="${linkWs}" target="_blank" class="btn-ws">WhatsApp</a>` : ''}
@@ -145,7 +254,7 @@
     });
   }
 
-  // Registrar e ingresar nuevo cliente
+  // Guardar nuevo cliente
   document.getElementById('clientForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -153,8 +262,8 @@
       nombre: document.getElementById('nombre').value,
       telefono: document.getElementById('telefono').value,
       mac: document.getElementById('mac').value,
-      vencimiento: document.getElementById('vencimiento').value,
       device: document.getElementById('device').value,
+      vencimiento: document.getElementById('vencimiento').value,
       app: document.getElementById('app').value,
       notas: document.getElementById('notas').value
     };
@@ -175,7 +284,6 @@
     }
   }
 
-  // Cargar lista al abrir la página
   renderClientes();
 </script>
 
