@@ -14,7 +14,7 @@
     .header h1 { font-size: 22px; color: #38bdf8; margin: 0; display: flex; align-items: center; gap: 10px; }
     .status-badge { background: #064e3b; color: #34d399; font-size: 12px; padding: 4px 10px; border-radius: 20px; border: 1px solid #059669; }
 
-    /* Secciones / Tarjetas */
+    /* Tarjetas */
     .card { background: #111827; border: 1px solid #1f2937; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5); }
     .card-title { font-size: 15px; font-weight: bold; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #1f2937; padding-bottom: 8px; }
 
@@ -25,19 +25,19 @@
     .link-btn.app-btn { background: #1e1b4b; border-color: #312e81; color: #c7d2fe; }
     .link-btn.app-btn:hover { background: #4338ca; color: white; }
 
-    /* Formularios e Inputs */
+    /* Formularios */
     .grid-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
     .full-width { grid-column: span 2; }
     label { display: block; font-size: 12px; font-weight: 600; color: #9ca3af; text-transform: uppercase; margin-bottom: 6px; }
     input, select, textarea { width: 100%; background: #0f172a; border: 1px solid #334155; color: #f8fafc; padding: 10px; border-radius: 6px; font-size: 14px; outline: none; }
     input:focus, textarea:focus { border-color: #38bdf8; }
 
-    /* Botones de incremento de fecha */
+    /* Botones de fecha */
     .btn-group { display: flex; gap: 6px; margin-top: 6px; }
     .btn-group button { background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 6px 12px; font-size: 12px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
     .btn-group button:hover { background: #334155; color: #f8fafc; }
 
-    /* Botón Submit */
+    /* Botón Guardar */
     .btn-submit { background: #2563eb; color: white; border: none; padding: 12px; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; transition: 0.2s; }
     .btn-submit:hover { background: #1d4ed8; }
 
@@ -47,7 +47,6 @@
     td { padding: 12px; border-bottom: 1px solid #1f2937; color: #e2e8f0; }
     tr:nth-child(even) { background-color: #0f172a; }
 
-    /* Botones de acción en la tabla */
     .btn-ws { background: #059669; color: white; border: none; padding: 6px 10px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 500; display: inline-block; }
     .btn-ws:hover { background: #10b981; }
     .btn-danger { background: #991b1b; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
@@ -59,7 +58,7 @@
 <div class="container">
   <!-- ENCABEZADO -->
   <div class="header">
-    <h1>🌐 Panel IPTV Admin <span class="status-badge">● Conectado a Firebase</span></h1>
+    <h1>🌐 Panel IPTV Admin <span class="status-badge">● Conectado</span></h1>
   </div>
 
   <!-- PANELES IPTV -->
@@ -120,21 +119,20 @@
     <div class="grid-form">
       <div>
         <label>Telegram Bot Token:</label>
-        <input type="text" id="telegramToken" placeholder="Introduce el Token del Bot">
+        <input type="text" id="telegramToken" placeholder="Token del Bot">
       </div>
       <div>
         <label>Telegram Chat ID:</label>
-        <input type="text" id="telegramChatId" placeholder="Introduce tu Chat ID">
+        <input type="text" id="telegramChatId" placeholder="Chat ID">
       </div>
     </div>
   </div>
 
-  <!-- REGISTRAR NUEVO CLIENTE (FORMULARIO CORREGIDO) -->
+  <!-- REGISTRAR CLIENTE -->
   <div class="card">
     <div class="card-title">👤 REGISTRAR NUEVO CLIENTE</div>
     <form id="clientForm">
       <div class="grid-form">
-        <!-- FILA 1 -->
         <div>
           <label for="nombre">Nombre del Cliente *</label>
           <input type="text" id="nombre" required placeholder="Ej: Juan Pérez">
@@ -144,7 +142,6 @@
           <input type="tel" id="telefono" placeholder="Ej: 34600000000">
         </div>
 
-        <!-- FILA 2: DIRECCIÓN MAC Y DEVICE EN LA MISMA FILA -->
         <div>
           <label for="mac">Dirección MAC</label>
           <input type="text" id="mac" placeholder="Ej: 00:1A:79:XX:XX:XX" maxlength="17">
@@ -154,7 +151,6 @@
           <input type="text" id="device" placeholder="Ej: Fire Stick, Smart TV LG, MAG...">
         </div>
 
-        <!-- FILA 3: FECHA DE VENCIMIENTO Y APLICACIÓN -->
         <div>
           <label for="vencimiento">Fecha de Vencimiento *</label>
           <input type="date" id="vencimiento" required>
@@ -167,13 +163,12 @@
         </div>
         <div>
           <label for="app">Aplicación / Panel</label>
-          <input type="text" id="app" placeholder="Ej: Max Player, TiviMate, IBO Player...">
+          <input type="text" id="app" placeholder="Ej: Max Player, TiviMate...">
         </div>
 
-        <!-- FILA 4: NOTAS -->
         <div class="full-width">
           <label for="notas">Notas / Usuario / Contraseña</label>
-          <textarea id="notas" rows="2" placeholder="Observaciones adicionales, datos de acceso..."></textarea>
+          <textarea id="notas" rows="2" placeholder="Observaciones adicionales..."></textarea>
         </div>
       </div>
 
@@ -181,7 +176,7 @@
     </form>
   </div>
 
-  <!-- TABLA DE CLIENTES REGISTRADOS -->
+  <!-- TABLA DE CLIENTES -->
   <div class="card">
     <div class="card-title">📋 CLIENTES REGISTRADOS</div>
     <table>
@@ -195,9 +190,7 @@
           <th>Acciones</th>
         </tr>
       </thead>
-      <tbody id="listaClientes">
-        <!-- Los clientes se cargarán dinámicamente -->
-      </tbody>
+      <tbody id="listaClientes"></tbody>
     </table>
   </div>
 </div>
@@ -210,7 +203,6 @@
     clientes = [];
   }
 
-  // Poner dos puntos (:) automáticamente en la dirección MAC mientras se escribe
   const macInput = document.getElementById('mac');
   if (macInput) {
     macInput.addEventListener('input', function (e) {
@@ -220,14 +212,12 @@
     });
   }
 
-  // Sumar tiempo a la fecha de vencimiento
   function sumarTiempo(meses) {
     let fecha = new Date();
     fecha.setMonth(fecha.getMonth() + meses);
     document.getElementById('vencimiento').value = fecha.toISOString().split('T')[0];
   }
 
-  // Cargar tabla de clientes
   function renderClientes() {
     const lista = document.getElementById('listaClientes');
     if (!lista) return;
@@ -235,7 +225,6 @@
 
     clientes.forEach((cliente, index) => {
       const tr = document.createElement('tr');
-      
       const mensajeWs = encodeURIComponent(`Hola ${cliente.nombre || ''}, te informamos que tu suscripción vence el día ${cliente.vencimiento || ''}. ¿Te interesa renovar? ¡Gracias!`);
       const linkWs = cliente.telefono ? `https://wa.me/${cliente.telefono}?text=${mensajeWs}` : '#';
 
@@ -254,10 +243,8 @@
     });
   }
 
-  // Guardar nuevo cliente
   document.getElementById('clientForm').addEventListener('submit', function(e) {
     e.preventDefault();
-
     const nuevoCliente = {
       nombre: document.getElementById('nombre').value,
       telefono: document.getElementById('telefono').value,
@@ -267,15 +254,12 @@
       app: document.getElementById('app').value,
       notas: document.getElementById('notas').value
     };
-
     clientes.push(nuevoCliente);
     localStorage.setItem('iptv_clientes', JSON.stringify(clientes));
-    
     renderClientes();
     this.reset();
   });
 
-  // Borrar cliente
   function eliminarCliente(index) {
     if (confirm('¿Deseas eliminar este cliente?')) {
       clientes.splice(index, 1);
