@@ -223,7 +223,6 @@
 
 <script>
     const FIREBASE_URL = "https://mi-panel-iptv-d1954-default-rtdb.firebaseio.com/";
-
     const DEFAULT_TG_TOKEN = "8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOS5Sg";
     const DEFAULT_TG_CHAT_ID = "1417906399";
 
@@ -284,37 +283,6 @@
         document.getElementById('tgChatId').value = tgData.chatId;
     }
 
-    function checkExpirationsAndNotify() {
-        const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || { token: DEFAULT_TG_TOKEN, chatId: DEFAULT_TG_CHAT_ID };
-        if (!tgData.token || !tgData.chatId) return;
-
-        const today = new Date();
-        const todayStr = today.toISOString().slice(0, 10);
-
-        const inThreeDays = new Date();
-        inThreeDays.setDate(today.getDate() + 3);
-        const inThreeDaysStr = inThreeDays.toISOString().slice(0, 10);
-
-        const lastCheck = localStorage.getItem('iptv_last_tg_check');
-        if (lastCheck === todayStr) return;
-
-        let messages = [];
-
-        clients.forEach(c => {
-            if (c.expiry === todayStr) {
-                messages.push(`🔴 *CADUCA HOY*\n👤 *Cliente:* ${c.name}\n📱 *Tel:* ${c.phone}\n📺 *App/Servidor:* ${c.app || '-'} / ${c.server || '-'}`);
-            } else if (c.expiry === inThreeDaysStr) {
-                messages.push(`🟡 *CADUCA EN 3 DÍAS*\n👤 *Cliente:* ${c.name}\n📱 *Tel:* ${c.phone}\n📅 *Vence:* ${c.expiry}`);
-            }
-        });
-
-        if (messages.length > 0) {
-            const fullMessage = `📊 *RESUMEN DIARIO DE VENCIMIENTOS*\n\n` + messages.join('\n\n-------------------\n\n');
-            sendTelegramAlert(fullMessage);
-            localStorage.setItem('iptv_last_tg_check', todayStr);
-        }
-    }
-
     function initFirebase() {
         try {
             if (!firebase.apps.length) {
@@ -329,7 +297,6 @@
                         clients = data.clients;
                         saveClientsLocal();
                         renderTable();
-                        checkExpirationsAndNotify();
                     }
                     if (data.notes) {
                         localStorage.setItem('iptv_multi_notes', JSON.stringify(data.notes));
@@ -506,6 +473,14 @@
         window.scrollTo({ top: document.getElementById('clientForm').offsetTop - 20, behavior: 'smooth' });
     }
 
+    function deleteClient(id) {
+        if (confirm('¿Estás seguro de eliminar este cliente?')) {
+            clients = clients.filter(c => c.id !== id);
+            saveClients();
+            renderTable();
+        }
+    }
+
     function resetForm() {
         document.getElementById('editClientId').value = '';
         document.getElementById('clientForm').reset();
@@ -529,7 +504,7 @@
         let msg = `Buenas ${name}, te caduca la aplicación (${app || 'IPTV'}) `;
         if (expiry < today) msg += `caducó el ${expiry}. ¿Te interesa renovar? Gracias.`;
         else if (expiry === today) msg += `caduca HOY. ¿Te interesa renovar? Gracias.`;
-        else msg += `en los días que le quedan (${expiry}). ¿Te interesa renovar? Gracias.`;
+        else msg += `el día ${expiry}. ¿Te interesa renovar? Gracias.`;
         window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
@@ -564,29 +539,22 @@
                 <td><span class="badge bg-primary">${c.server || '-'}</span><br><small class="text-light">${c.app || '-'}</small></td>
                 <td><small class="text-warning">${c.mac || '-'}</small></td>
                 <td><span class="badge ${badgeClass}">${c.expiry || '-'}</span></td>
-                <td class="text-center"><button class="btn btn-whatsapp btn-sm px-3" onclick="sendWhatsApp('${c.phone}', '${c.name}', '${c.expiry}', '${c.app}')"><i class="bi bi-whatsapp me-1"></i> Contactar</button></td>
+                <td class="text-center"><button class="btn btn-whatsapp btn-sm px-3" onclick="sendWhatsApp('${c.phone}', '${c.name}', '${c.expiry}', '${c.app}')"><i class="bi bi-whatsapp"></i></button></td>
                 <td class="text-center">
-                    <button class="btn btn-outline-warning btn-sm me-1" onclick="editClient('${c.id}')"><i class="bi bi-pencil-fill"></i></button>
-                    <button class="btn btn-outline-danger btn-sm" onclick="deleteClient('${c.id}')"><i class="bi bi-trash"></i></button>
+                    <button class="btn btn-warning btn-sm" onclick="editClient('${c.id}')"><i class="bi bi-pencil-fill"></i></button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')"><i class="bi bi-trash-fill"></i></button>
                 </td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    function deleteClient(id) {
-        if(confirm('¿Eliminar cliente?')) {
-            clients = clients.filter(c => c.id !== id);
-            saveClients();
-            renderTable();
-        }
-    }
-
     function exportBackup() {
-        const blob = new Blob([JSON.stringify(clients, null, 2)], {type: 'application/json'});
+        const data = { clients: clients, notes: JSON.parse(localStorage.getItem('iptv_multi_notes')) || {}, customLinks: customLinks };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'json' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `backup_clientes_iptv_${new Date().toISOString().slice(0, 10)}.json`;
+        a.download = `backup_iptv_${new Date().toISOString().slice(0, 10)}.json`;
         a.click();
     }
 
@@ -596,29 +564,26 @@
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
-                const imported = JSON.parse(e.target.result);
-                if (Array.isArray(imported)) {
-                    clients = imported;
-                    saveClients();
-                    renderTable();
-                    alert('Copia de clientes importada correctamente.');
-                } else {
-                    alert('El archivo no tiene el formato correcto.');
-                }
-            } catch(err) {
-                alert('Error al leer el archivo JSON.');
-            }
+                const data = JSON.parse(e.target.result);
+                if (data.clients) { clients = data.clients; saveClientsLocal(); }
+                if (data.notes) { localStorage.setItem('iptv_multi_notes', JSON.stringify(data.notes)); }
+                if (data.customLinks) { customLinks = data.customLinks; localStorage.setItem('iptv_custom_urls', JSON.stringify(customLinks)); }
+                syncToCloud();
+                renderButtons();
+                renderTable();
+                loadCurrentNote();
+                alert('Copia restaurada con éxito.');
+            } catch(err) { alert('Error al leer el archivo.'); }
         };
         reader.readAsText(file);
     }
 
     window.onload = function() {
-        loadTgConfig();
         renderButtons();
+        loadTgConfig();
         initFirebase();
         renderTable();
     };
 </script>
-
 </body>
 </html>
