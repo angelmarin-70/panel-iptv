@@ -146,6 +146,7 @@
                         <option value="Joker">Joker</option>
                         <option value="TS4K">TS4K</option>
                         <option value="Nexon">Nexon</option>
+                        <option value="Regilón">Regilón</option>
                         <option value="DonIPTV">DonIPTV</option>
                         <option value="P2P">P2P</option>
                     </select>
@@ -155,11 +156,17 @@
                     <select class="form-select" id="cApp">
                         <option value="Max Player">Max Player</option>
                         <option value="IBO Player">IBO Player</option>
-                        <option value="NetTV App">NetTV App</option>
                         <option value="iBox Player">iBox Player</option>
                         <option value="Smartone">Smartone</option>
+                        <option value="CR7 Panel">CR7 Panel</option>
+                        <option value="IBO Sol">IBO Sol</option>
+                        <option value="IBO Lopes">IBO Lopes</option>
+                        <option value="DonIBO">DonIBO</option>
+                        <option value="TiviMate VPN">TiviMate VPN</option>
                         <option value="VU Player">VU Player</option>
-                        <option value="XCIPTV">XCIPTV</option>
+                        <option value="IBO Killer">IBO Killer</option>
+                        <option value="XCIPTV Phoenix">XCIPTV Phoenix</option>
+                        <option value="TiviMate Phoenix">TiviMate Phoenix</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -219,6 +226,7 @@
 <script>
     const FIREBASE_URL = "https://mi-panel-iptv-1954-default-rtdb.firebaseio.com/";
 
+    // PANELES IPTV FIJOS
     const defaultIptvLinks = [
         { id: 'nettv', name: 'NetTV', icon: 'bi-tv', url: 'https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100' },
         { id: 'emby', name: 'Emby', icon: 'bi-hdd-network', url: 'http://31.220.73.197:8096' },
@@ -227,25 +235,26 @@
         { id: 'joker', name: 'Joker', icon: 'bi-lightning', url: 'http://joker-tv.top' },
         { id: 'ts4k', name: 'TS4K', icon: 'bi-box', url: 'http://ts4k.vip' },
         { id: 'nexon', name: 'Nexon', icon: 'bi-cpu', url: 'http://nexon.pro' },
-        { id: 'region', name: 'Región', icon: 'bi-globe', url: 'http://regioniptv.com' },
+        { id: 'regilon', name: 'Regilón', icon: 'bi-globe', url: 'http://regioniptv.com' },
         { id: 'doniptv', name: 'DonIPTV', icon: 'bi-broadcast', url: 'http://doniptv.org' },
         { id: 'p2p', name: 'P2P', icon: 'bi-diagram-3', url: 'http://p2p-panel.net' }
     ];
 
+    // PANELES APLICACIONES FIJOS
     const defaultAppLinks = [
-        { id: 'maxplayer', name: 'Max Player', icon: 'bi-display', url: 'https://maxplayer.xyz' },
-        { id: 'ibox', name: 'iBox Player', icon: 'bi-box', url: 'https://iboxplayer.com' },
-        { id: 'smartone', name: 'Smartone', icon: 'bi-tv', url: 'https://smartone-iptv.com' },
-        { id: 'cr7', name: 'CR7 Panel', icon: 'bi-shield', url: 'https://cr7player.com' },
-        { id: 'ibo', name: 'IBO Player', icon: 'bi-play-circle', url: 'https://iboplayer.com' },
-        { id: 'ibosol', name: 'IBO Sol', icon: 'bi-sun', url: 'https://ibosol.app' },
-        { id: 'ibolepes', name: 'IBO Lepes', icon: 'bi-controller', url: 'https://ibolepes.com' },
-        { id: 'donibo', name: 'DonIBO', icon: 'bi-check-circle', url: 'https://donibo.app' },
-        { id: 'thimata', name: 'Thimata VPN', icon: 'bi-key', url: 'https://thimata.net' },
-        { id: 'vuplayer', name: 'VU Player', icon: 'bi-collection-play', url: 'https://vuplayer.org' },
-        { id: 'ibokiller', name: 'IBO Killer', icon: 'bi-x-circle', url: 'https://ibokiller.com' },
-        { id: 'xciptv', name: 'XCIPTV Phoenix', icon: 'bi-fire', url: 'https://xciptv.com' },
-        { id: 'thimataph', name: 'Thimata Phoenix', icon: 'bi-lightning-charge', url: 'https://phoenix.thimata.net' }
+        { id: 'maxplayer', name: 'Max Player', icon: 'bi-display', url: 'https://my.maxplayer.tv/auth/login' },
+        { id: 'ibox', name: 'iBox Player', icon: 'bi-box', url: 'https://iboxxiptv.com/device/login' },
+        { id: 'smartone', name: 'Smartone', icon: 'bi-tv', url: 'https://smartone-iptv.com/es/aplicacion-iptv-para-samsung' },
+        { id: 'cr7', name: 'CR7 Panel', icon: 'bi-shield', url: 'https://cr7panel.com/' },
+        { id: 'ibo', name: 'IBO Player', icon: 'bi-play-circle', url: 'https://iboplayer.com/' },
+        { id: 'ibosol', name: 'IBO Sol', icon: 'bi-sun', url: 'https://ibosol.com/login' },
+        { id: 'ibolopes', name: 'IBO Lopes', icon: 'bi-controller', url: 'https://maxtvapps.pw/Apks/Ibo/Lopes/index.php' },
+        { id: 'donibo', name: 'DonIBO', icon: 'bi-check-circle', url: 'https://nertix.org/ibopanel4/users.php' },
+        { id: 'thimata', name: 'TiviMate VPN', icon: 'bi-key', url: 'https://globalvip.website/rbatv/nuepp/tiviproat' },
+        { id: 'vuplayer', name: 'VU Player', icon: 'bi-collection-play', url: 'https://rgvipplus.site/vu2/marine' },
+        { id: 'ibokiller', name: 'IBO Killer', icon: 'bi-x-circle', url: 'https://maxtvapps.pw/Apks/Ibo/Killer1/' },
+        { id: 'xciptv', name: 'XCIPTV Phoenix', icon: 'bi-fire', url: 'https://maxtvapps.pw/Apks/Xciptv/Phoenix/index.php' },
+        { id: 'tivimate', name: 'TiviMate Phoenix', icon: 'bi-lightning-charge', url: 'https://maxtvapps.pw/Apks/Tivimate/Phoenix/' }
     ];
 
     let customLinks = JSON.parse(localStorage.getItem('iptv_custom_urls')) || {};
@@ -329,7 +338,7 @@
     }
 
     function resetLinks() {
-        if(confirm('¿Restablecer los botones a las URLs por defecto?')) {
+        if(confirm('¿Restablecer los botones a las URLs por defecto fijadas en el código?')) {
             localStorage.removeItem('iptv_custom_urls');
             customLinks = {};
             renderButtons();
@@ -461,10 +470,10 @@
         if (!phone) return alert("No hay teléfono registrado.");
         const cleanPhone = phone.replace(/[^0-9]/g, '');
         const today = new Date().toISOString().slice(0, 10);
-        let msg = `Buenas ${name}, tu suscripción (${app || 'IPTV'}) `;
+        let msg = `Buenas ${name}, te caduca la aplicación (${app || 'IPTV'}) `;
         if (expiry < today) msg += `caducó el ${expiry}. ¿Te interesa renovar? Gracias.`;
-        else if (expiry === today) msg += `caduca HOY. ¿Quieres renovarla? Gracias.`;
-        else msg += `vence el ${expiry}. ¿Te la gestiono? Gracias.`;
+        else if (expiry === today) msg += `caduca HOY. ¿Te interesa renovar? Gracias.`;
+        else msg += `en los días que le quedan (${expiry}). ¿Te interesa renovar? Gracias.`;
         window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
