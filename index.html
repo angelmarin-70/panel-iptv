@@ -1,409 +1,622 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel IPTV Admin</title>
-  <style>
-    :root {
-      --bg-main: #0a0f1d;
-      --bg-card: #111827;
-      --bg-input: #0f172a;
-      --border-color: #1e293b;
-      --accent-blue: #38bdf8;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel IPTV Admin - Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-    body { background-color: var(--bg-main); color: var(--text-main); margin: 0; padding: 20px; }
-    .container { max-width: 1400px; margin: 0 auto; }
-
-    /* Header */
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .header-title h1 { font-size: 20px; margin: 0; color: #fff; }
-    .badge-status { background: #064e3b; color: #34d399; font-size: 11px; padding: 3px 8px; border-radius: 12px; border: 1px solid #059669; display: inline-block; margin-top: 5px; }
-    .header-buttons { display: flex; gap: 8px; }
-    .btn-top { padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; border: none; cursor: pointer; color: white; }
-    .btn-reset { background-color: #d97706; }
-    .btn-copy-load { background-color: #0284c7; }
-    .btn-copy-save { background-color: #16a34a; }
-
-    /* Tarjetas */
-    .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 18px; margin-bottom: 20px; }
-    .card-title { font-size: 13px; font-weight: bold; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 15px; }
-
-    /* Grid Botones Paneles */
-    .grid-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
-    .link-item { background: #1e293b; border: 1px solid #334155; color: #f1f5f9; padding: 8px 12px; border-radius: 4px; font-size: 13px; text-decoration: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-    .link-item:hover { background: #334155; }
-    .app-link { background: #1e1b4b; border-color: #312e81; color: #c7d2fe; }
-    .app-link:hover { background: #312e81; }
-
-    /* Formulario */
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-    .full-row { grid-column: span 4; margin-top: 8px; }
-    label { display: block; font-size: 11px; font-weight: bold; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 5px; }
-    input, select, textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 9px 10px; border-radius: 4px; font-size: 13px; outline: none; }
-    input:focus, select:focus, textarea:focus { border-color: var(--accent-blue); }
-
-    .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
-    .btn-cancel { background: #475569; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; }
-    .btn-save { background: #059669; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; }
-
-    /* Cabecera de Tabla */
-    .table-header-tools { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-    .filters-group { display: flex; gap: 8px; align-items: center; }
-    .btn-filter { padding: 6px 12px; font-size: 11px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; color: white; opacity: 0.7; }
-    .btn-filter.active { opacity: 1; outline: 2px solid #fff; }
-    .filter-all { background: #3b82f6; }
-    .filter-today { background: #0284c7; }
-    .filter-expired { background: #dc2626; }
-    .search-input { width: 220px; background: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 6px 10px; border-radius: 4px; font-size: 12px; }
-
-    /* Tabla */
-    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-    th { background: #0f172a; color: var(--accent-blue); padding: 12px 10px; border-bottom: 1px solid var(--border-color); font-size: 11px; text-transform: uppercase; }
-    td { padding: 12px 10px; border-bottom: 1px solid var(--border-color); color: #e2e8f0; vertical-align: middle; }
-    tr:nth-child(even) { background-color: #0f172a; }
-
-    .tag-badge { background: #0284c7; color: white; font-size: 10px; padding: 2px 6px; border-radius: 3px; display: inline-block; }
-    .btn-ws-table { background: #059669; color: white; border: none; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
-    .action-icons { display: flex; gap: 6px; }
-    .btn-icon { background: #334155; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
-    .btn-icon.delete { background: #991b1b; }
-  </style>
+    <style>
+        body { background-color: #0b0f19 !important; color: #ffffff !important; font-family: system-ui, -apple-system, sans-serif; padding: 20px; }
+        .section-box { background-color: #151c2c !important; border: 2px solid #2d3748 !important; border-radius: 12px; padding: 20px; margin-bottom: 25px; }
+        .section-title { font-size: 1.1rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .btn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+        .btn-panel-box { background-color: #1e293b !important; border: 1px solid #475569 !important; border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+        .btn-panel-box:hover { background-color: #334155 !important; border-color: #38bdf8 !important; }
+        .btn-app-box { background-color: #1d4ed8 !important; border: 1px solid #3b82f6 !important; }
+        .btn-app-box:hover { background-color: #2563eb !important; }
+        .panel-link { color: #ffffff !important; text-decoration: none !important; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; width: 100%; }
+        .btn-edit-icon { color: #fbbf24 !important; font-size: 1rem; cursor: pointer; }
+        label { color: #38bdf8 !important; font-weight: 800 !important; font-size: 0.9rem; margin-bottom: 6px; display: block; text-transform: uppercase; }
+        .form-control, .form-select { background-color: #0f172a !important; border: 2px solid #475569 !important; color: #ffffff !important; font-size: 0.95rem !important; font-weight: 600 !important; padding: 10px !important; }
+        .form-control:focus, .form-select:focus { background-color: #1e293b !important; border-color: #38bdf8 !important; color: #ffffff !important; box-shadow: 0 0 10px rgba(56, 189, 248, 0.5) !important; }
+        ::placeholder { color: #94a3b8 !important; opacity: 1 !important; }
+        option { background-color: #0f172a !important; color: #ffffff !important; }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+        .table-custom { color: #ffffff !important; margin: 0; }
+        .table-custom th { background-color: #1e293b !important; color: #38bdf8 !important; border-bottom: 2px solid #475569 !important; padding: 12px; font-weight: 800; }
+        .table-custom td { background-color: #0f172a !important; border-bottom: 1px solid #1e293b !important; padding: 12px; vertical-align: middle; color: #ffffff !important; }
+        .btn-whatsapp { background-color: #25d366 !important; color: #ffffff !important; font-weight: bold; border: none !important; }
+        .btn-whatsapp:hover { background-color: #1da851 !important; }
+        .notepad-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(11, 15, 25, 0.98); z-index: 99999; padding: 25px; box-sizing: border-box; flex-direction: column; }
+        .notepad-modal.active { display: flex; }
+        .notepad-textarea { width: 100%; height: 100%; background-color: #050811 !important; color: #00ffcc !important; font-family: monospace; font-size: 1.1rem !important; padding: 20px !important; border: 2px solid #38bdf8 !important; border-radius: 8px; resize: none; }
+        .sync-badge { font-size: 0.85rem; padding: 5px 12px; border-radius: 20px; }
+    </style>
 </head>
 <body>
 
-<div class="container">
-  <!-- CABECERA -->
-  <div class="header">
-    <div>
-      <h1>Panel IPTV Admin</h1>
-      <span class="badge-status">● Sistema Listo</span>
-    </div>
-    <div class="header-buttons">
-      <button class="btn-top btn-reset" onclick="resetApp()">🔄 Reset URLs</button>
-      <button class="btn-top btn-copy-load" onclick="importBackup()">📥 Cargar Copia</button>
-      <button class="btn-top btn-copy-save" onclick="exportBackup()">💾 Guardar Copia</button>
-    </div>
-  </div>
-
-  <!-- PANELES IPTV -->
-  <div class="card">
-    <div class="card-title">PANELES IPTV</div>
-    <div class="grid-links">
-      <a href="#" class="link-item">NetTV ✏️</a>
-      <a href="#" class="link-item">Emby ✏️</a>
-      <a href="#" class="link-item">Zafiro ✏️</a>
-      <a href="#" class="link-item">Dylan ✏️</a>
-      <a href="#" class="link-item">Joker ✏️</a>
-      <a href="#" class="link-item">TS4K ✏️</a>
-      <a href="#" class="link-item">Nexon ✏️</a>
-      <a href="#" class="link-item">Regilón ✏️</a>
-      <a href="#" class="link-item">DonIPTV ✏️</a>
-      <a href="#" class="link-item">P2P ✏️</a>
-    </div>
-  </div>
-
-  <!-- PANELES APLICACIONES -->
-  <div class="card">
-    <div class="card-title">PANELES APLICACIONES</div>
-    <div class="grid-links">
-      <a href="#" class="link-item app-link">Max Player ✏️</a>
-      <a href="#" class="link-item app-link">iBox Player ✏️</a>
-      <a href="#" class="link-item app-link">Smartone ✏️</a>
-      <a href="#" class="link-item app-link">CR7 Panel ✏️</a>
-      <a href="#" class="link-item app-link">IBO Player ✏️</a>
-      <a href="#" class="link-item app-link">IBO Sol ✏️</a>
-      <a href="#" class="link-item app-link">IBO Lopes ✏️</a>
-      <a href="#" class="link-item app-link">DonIBO ✏️</a>
-      <a href="#" class="link-item app-link">TiviMate VPN ✏️</a>
-      <a href="#" class="link-item app-link">VU Player ✏️</a>
-      <a href="#" class="link-item app-link">IBO Killer ✏️</a>
-      <a href="#" class="link-item app-link">XCIPTV Phoenix ✏️</a>
-      <a href="#" class="link-item app-link">TiviMate Phoenix ✏️</a>
-    </div>
-  </div>
-
-  <!-- BLOC DE NOTAS & DNS -->
-  <div class="card">
-    <div class="card-title">BLOC DE NOTAS & DNS</div>
-    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-      <select style="max-width: 200px;"><option>DNS Guardadas</option></select>
-    </div>
-    <textarea id="blocNotas" rows="3" placeholder="Anota aquí las DNS o credenciales temporales..." oninput="saveNotes()"></textarea>
-  </div>
-
-  <!-- ALERTAS POR TELEGRAM -->
-  <div class="card">
-    <div class="card-title">ALERTAS POR TELEGRAM</div>
-    <div class="grid-4">
-      <div style="grid-column: span 2;">
-        <label>TELEGRAM BOT TOKEN</label>
-        <input type="text" id="tgToken" value="8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOSS5g" oninput="saveTg()">
-      </div>
-      <div style="grid-column: span 2;">
-        <label>TELEGRAM CHAT ID</label>
-        <input type="text" id="tgChat" value="1417906399" oninput="saveTg()">
-      </div>
-    </div>
-  </div>
-
-  <!-- REGISTRAR NUEVO CLIENTE -->
-  <div class="card">
-    <div class="card-title">👤 REGISTRAR NUEVO CLIENTE</div>
-    <form id="clientForm" onsubmit="saveClient(event)">
-      <input type="hidden" id="clientId">
-      <div class="grid-4">
+<div class="container-fluid max-w-7xl mx-auto">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <label>NOMBRE DEL CLIENTE*</label>
-          <input type="text" id="cNombre" placeholder="Nombre completo" required>
+            <h3 class="fw-bold m-0 text-white"><i class="bi bi-cpu-fill text-info me-2"></i>Panel IPTV Admin</h3>
+            <span id="syncStatus" class="badge bg-secondary sync-badge mt-1"><i class="bi bi-cloud-slash me-1"></i> Conectando a Firebase...</span>
         </div>
-        <div>
-          <label>TELÉFONO (WHATSAPP)*</label>
-          <input type="text" id="cTelefono" placeholder="34612345678" required>
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-primary btn-sm" onclick="requestNotificationPermission()"><i class="bi bi-bell-fill"></i> Notificaciones</button>
+            <button class="btn btn-outline-warning btn-sm" onclick="resetLinks()"><i class="bi bi-arrow-counterclockwise"></i> Reset URLs</button>
+            <button class="btn btn-outline-info btn-sm" onclick="document.getElementById('importFile').click()"><i class="bi bi-upload"></i> Cargar Copia</button>
+            <input type="file" id="importFile" style="display:none;" onchange="importBackup(event)">
+            <button class="btn btn-success btn-sm" onclick="exportBackup()"><i class="bi bi-download"></i> Guardar Copia</button>
         </div>
-        <div>
-          <label>USUARIO PANEL / APP</label>
-          <input type="text" id="cUsuario" placeholder="Ej: usuario123">
-        </div>
-        <div>
-          <label>CONTRASEÑA</label>
-          <input type="text" id="cPassword" placeholder="Ej: clave123">
-        </div>
-
-        <div>
-          <label>SERVIDOR / PANEL IPTV</label>
-          <input type="text" id="cServidor" placeholder="Ej: NetTV">
-        </div>
-        <div>
-          <label>APLICACIÓN INSTALADA</label>
-          <input type="text" id="cApp" placeholder="Ej: Max Player">
-        </div>
-        <div>
-          <label>DIRECCIÓN MAC</label>
-          <input type="text" id="cMac" placeholder="00:1A:2B:3C:4D:5E">
-        </div>
-        <div>
-          <label>FECHA VENCIMIENTO*</label>
-          <input type="date" id="cFecha" required>
-        </div>
-
-        <div class="full-row">
-          <label>NOTAS ADICIONALES</label>
-          <input type="text" id="cNotas" placeholder="Dispositivo, observaciones, etc.">
-        </div>
-      </div>
-
-      <div class="form-actions">
-        <button type="button" class="btn-cancel" onclick="resetForm()">Limpiar / Cancelar</button>
-        <button type="submit" class="btn-save">💾 Guardar Cliente</button>
-      </div>
-    </form>
-  </div>
-
-  <!-- CLIENTES REGISTRADOS -->
-  <div class="card">
-    <div class="table-header-tools">
-      <div class="card-title" style="margin:0;">👥 CLIENTES (<span id="clientCount">0</span>)</div>
-      
-      <div class="filters-group">
-        <button class="btn-filter filter-all active" onclick="filterClients('all', this)">Todos</button>
-        <button class="btn-filter filter-today" onclick="filterClients('today', this)">Vencen Hoy</button>
-        <button class="btn-filter filter-expired" onclick="filterClients('expired', this)">Caducados</button>
-      </div>
-
-      <input type="text" id="searchInput" class="search-input" placeholder="Buscar cliente, tel, MAC..." oninput="renderClients()">
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Cliente / Teléfono</th>
-          <th>Credenciales</th>
-          <th>Servidor / App</th>
-          <th>MAC</th>
-          <th>Vencimiento</th>
-          <th>Aviso WhatsApp</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody id="clientsTableBody">
-        <!-- Renderizado dinámico -->
-      </tbody>
-    </table>
-  </div>
+    <!-- PANELES IPTV -->
+    <div class="section-box">
+        <div class="section-title text-info"><i class="bi bi-grid-3x3-gap-fill"></i> Paneles IPTV</div>
+        <div class="btn-grid" id="iptvGrid"></div>
+    </div>
+
+    <!-- PANELES APLICACIONES -->
+    <div class="section-box">
+        <div class="section-title text-primary"><i class="bi bi-app-indicator"></i> Paneles de Aplicaciones</div>
+        <div class="btn-grid" id="appGrid"></div>
+    </div>
+
+    <!-- BLOC DE NOTAS / DNS -->
+    <div class="section-box">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="section-title text-warning m-0"><i class="bi bi-journal-text me-1"></i> Bloc de Notas & DNS</div>
+            <div class="d-flex align-items-center gap-2">
+                <select class="form-select form-select-sm" id="noteCategorySelect" style="width: 240px;" onchange="changeNoteCategory()">
+                    <option value="dns_iptv">🌐 DNS</option>
+                    <option value="apks">📲 APKs & Códigos Downloader</option>
+                    <option value="app_codes">🔑 Códigos & Activaciones App</option>
+                    <option value="general_notes">📝 Notas Generales</option>
+                </select>
+                <button class="btn btn-warning btn-sm fw-bold px-3" onclick="openNotepadModal()"><i class="bi bi-arrows-fullscreen me-1"></i> Abrir a Pantalla Completa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VENTANA FLOTANTE BLOC DE NOTAS -->
+    <div class="notepad-modal" id="notepadModal">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="m-0 fw-bold text-warning" id="modalTitle"><i class="bi bi-file-earmark-code me-2"></i> Bloc de Notas - DNS</h4>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm" onclick="clearCurrentNote()"><i class="bi bi-eraser"></i> Limpiar</button>
+                <button class="btn btn-success btn-sm fw-bold px-4" onclick="saveCurrentNote()"><i class="bi bi-save me-1"></i> Guardar Cambios</button>
+                <button class="btn btn-danger btn-sm px-3" onclick="closeNotepadModal()"><i class="bi bi-x-lg me-1"></i> Cerrar</button>
+            </div>
+        </div>
+        <textarea class="notepad-textarea" id="noteTextArea" placeholder="Escribe o pega aquí tus direcciones DNS, APKs, notas o claves..."></textarea>
+    </div>
+
+    <!-- BOT TELEGRAM -->
+    <div class="section-box">
+        <div class="section-title text-warning"><i class="bi bi-telegram"></i> Alertas por Telegram</div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label>Telegram Bot Token</label>
+                <input type="text" class="form-control" id="tgToken" value="8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOS5Sg" onchange="saveTgConfig()">
+            </div>
+            <div class="col-md-6">
+                <label>Telegram Chat ID</label>
+                <input type="text" class="form-control" id="tgChatId" value="1417906399" onchange="saveTgConfig()">
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTRO DE CLIENTE -->
+    <div class="section-box">
+        <div class="section-title text-success" id="formTitle"><i class="bi bi-person-plus-fill"></i> Registrar Nuevo Cliente</div>
+        <form id="clientForm" onsubmit="event.preventDefault(); saveClientForm();">
+            <input type="hidden" id="editClientId" value="">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label>Nombre del Cliente *</label>
+                    <input type="text" class="form-control" id="cName" required placeholder="Nombre completo">
+                </div>
+                <div class="col-md-3">
+                    <label>Teléfono (WhatsApp) *</label>
+                    <input type="text" class="form-control" id="cPhone" required placeholder="+34612345678">
+                </div>
+                <div class="col-md-3">
+                    <label>Usuario Panel / App</label>
+                    <input type="text" class="form-control" id="cUser" placeholder="Ej: usuario123">
+                </div>
+                <div class="col-md-3">
+                    <label>Contraseña</label>
+                    <input type="text" class="form-control" id="cPass" placeholder="Ej: clave123">
+                </div>
+                <div class="col-md-3">
+                    <label>Servidor / Panel IPTV</label>
+                    <select class="form-select" id="cServer">
+                        <option value="NetTV">NetTV</option>
+                        <option value="Emby">Emby</option>
+                        <option value="Zafiro">Zafiro</option>
+                        <option value="Dylan">Dylan</option>
+                        <option value="Joker">Joker</option>
+                        <option value="TS4K">TS4K</option>
+                        <option value="Nexon">Nexon</option>
+                        <option value="Regilón">Regilón</option>
+                        <option value="DonIPTV">DonIPTV</option>
+                        <option value="P2P">P2P</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Aplicación Instalada</label>
+                    <select class="form-select" id="cApp">
+                        <option value="Max Player">Max Player</option>
+                        <option value="IBO Player">IBO Player</option>
+                        <option value="iBox Player">iBox Player</option>
+                        <option value="Smartone">Smartone</option>
+                        <option value="CR7 Panel">CR7 Panel</option>
+                        <option value="IBO Sol">IBO Sol</option>
+                        <option value="IBO Lopes">IBO Lopes</option>
+                        <option value="DonIBO">DonIBO</option>
+                        <option value="TiviMate VPN">TiviMate VPN</option>
+                        <option value="VU Player">VU Player</option>
+                        <option value="IBO Killer">IBO Killer</option>
+                        <option value="XCIPTV Phoenix">XCIPTV Phoenix</option>
+                        <option value="TiviMate Phoenix">TiviMate Phoenix</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Dirección MAC</label>
+                    <input type="text" class="form-control" id="cMac" placeholder="00:1A:2B:3C:4D:5E">
+                </div>
+                <div class="col-md-3">
+                    <label>Fecha Vencimiento *</label>
+                    <input type="date" class="form-control" id="cExpiry" required>
+                </div>
+                <div class="col-md-12">
+                    <label>Notas Adicionales</label>
+                    <input type="text" class="form-control" id="cNotes" placeholder="Dispositivo, observaciones, etc.">
+                </div>
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn btn-outline-secondary btn-sm px-3" onclick="resetForm()">Limpiar / Cancelar</button>
+                <button type="submit" class="btn btn-success btn-sm px-4 fw-bold" id="btnSaveClient"><i class="bi bi-save me-1"></i> Guardar Cliente</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- LISTA DE CLIENTES -->
+    <div class="section-box">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+            <div class="section-title text-warning m-0"><i class="bi bi-people-fill"></i> Clientes (<span id="clientCount">0</span>)</div>
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-outline-info active" id="filterAll" onclick="setFilter('all')">Todos</button>
+                <button type="button" class="btn btn-outline-warning" id="filterToday" onclick="setFilter('today')">Vencen Hoy</button>
+                <button type="button" class="btn btn-outline-primary" id="filterWeek" onclick="setFilter('week')">Esta Semana</button>
+                <button type="button" class="btn btn-outline-danger" id="filterExpired" onclick="setFilter('expired')">Caducados</button>
+            </div>
+            <div style="width: 250px;">
+                <input type="text" class="form-control form-control-sm" id="searchBox" placeholder="Buscar cliente, tel, MAC..." onkeyup="renderTable()">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>Cliente / Teléfono</th>
+                        <th>Credenciales</th>
+                        <th>Servidor / App</th>
+                        <th>MAC</th>
+                        <th>Vencimiento</th>
+                        <th class="text-center">Aviso WhatsApp</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="clientTableBody"></tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<!-- LÓGICA DE FUNCIONAMIENTO INTERACTIVO -->
 <script>
-  let clients = JSON.parse(localStorage.getItem('iptv_clients') || '[]');
-  let currentFilter = 'all';
+    // URL DE FIREBASE CORREGIDA EXACTAMENTE A TU CONSOLA
+    const FIREBASE_URL = "https://mi-panel-iptv-d1954-default-rtdb.firebaseio.com/";
 
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('blocNotas').value = localStorage.getItem('iptv_notes') || '';
-    renderClients();
-  });
+    const DEFAULT_TG_TOKEN = "8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOS5Sg";
+    const DEFAULT_TG_CHAT_ID = "1417906399";
 
-  function saveNotes() {
-    localStorage.setItem('iptv_notes', document.getElementById('blocNotas').value);
-  }
+    const defaultIptvLinks = [
+        { id: 'nettv', name: 'NetTV', icon: 'bi-tv', url: 'https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100' },
+        { id: 'emby', name: 'Emby', icon: 'bi-hdd-network', url: 'https://thorcrm.info/login' },
+        { id: 'zafiro', name: 'Zafiro', icon: 'bi-gem', url: 'https://koramendi.eu/dashboard' },
+        { id: 'dylan', name: 'Dylan', icon: 'bi-play-circle', url: 'https://599.iglesiadecristoredentor.org:2053/piruletas@@2020/login' },
+        { id: 'joker', name: 'Joker', icon: 'bi-lightning', url: 'https://respaneller.xyz/generalcOyYsDqo/login?referrer=dashboard' },
+        { id: 'ts4k', name: 'TS4K', icon: 'bi-box', url: 'https://storm-panel.pro/login.php' },
+        { id: 'nexon', name: 'Nexon', icon: 'bi-cpu', url: 'https://cms-nexon.org/nexon/login.php?referrer=subresellers.php' },
+        { id: 'regilon', name: 'Regilón', icon: 'bi-globe', url: 'https://treemor.uk/TARANTULA2/login' },
+        { id: 'doniptv', name: 'DonIPTV', icon: 'bi-broadcast', url: 'https://main.salsadetomate.shop:2096' },
+        { id: 'p2p', name: 'P2P', icon: 'bi-diagram-3', url: 'https://p2pro.sigma.st' }
+    ];
 
-  function saveTg() {
-    localStorage.setItem('tg_token', document.getElementById('tgToken').value);
-    localStorage.setItem('tg_chat', document.getElementById('tgChat').value);
-  }
+    const defaultAppLinks = [
+        { id: 'maxplayer', name: 'Max Player', icon: 'bi-display', url: 'https://my.maxplayer.tv/auth/login' },
+        { id: 'ibox', name: 'iBox Player', icon: 'bi-box', url: 'https://iboxxiptv.com/device/login' },
+        { id: 'smartone', name: 'Smartone', icon: 'bi-tv', url: 'https://smartone-iptv.com/es/aplicacion-iptv-para-samsung' },
+        { id: 'cr7', name: 'CR7 Panel', icon: 'bi-shield', url: 'https://cr7panel.com/' },
+        { id: 'ibo', name: 'IBO Player', icon: 'bi-play-circle', url: 'https://iboplayer.com/' },
+        { id: 'ibosol', name: 'IBO Sol', icon: 'bi-sun', url: 'https://ibosol.com/login' },
+        { id: 'ibolopes', name: 'IBO Lopes', icon: 'bi-controller', url: 'https://maxtvapps.pw/Apks/Ibo/Lopes/index.php' },
+        { id: 'donibo', name: 'DonIBO', icon: 'bi-check-circle', url: 'https://nertix.org/ibopanel4/users.php' },
+        { id: 'thimata', name: 'TiviMate VPN', icon: 'bi-key', url: 'https://globalvip.website/rbatv/nuepp/tiviproat' },
+        { id: 'vuplayer', name: 'VU Player', icon: 'bi-collection-play', url: 'https://rgvipplus.site/vu2/marine' },
+        { id: 'ibokiller', name: 'IBO Killer', icon: 'bi-x-circle', url: 'https://maxtvapps.pw/Apks/Ibo/Killer1/' },
+        { id: 'xciptv', name: 'XCIPTV Phoenix', icon: 'bi-fire', url: 'https://maxtvapps.pw/Apks/Xciptv/Phoenix/index.php' },
+        { id: 'tivimate', name: 'TiviMate Phoenix', icon: 'bi-lightning-charge', url: 'https://maxtvapps.pw/Apks/Tivimate/Phoenix/' }
+    ];
 
-  function saveClient(e) {
-    e.preventDefault();
-    const id = document.getElementById('clientId').value || Date.now().toString();
-    const newClient = {
-      id,
-      nombre: document.getElementById('cNombre').value,
-      telefono: document.getElementById('cTelefono').value,
-      usuario: document.getElementById('cUsuario').value,
-      password: document.getElementById('cPassword').value,
-      servidor: document.getElementById('cServidor').value,
-      app: document.getElementById('cApp').value,
-      mac: document.getElementById('cMac').value,
-      fecha: document.getElementById('cFecha').value,
-      notas: document.getElementById('cNotas').value
-    };
+    let customLinks = JSON.parse(localStorage.getItem('iptv_custom_urls')) || {};
+    let activeFilter = 'all';
+    let dbRef = null;
+    let clients = JSON.parse(localStorage.getItem('iptv_clients_full')) || [];
 
-    const index = clients.findIndex(c => c.id === id);
-    if (index > -1) {
-      clients[index] = newClient;
-    } else {
-      clients.push(newClient);
-    }
+    function checkExpirationsAndNotify() {
+        const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || { token: DEFAULT_TG_TOKEN, chatId: DEFAULT_TG_CHAT_ID };
+        if (!tgData.token || !tgData.chatId) return;
 
-    localStorage.setItem('iptv_clients', JSON.stringify(clients));
-    resetForm();
-    renderClients();
-  }
+        const today = new Date();
+        const todayStr = today.toISOString().slice(0, 10);
 
-  function editClient(id) {
-    const c = clients.find(item => item.id === id);
-    if (!c) return;
-    document.getElementById('clientId').value = c.id;
-    document.getElementById('cNombre').value = c.nombre;
-    document.getElementById('cTelefono').value = c.telefono;
-    document.getElementById('cUsuario').value = c.usuario;
-    document.getElementById('cPassword').value = c.password;
-    document.getElementById('cServidor').value = c.servidor;
-    document.getElementById('cApp').value = c.app;
-    document.getElementById('cMac').value = c.mac;
-    document.getElementById('cFecha').value = c.fecha;
-    document.getElementById('cNotas').value = c.notas;
-  }
+        const inThreeDays = new Date();
+        inThreeDays.setDate(today.getDate() + 3);
+        const inThreeDaysStr = inThreeDays.toISOString().slice(0, 10);
 
-  function deleteClient(id) {
-    if (confirm('¿Seguro que deseas eliminar este cliente?')) {
-      clients = clients.filter(c => c.id !== id);
-      localStorage.setItem('iptv_clients', JSON.stringify(clients));
-      renderClients();
-    }
-  }
+        const lastCheck = localStorage.getItem('iptv_last_tg_check');
+        if (lastCheck === todayStr) return;
 
-  function resetForm() {
-    document.getElementById('clientId').value = '';
-    document.getElementById('clientForm').reset();
-  }
+        let messages = [];
 
-  function filterClients(type, btn) {
-    currentFilter = type;
-    document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderClients();
-  }
+        clients.forEach(c => {
+            if (c.expiry === todayStr) {
+                messages.push(`🔴 *CADUCA HOY*\n👤 *Cliente:* ${c.name}\n📱 *Tel:* ${c.phone}\n📺 *App/Servidor:* ${c.app || '-'} / ${c.server || '-'}`);
+            } else if (c.expiry === inThreeDaysStr) {
+                messages.push(`🟡 *CADUCA EN 3 DÍAS*\n👤 *Cliente:* ${c.name}\n📱 *Tel:* ${c.phone}\n📅 *Vence:* ${c.expiry}`);
+            }
+        });
 
-  function renderClients() {
-    const tbody = document.getElementById('clientsTableBody');
-    const search = document.getElementById('searchInput').value.toLowerCase();
-    const todayStr = new Date().toISOString().split('T')[0];
-
-    tbody.innerHTML = '';
-
-    let filtered = clients.filter(c => {
-      const matchSearch = c.nombre.toLowerCase().includes(search) || 
-                          c.telefono.includes(search) || 
-                          c.mac.toLowerCase().includes(search);
-      if (!matchSearch) return false;
-
-      if (currentFilter === 'today') return c.fecha === todayStr;
-      if (currentFilter === 'expired') return c.fecha < todayStr && c.fecha !== '';
-      return true;
-    });
-
-    document.getElementById('clientCount').innerText = filtered.length;
-
-    if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:20px;">No hay clientes registrados o coincidentes.</td></tr>`;
-      return;
-    }
-
-    filtered.forEach(c => {
-      const cleanTel = c.telefono.replace(/[^0-9]/g, '');
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><strong>${c.nombre}</strong><br><small style="color: #94a3b8;">${c.telefono}</small></td>
-        <td><small>U: ${c.usuario || '-'}</small><br><small style="color: #94a3b8;">C: ${c.password || '-'}</small></td>
-        <td><span class="tag-badge">${c.servidor || 'N/A'}</span><br><small>${c.app || '-'}</small></td>
-        <td><code>${c.mac || '-'}</code></td>
-        <td>${c.fecha || '-'}</td>
-        <td>
-          <a href="https://wa.me/${cleanTel}" target="_blank" class="btn-ws-table">📲 Contactar</a>
-        </td>
-        <td>
-          <div class="action-icons">
-            <button class="btn-icon" onclick="editClient('${c.id}')">✏️</button>
-            <button class="btn-icon delete" onclick="deleteClient('${c.id}')">🗑️</button>
-          </div>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  function exportBackup() {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clients));
-    const dlAnchor = document.createElement('a');
-    dlAnchor.setAttribute("href", dataStr);
-    dlAnchor.setAttribute("download", `copia_iptv_${new Date().toISOString().split('T')[0]}.json`);
-    dlAnchor.click();
-  }
-
-  function importBackup() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = e => {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onload = event => {
-        try {
-          clients = JSON.parse(event.target.result);
-          localStorage.setItem('iptv_clients', JSON.stringify(clients));
-          renderClients();
-          alert('¡Copia de seguridad cargada con éxito!');
-        } catch (err) {
-          alert('Error al leer el archivo de copia.');
+        if (messages.length > 0) {
+            const fullMessage = `📊 *RESUMEN DIARIO DE VENCIMIENTOS*\n\n` + messages.join('\n\n-------------------\n\n');
+            sendTelegramAlert(fullMessage);
+            localStorage.setItem('iptv_last_tg_check', todayStr);
         }
-      };
-      reader.readAsText(file);
-    };
-    input.click();
-  }
-
-  function resetApp() {
-    if (confirm('¿Resetear datos del sistema?')) {
-      localStorage.clear();
-      location.reload();
     }
-  }
-</script>
 
+    function initFirebase() {
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp({ databaseURL: FIREBASE_URL });
+            }
+            dbRef = firebase.database().ref('iptv_admin_data');
+
+            // Escuchar cambios en tiempo real desde Firebase
+            dbRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (data.clients) {
+                        clients = data.clients;
+                        saveClientsLocal();
+                        renderTable();
+                        checkExpirationsAndNotify();
+                    }
+                    if (data.notes) {
+                        localStorage.setItem('iptv_multi_notes', JSON.stringify(data.notes));
+                        loadCurrentNote();
+                    }
+                } else {
+                    // Si Firebase está totalmente vacío, sube los datos locales actuales
+                    syncToCloud();
+                }
+            });
+
+            document.getElementById('syncStatus').className = "badge bg-success sync-badge mt-1";
+            document.getElementById('syncStatus').innerHTML = '<i class="bi bi-cloud-check-fill me-1"></i> Conectado a Firebase';
+        } catch(e) {
+            console.error(e);
+            document.getElementById('syncStatus').className = "badge bg-danger sync-badge mt-1";
+            document.getElementById('syncStatus').innerText = "Error de conexión";
+        }
+    }
+
+    function syncToCloud() {
+        if (dbRef) {
+            const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
+            dbRef.set({ clients: clients, notes: savedNotes }).catch(err => console.error("Error al escribir en Firebase:", err));
+        }
+    }
+
+    function renderButtons() {
+        const iptvGrid = document.getElementById('iptvGrid');
+        const appGrid = document.getElementById('appGrid');
+        iptvGrid.innerHTML = ''; appGrid.innerHTML = '';
+
+        defaultIptvLinks.forEach(item => {
+            const finalUrl = customLinks[item.id] || item.url;
+            iptvGrid.appendChild(createButtonBox(item, finalUrl, false));
+        });
+
+        defaultAppLinks.forEach(item => {
+            const finalUrl = customLinks[item.id] || item.url;
+            appGrid.appendChild(createButtonBox(item, finalUrl, true));
+        });
+    }
+
+    function createButtonBox(item, url, isApp) {
+        const div = document.createElement('div');
+        div.className = `btn-panel-box ${isApp ? 'btn-app-box' : ''}`;
+        const cleanUrl = url.trim();
+
+        div.innerHTML = `
+            <a href="${cleanUrl}" class="panel-link" target="_blank" rel="noopener noreferrer">
+                <i class="bi ${item.icon}"></i> ${item.name}
+            </a>
+            <i class="bi bi-pencil-fill btn-edit-icon" title="Editar URL" onclick="editUrl('${item.id}', '${item.name}', '${cleanUrl}')"></i>
+        `;
+        return div;
+    }
+
+    function editUrl(id, name, currentUrl) {
+        const newUrl = prompt(`Cambiar enlace para ${name}:`, currentUrl);
+        if (newUrl !== null) {
+            customLinks[id] = newUrl.trim();
+            localStorage.setItem('iptv_custom_urls', JSON.stringify(customLinks));
+            renderButtons();
+        }
+    }
+
+    function resetLinks() {
+        if(confirm('¿Restablecer todas las URLs al estado original?')) {
+            localStorage.removeItem('iptv_custom_urls');
+            customLinks = {};
+            renderButtons();
+        }
+    }
+
+    function requestNotificationPermission() {
+        if (!("Notification" in window)) return alert("Tu navegador no soporta notificaciones.");
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") new Notification("Panel IPTV Admin", { body: "Notificaciones activadas correctamente." });
+        });
+    }
+
+    // BLOC DE NOTAS
+    let currentCategoryKey = 'dns_iptv';
+
+    function openNotepadModal() {
+        saveCurrentNote(false);
+        currentCategoryKey = document.getElementById('noteCategorySelect').value;
+        const selectText = document.getElementById('noteCategorySelect').options[document.getElementById('noteCategorySelect').selectedIndex].text;
+        document.getElementById('modalTitle').innerHTML = `<i class="bi bi-file-earmark-code me-2"></i> ${selectText}`;
+        loadCurrentNote();
+        document.getElementById('notepadModal').classList.add('active');
+    }
+
+    function closeNotepadModal() {
+        saveCurrentNote(false);
+        document.getElementById('notepadModal').classList.remove('active');
+    }
+
+    function changeNoteCategory() {
+        saveCurrentNote(false);
+        currentCategoryKey = document.getElementById('noteCategorySelect').value;
+        const selectText = document.getElementById('noteCategorySelect').options[document.getElementById('noteCategorySelect').selectedIndex].text;
+        document.getElementById('modalTitle').innerHTML = `<i class="bi bi-file-earmark-code me-2"></i> ${selectText}`;
+        loadCurrentNote();
+    }
+
+    function loadCurrentNote() {
+        const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
+        document.getElementById('noteTextArea').value = savedNotes[currentCategoryKey] || '';
+    }
+
+    function saveCurrentNote(showAlert = true) {
+        const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
+        savedNotes[currentCategoryKey] = document.getElementById('noteTextArea').value;
+        localStorage.setItem('iptv_multi_notes', JSON.stringify(savedNotes));
+        syncToCloud();
+        if (showAlert) alert('Nota guardada y sincronizada.');
+    }
+
+    function clearCurrentNote() {
+        if(confirm('¿Borrar texto de esta categoría?')) {
+            document.getElementById('noteTextArea').value = '';
+            saveCurrentNote(false);
+        }
+    }
+
+    // CLIENTES
+    function saveClientsLocal() { localStorage.setItem('iptv_clients_full', JSON.stringify(clients)); }
+
+    function saveClients() {
+        saveClientsLocal();
+        syncToCloud();
+    }
+
+    function saveClientForm() {
+        const editId = document.getElementById('editClientId').value;
+        const clientData = {
+            id: editId ? editId : Date.now().toString(),
+            name: document.getElementById('cName').value,
+            phone: document.getElementById('cPhone').value,
+            user: document.getElementById('cUser').value,
+            pass: document.getElementById('cPass').value,
+            server: document.getElementById('cServer').value,
+            app: document.getElementById('cApp').value,
+            mac: document.getElementById('cMac').value,
+            expiry: document.getElementById('cExpiry').value,
+            notes: document.getElementById('cNotes').value
+        };
+
+        if (editId) {
+            const index = clients.findIndex(c => c.id === editId);
+            if (index !== -1) clients[index] = clientData;
+        } else {
+            clients.push(clientData);
+            sendTelegramAlert(`🟢 *Nuevo Cliente Registrado*\n👤 *Cliente:* ${clientData.name}\n📱 *Tel:* ${clientData.phone}\n📅 *Vence:* ${clientData.expiry}\n📺 *App/Servidor:* ${clientData.app} / ${clientData.server}`);
+        }
+
+        saveClients();
+        resetForm();
+        renderTable();
+    }
+
+    function editClient(id) {
+        const client = clients.find(c => c.id === id);
+        if (!client) return;
+        document.getElementById('editClientId').value = client.id;
+        document.getElementById('cName').value = client.name || '';
+        document.getElementById('cPhone').value = client.phone || '';
+        document.getElementById('cUser').value = client.user || '';
+        document.getElementById('cPass').value = client.pass || '';
+        document.getElementById('cServer').value = client.server || 'NetTV';
+        document.getElementById('cApp').value = client.app || 'Max Player';
+        document.getElementById('cMac').value = client.mac || '';
+        document.getElementById('cExpiry').value = client.expiry || '';
+        document.getElementById('cNotes').value = client.notes || '';
+        document.getElementById('formTitle').innerHTML = `<i class="bi bi-pencil-square text-warning"></i> Editando: ${client.name}`;
+        window.scrollTo({ top: document.getElementById('clientForm').offsetTop - 20, behavior: 'smooth' });
+    }
+
+    function resetForm() {
+        document.getElementById('editClientId').value = '';
+        document.getElementById('clientForm').reset();
+        document.getElementById('formTitle').innerHTML = `<i class="bi bi-person-plus-fill"></i> Registrar Nuevo Cliente`;
+    }
+
+    function setFilter(filterType) {
+        activeFilter = filterType;
+        document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+        if (filterType === 'all') document.getElementById('filterAll').classList.add('active');
+        if (filterType === 'today') document.getElementById('filterToday').classList.add('active');
+        if (filterType === 'week') document.getElementById('filterWeek').classList.add('active');
+        if (filterType === 'expired') document.getElementById('filterExpired').classList.add('active');
+        renderTable();
+    }
+
+    function sendWhatsApp(phone, name, expiry, app) {
+        if (!phone) return alert("No hay teléfono registrado.");
+        const cleanPhone = phone.replace(/[^0-9]/g, '');
+        const today = new Date().toISOString().slice(0, 10);
+        let msg = `Buenas ${name}, te caduca la aplicación (${app || 'IPTV'}) `;
+        if (expiry < today) msg += `caducó el ${expiry}. ¿Te interesa renovar? Gracias.`;
+        else if (expiry === today) msg += `caduca HOY. ¿Te interesa renovar? Gracias.`;
+        else msg += `en los días que le quedan (${expiry}). ¿Te interesa renovar? Gracias.`;
+        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('clientTableBody');
+        const query = document.getElementById('searchBox').value.toLowerCase();
+        tbody.innerHTML = '';
+
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const nextWeek = new Date(); nextWeek.setDate(nextWeek.getDate() + 7);
+        const nextWeekStr = nextWeek.toISOString().slice(0, 10);
+
+        let filtered = clients.filter(c => 
+            (c.name && c.name.toLowerCase().includes(query)) || 
+            (c.phone && c.phone.includes(query)) ||
+            (c.user && c.user.toLowerCase().includes(query)) ||
+            (c.mac && c.mac.toLowerCase().includes(query))
+        );
+
+        if (activeFilter === 'today') filtered = filtered.filter(c => c.expiry === todayStr);
+        else if (activeFilter === 'week') filtered = filtered.filter(c => c.expiry >= todayStr && c.expiry <= nextWeekStr);
+        else if (activeFilter === 'expired') filtered = filtered.filter(c => c.expiry < todayStr);
+
+        document.getElementById('clientCount').innerText = filtered.length;
+
+        filtered.forEach(c => {
+            const tr = document.createElement('tr');
+            let badgeClass = c.expiry < todayStr ? 'bg-danger' : (c.expiry === todayStr ? 'bg-warning text-dark' : 'bg-info text-dark');
+            tr.innerHTML = `
+                <td><strong>${c.name || '-'}</strong><br><small class="text-info">${c.phone || '-'}</small></td>
+                <td><small>U: ${c.user || '-'}<br>C: ${c.pass || '-'}</small></td>
+                <td><span class="badge bg-primary">${c.server || '-'}</span><br><small class="text-light">${c.app || '-'}</small></td>
+                <td><small class="text-warning">${c.mac || '-'}</small></td>
+                <td><span class="badge ${badgeClass}">${c.expiry || '-'}</span></td>
+                <td class="text-center"><button class="btn btn-whatsapp btn-sm px-3" onclick="sendWhatsApp('${c.phone}', '${c.name}', '${c.expiry}', '${c.app}')"><i class="bi bi-whatsapp me-1"></i> Contactar</button></td>
+                <td class="text-center">
+                    <button class="btn btn-outline-warning btn-sm me-1" onclick="editClient('${c.id}')"><i class="bi bi-pencil-fill"></i></button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteClient('${c.id}')"><i class="bi bi-trash"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function deleteClient(id) {
+        if(confirm('¿Eliminar cliente?')) {
+            clients = clients.filter(c => c.id !== id);
+            saveClients();
+            renderTable();
+        }
+    }
+
+    function exportBackup() {
+        const blob = new Blob([JSON.stringify(clients, null, 2)], {type: 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `backup_iptv_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+    }
+
+    function importBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                clients = JSON.parse(e.target.result);
+                saveClients();
+                renderTable();
+                alert('¡Copia cargada!');
+            } catch(err) { alert('Archivo JSON inválido.'); }
+        };
+        reader.readAsText(file);
+    }
+
+    function saveTgConfig() {
+        const tgData = { 
+            token: document.getElementById('tgToken').value, 
+            chatId: document.getElementById('tgChatId').value 
+        };
+        localStorage.setItem('iptv_tg_config', JSON.stringify(tgData));
+    }
+
+    function loadTgConfig() {
+        const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || { token: DEFAULT_TG_TOKEN, chatId: DEFAULT_TG_CHAT_ID };
+        document.getElementById('tgToken').value = tgData.token;
+        document.getElementById('tgChatId').value = tgData.chatId;
+        saveTgConfig();
+    }
+
+    function sendTelegramAlert(msg) {
+        const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || { token: DEFAULT_TG_TOKEN, chatId: DEFAULT_TG_CHAT_ID };
+        if (!tgData.token || !tgData.chatId) return;
+        fetch(`https://api.telegram.org/bot${tgData.token}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: tgData.chatId, text: msg, parse_mode: 'Markdown' })
+        });
+    }
+
+    // Inicialización
+    renderButtons();
+    renderTable();
+    loadTgConfig();
+    initFirebase();
+</script>
 </body>
 </html>
