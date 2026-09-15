@@ -1,357 +1,502 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor IPTV & Clientes</title>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent: #3b82f6;
-            --text-color: #f8fafc;
-            --border-color: #334155;
-            --danger: #ef4444;
-            --success: #10b981;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel IPTV Admin</title>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-        }
+  <!-- SDK Firebase CDN v9 (Módulos) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    // Configuración de tu proyecto Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSy_REEMPLAZA_CON_TU_API_KEY",
+      authDomain: "tu-proyecto.firebaseapp.com",
+      databaseURL: "https://tu-proyecto-default-rtdb.firebaseio.com",
+      projectId: "tu-proyecto",
+      storageBucket: "tu-proyecto.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef123456"
+    };
 
-        /* Menú Navegación */
-        .nav-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 10px;
-        }
+    // Inicializar Firebase y Realtime Database
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    window.db = db;
+    window.dbRef = ref;
+    window.dbSet = set;
+    window.dbOnValue = onValue;
+    window.dbRemove = remove;
+  </script>
 
-        .tab-btn {
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-        }
+  <style>
+    :root {
+      --bg-main: #0a0f1d;
+      --bg-card: #111827;
+      --bg-input: #0f172a;
+      --border-color: #1e293b;
+      --accent-blue: #38bdf8;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
 
-        .tab-btn.active, .tab-btn:hover {
-            background-color: var(--accent);
-            border-color: var(--accent);
-        }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text-main); margin: 0; padding: 20px; }
+    .container { max-width: 1400px; margin: 0 auto; }
 
-        .tab-content {
-            display: none;
-            background-color: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
+    /* Header */
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .header-title h1 { font-size: 20px; margin: 0; color: #fff; }
+    .badge-status { background: #064e3b; color: #34d399; font-size: 11px; padding: 3px 8px; border-radius: 12px; border: 1px solid #059669; display: inline-block; margin-top: 5px; }
+    .header-buttons { display: flex; gap: 8px; }
+    .btn-top { padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; border: none; cursor: pointer; color: white; }
+    .btn-reset { background-color: #d97706; }
+    .btn-copy-load { background-color: #0284c7; }
+    .btn-copy-save { background-color: #16a34a; }
 
-        .tab-content.active {
-            display: block;
-        }
+    /* Tarjetas */
+    .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 18px; margin-bottom: 20px; }
+    .card-title { font-size: 13px; font-weight: bold; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 15px; }
 
-        /* Formularios y Tablas */
-        .form-group {
-            margin-bottom: 15px;
-        }
+    /* Grid Botones Paneles */
+    .grid-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+    .link-item { background: #1e293b; border: 1px solid #334155; color: #f1f5f9; padding: 8px 12px; border-radius: 4px; font-size: 13px; text-decoration: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .link-item:hover { background: #334155; }
+    .app-link { background: #1e1b4b; border-color: #312e81; color: #c7d2fe; }
+    .app-link:hover { background: #312e81; }
 
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.9em;
-        }
+    /* Formulario */
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .full-row { grid-column: span 4; margin-top: 8px; }
+    label { display: block; font-size: 11px; font-weight: bold; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 5px; }
+    input, select, textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 9px 10px; border-radius: 4px; font-size: 13px; outline: none; }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent-blue); }
 
-        input, select {
-            width: 100%;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            background-color: #0f172a;
-            color: white;
-            box-sizing: border-box;
-        }
+    .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
+    .btn-cancel { background: #475569; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .btn-save { background: #059669; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; }
 
-        .grid-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
+    /* Cabecera de Tabla */
+    .table-header-tools { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+    .filters-group { display: flex; gap: 8px; align-items: center; }
+    .btn-filter { padding: 6px 12px; font-size: 11px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; color: white; opacity: 0.7; }
+    .btn-filter.active { opacity: 1; outline: 2px solid #fff; }
+    .filter-all { background: #3b82f6; }
+    .filter-today { background: #0284c7; }
+    .filter-expired { background: #dc2626; }
+    .search-input { width: 220px; background: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 6px 10px; border-radius: 4px; font-size: 12px; }
 
-        button.btn-primary {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+    /* Tabla */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { background: #0f172a; color: var(--accent-blue); padding: 12px 10px; border-bottom: 1px solid var(--border-color); font-size: 11px; text-transform: uppercase; }
+    td { padding: 12px 10px; border-bottom: 1px solid var(--border-color); color: #e2e8f0; vertical-align: middle; }
+    tr:nth-child(even) { background-color: #0f172a; }
 
-        button.btn-danger {
-            background-color: var(--danger);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        th {
-            background-color: #0f172a;
-        }
-
-        .actions-btns {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-    </style>
+    .tag-badge { background: #0284c7; color: white; font-size: 10px; padding: 2px 6px; border-radius: 3px; display: inline-block; }
+    .btn-ws-table { background: #059669; color: white; border: none; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+    .btn-tg-table { background: #0284c7; color: white; border: none; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; margin-left: 4px; }
+    .action-icons { display: flex; gap: 6px; }
+    .btn-icon { background: #334155; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .btn-icon.delete { background: #991b1b; }
+  </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Panel de Control IPTV</h2>
-
-    <!-- Menú Principal -->
-    <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-clientes')">Clientes</button>
-        <button class="tab-btn" onclick="switchTab('tab-telegram')">Configuración Telegram</button>
-        <button class="tab-btn" onclick="switchTab('tab-backup')">Sincronización / Backup</button>
+  <!-- CABECERA -->
+  <div class="header">
+    <div>
+      <h1>Panel IPTV Admin</h1>
+      <span class="badge-status" id="syncStatus">● Sincronizado (Firebase)</span>
     </div>
-
-    <!-- Pestaña 1: Clientes -->
-    <div id="tab-clientes" class="tab-content active">
-        <h3>Añadir / Modificar Cliente</h3>
-        <form id="clientForm" onsubmit="handleSaveClient(event)">
-            <input type="hidden" id="clientId">
-            <div class="grid-form">
-                <div class="form-group">
-                    <label>Nombre del Cliente</label>
-                    <input type="text" id="clientName" required>
-                </div>
-                <div class="form-group">
-                    <label>MAC / ID Dispositivo</label>
-                    <input type="text" id="clientMac" placeholder="00:1A:79:XX:XX:XX">
-                </div>
-                <div class="form-group">
-                    <label>Usuario / Nota</label>
-                    <input type="text" id="clientUser">
-                </div>
-                <div class="form-group">
-                    <label>Fecha Vencimiento</label>
-                    <input type="date" id="clientExpire" required>
-                </div>
-            </div>
-            <button type="submit" class="btn-primary">Guardar Cliente</button>
-        </form>
-
-        <hr style="margin: 25px 0; border-color: var(--border-color);">
-
-        <h3>Lista de Clientes</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Cliente</th>
-                    <th>MAC/ID</th>
-                    <th>Usuario/Nota</th>
-                    <th>Vencimiento</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="clientsTableBody"></tbody>
-        </table>
+    <div class="header-buttons">
+      <button class="btn-top btn-reset" onclick="resetApp()">🔄 Reset Datos</button>
+      <button class="btn-top btn-copy-load" onclick="importBackup()">📥 Cargar Copia</button>
+      <button class="btn-top btn-copy-save" onclick="exportBackup()">💾 Guardar Copia</button>
     </div>
+  </div>
 
-    <!-- Pestaña 2: Telegram -->
-    <div id="tab-telegram" class="tab-content">
-        <h3>Configuración de Bot de Telegram</h3>
-        <p style="font-size: 0.9em; color: #94a3b8;">Recibe alertas directamente en tu Telegram cuando caduque o agregues una cuenta.</p>
-        <div class="form-group">
-            <label>Bot Token</label>
-            <input type="text" id="tgToken" placeholder="123456789:ABCdefGHI...">
+  <!-- PANELES IPTV -->
+  <div class="card">
+    <div class="card-title">PANELES IPTV</div>
+    <div class="grid-links">
+      <a href="#" class="link-item">NetTV ✏️</a>
+      <a href="#" class="link-item">Emby ✏️</a>
+      <a href="#" class="link-item">Zafiro ✏️</a>
+      <a href="#" class="link-item">Dylan ✏️</a>
+      <a href="#" class="link-item">Joker ✏️</a>
+      <a href="#" class="link-item">TS4K ✏️</a>
+      <a href="#" class="link-item">Nexon ✏️</a>
+      <a href="#" class="link-item">Regilón ✏️</a>
+      <a href="#" class="link-item">DonIPTV ✏️</a>
+      <a href="#" class="link-item">P2P ✏️</a>
+    </div>
+  </div>
+
+  <!-- PANELES APLICACIONES -->
+  <div class="card">
+    <div class="card-title">PANELES APLICACIONES</div>
+    <div class="grid-links">
+      <a href="#" class="link-item app-link">Max Player ✏️</a>
+      <a href="#" class="link-item app-link">iBox Player ✏️</a>
+      <a href="#" class="link-item app-link">Smartone ✏️</a>
+      <a href="#" class="link-item app-link">CR7 Panel ✏️</a>
+      <a href="#" class="link-item app-link">IBO Player ✏️</a>
+      <a href="#" class="link-item app-link">IBO Sol ✏️</a>
+      <a href="#" class="link-item app-link">IBO Lopes ✏️</a>
+      <a href="#" class="link-item app-link">DonIBO ✏️</a>
+      <a href="#" class="link-item app-link">TiviMate VPN ✏️</a>
+      <a href="#" class="link-item app-link">VU Player ✏️</a>
+      <a href="#" class="link-item app-link">IBO Killer ✏️</a>
+      <a href="#" class="link-item app-link">XCIPTV Phoenix ✏️</a>
+      <a href="#" class="link-item app-link">TiviMate Phoenix ✏️</a>
+    </div>
+  </div>
+
+  <!-- BLOC DE NOTAS & DNS -->
+  <div class="card">
+    <div class="card-title">BLOC DE NOTAS & DNS</div>
+    <textarea id="blocNotas" rows="3" placeholder="Anota aquí las DNS o credenciales temporales..." oninput="saveNotes()"></textarea>
+  </div>
+
+  <!-- ALERTAS POR TELEGRAM -->
+  <div class="card">
+    <div class="card-title">ALERTAS POR TELEGRAM</div>
+    <div class="grid-4">
+      <div style="grid-column: span 2;">
+        <label>TELEGRAM BOT TOKEN</label>
+        <input type="text" id="tgToken" value="8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOSS5g" oninput="saveTg()">
+      </div>
+      <div style="grid-column: span 2;">
+        <label>TELEGRAM CHAT ID</label>
+        <input type="text" id="tgChat" value="1417906399" oninput="saveTg()">
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTRAR NUEVO CLIENTE -->
+  <div class="card">
+    <div class="card-title">👤 REGISTRAR / MODIFICAR CLIENTE</div>
+    <form id="clientForm" onsubmit="saveClient(event)">
+      <input type="hidden" id="clientId">
+      <div class="grid-4">
+        <div>
+          <label>NOMBRE DEL CLIENTE*</label>
+          <input type="text" id="cNombre" placeholder="Nombre completo" required>
         </div>
-        <div class="form-group">
-            <label>Chat ID</label>
-            <input type="text" id="tgChatId" placeholder="987654321">
+        <div>
+          <label>TELÉFONO (WHATSAPP)*</label>
+          <input type="text" id="cTelefono" placeholder="34612345678" required>
         </div>
-        <button class="btn-primary" onclick="saveTgConfig()">Guardar Configuración</button>
+        <div>
+          <label>USUARIO PANEL / APP</label>
+          <input type="text" id="cUsuario" placeholder="Ej: usuario123">
+        </div>
+        <div>
+          <label>CONTRASEÑA</label>
+          <input type="text" id="cPassword" placeholder="Ej: clave123">
+        </div>
+
+        <div>
+          <label>SERVIDOR / PANEL IPTV</label>
+          <input type="text" id="cServidor" placeholder="Ej: NetTV">
+        </div>
+        <div>
+          <label>APLICACIÓN INSTALADA</label>
+          <input type="text" id="cApp" placeholder="Ej: Max Player">
+        </div>
+        <div>
+          <label>DIRECCIÓN MAC</label>
+          <input type="text" id="cMac" placeholder="00:1A:2B:3C:4D:5E">
+        </div>
+        <div>
+          <label>FECHA VENCIMIENTO*</label>
+          <input type="date" id="cFecha" required>
+        </div>
+
+        <div class="full-row">
+          <label>NOTAS ADICIONALES</label>
+          <input type="text" id="cNotas" placeholder="Dispositivo, observaciones, etc.">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" onclick="resetForm()">Limpiar / Cancelar</button>
+        <button type="submit" class="btn-save">💾 Guardar Cliente</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- CLIENTES REGISTRADOS -->
+  <div class="card">
+    <div class="table-header-tools">
+      <div class="card-title" style="margin:0;">👥 CLIENTES (<span id="clientCount">0</span>)</div>
+      
+      <div class="filters-group">
+        <button class="btn-filter filter-all active" onclick="filterClients('all', this)">Todos</button>
+        <button class="btn-filter filter-today" onclick="filterClients('today', this)">Vencen Hoy</button>
+        <button class="btn-filter filter-expired" onclick="filterClients('expired', this)">Caducados</button>
+      </div>
+
+      <input type="text" id="searchInput" class="search-input" placeholder="Buscar cliente, tel, MAC..." oninput="renderClients()">
     </div>
 
-    <!-- Pestaña 3: Sincronización y Backup -->
-    <div id="tab-backup" class="tab-content">
-        <h3>Copia de Seguridad y Sincronización</h3>
-        <p style="font-size: 0.9em; color: #94a3b8;">Exporta tus datos a un archivo JSON para mantenerlos a salvo o impórtalos en otro dispositivo.</p>
-        <div class="actions-btns">
-            <button class="btn-primary" onclick="exportBackup()">Exportar Copia de Seguridad (JSON)</button>
-            <input type="file" id="importFile" style="display: none;" onchange="importBackup(event)">
-            <button class="btn-primary" style="background-color: var(--success);" onclick="document.getElementById('importFile').click()">Importar Copia de Seguridad</button>
-        </div>
-    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Cliente / Teléfono</th>
+          <th>Credenciales</th>
+          <th>Servidor / App</th>
+          <th>MAC</th>
+          <th>Vencimiento</th>
+          <th>Notificaciones</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="clientsTableBody">
+        <!-- Renderizado dinámico -->
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <script>
-    // Variables de Estado
-    let clients = JSON.parse(localStorage.getItem('iptv_clients')) || [];
+  let clients = [];
+  let currentFilter = 'all';
 
-    // Cambiar entre Pestañas del Menú
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        
-        document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+  // Esperar a que Firebase cargue
+  window.addEventListener('load', () => {
+    document.getElementById('blocNotas').value = localStorage.getItem('iptv_notes') || '';
+    document.getElementById('tgToken').value = localStorage.getItem('tg_token') || '8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOSS5g';
+    document.getElementById('tgChat').value = localStorage.getItem('tg_chat') || '1417906399';
+
+    // Sincronización continua en tiempo real con Firebase
+    if (window.db) {
+      const clientsRef = window.dbRef(window.db, 'clientes');
+      window.dbOnValue(clientsRef, (snapshot) => {
+        const data = snapshot.val();
+        clients = data ? Object.values(data) : [];
+        renderClients();
+        document.getElementById('syncStatus').innerText = '● Sincronizado (Firebase)';
+        document.getElementById('syncStatus').style.color = '#34d399';
+      }, (error) => {
+        console.error("Error Firebase:", error);
+        // Respaldo en LocalStorage si falla la red
+        clients = JSON.parse(localStorage.getItem('iptv_clients') || '[]');
+        renderClients();
+        document.getElementById('syncStatus').innerText = '● Modo Offline (Local)';
+        document.getElementById('syncStatus').style.color = '#f59e0b';
+      });
+    }
+  });
+
+  function saveNotes() {
+    localStorage.setItem('iptv_notes', document.getElementById('blocNotas').value);
+  }
+
+  function saveTg() {
+    localStorage.setItem('tg_token', document.getElementById('tgToken').value);
+    localStorage.setItem('tg_chat', document.getElementById('tgChat').value);
+  }
+
+  function saveClient(e) {
+    e.preventDefault();
+    const id = document.getElementById('clientId').value || 'cli_' + Date.now();
+    const newClient = {
+      id,
+      nombre: document.getElementById('cNombre').value,
+      telefono: document.getElementById('cTelefono').value,
+      usuario: document.getElementById('cUsuario').value,
+      password: document.getElementById('cPassword').value,
+      servidor: document.getElementById('cServidor').value,
+      app: document.getElementById('cApp').value,
+      mac: document.getElementById('cMac').value,
+      fecha: document.getElementById('cFecha').value,
+      notas: document.getElementById('cNotas').value
+    };
+
+    // Guardar en Firebase
+    if (window.db) {
+      window.dbSet(window.dbRef(window.db, 'clientes/' + id), newClient);
     }
 
-    // Renderizar Tabla de Clientes
-    function renderTable() {
-        const tbody = document.getElementById('clientsTableBody');
-        tbody.innerHTML = '';
+    // Respaldo Local
+    const index = clients.findIndex(c => c.id === id);
+    if (index > -1) { clients[index] = newClient; } else { clients.push(newClient); }
+    localStorage.setItem('iptv_clients', JSON.stringify(clients));
 
-        clients.forEach((c, index) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><strong>${c.name}</strong></td>
-                <td><code>${c.mac || '-'}</code></td>
-                <td>${c.user || '-'}</td>
-                <td>${c.expire}</td>
-                <td>
-                    <button class="btn-danger" onclick="deleteClient(${index})">Eliminar</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
+    resetForm();
+  }
+
+  function editClient(id) {
+    const c = clients.find(item => item.id === id);
+    if (!c) return;
+    document.getElementById('clientId').value = c.id;
+    document.getElementById('cNombre').value = c.nombre;
+    document.getElementById('cTelefono').value = c.telefono;
+    document.getElementById('cUsuario').value = c.usuario;
+    document.getElementById('cPassword').value = c.password;
+    document.getElementById('cServidor').value = c.servidor;
+    document.getElementById('cApp').value = c.app;
+    document.getElementById('cMac').value = c.mac;
+    document.getElementById('cFecha').value = c.fecha;
+    document.getElementById('cNotas').value = c.notas || '';
+    window.scrollTo({ top: 400, behavior: 'smooth' });
+  }
+
+  function deleteClient(id) {
+    if (confirm('¿Seguro que deseas eliminar este cliente?')) {
+      if (window.db) {
+        window.dbRemove(window.dbRef(window.db, 'clientes/' + id));
+      }
+      clients = clients.filter(c => c.id !== id);
+      localStorage.setItem('iptv_clients', JSON.stringify(clients));
+      renderClients();
+    }
+  }
+
+  function sendTelegramAlert(id) {
+    const c = clients.find(item => item.id === id);
+    if (!c) return;
+
+    const token = document.getElementById('tgToken').value;
+    const chatId = document.getElementById('tgChat').value;
+
+    if (!token || !chatId) {
+      alert("Por favor, ingresa el Token y Chat ID de Telegram arriba.");
+      return;
     }
 
-    // Guardar / Crear Cliente
-    function handleSaveClient(e) {
-        e.preventDefault();
-        const name = document.getElementById('clientName').value.trim();
-        const mac = document.getElementById('clientMac').value.trim();
-        const user = document.getElementById('clientUser').value.trim();
-        const expire = document.getElementById('clientExpire').value;
+    const mensaje = `⚠️ *ALERTA VENCIMIENTO CLIENTE*\n\n👤 *Cliente:* ${c.nombre}\n📞 *Teléfono:* ${c.telefono}\n🖥️ *Servidor/App:* ${c.servidor || 'N/A'} / ${c.app || 'N/A'}\n🔑 *Usuario:* ${c.usuario || 'N/A'}\n📅 *Vencimiento:* ${c.fecha}`;
 
-        const newClient = { name, mac, user, expire };
-        clients.push(newClient);
-        saveClients();
-        renderTable();
+    fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: mensaje,
+        parse_mode: 'Markdown'
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.ok) {
+        alert('✅ Notificación enviada con éxito a Telegram');
+      } else {
+        alert('❌ Error al enviar notificación a Telegram');
+      }
+    })
+    .catch(err => alert('❌ Error en la conexión con Telegram'));
+  }
 
-        // Alerta Telegram opcional al crear cliente
-        sendTelegramAlert(`➕ *Nuevo Cliente Agregado*\n*Nombre:* ${name}\n*Vence:* ${expire}`);
+  function resetForm() {
+    document.getElementById('clientId').value = '';
+    document.getElementById('clientForm').reset();
+  }
 
-        document.getElementById('clientForm').reset();
-    }
+  function filterClients(type, btn) {
+    currentFilter = type;
+    document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderClients();
+  }
 
-    // Eliminar Cliente
-    function deleteClient(index) {
-        if (confirm("¿Seguro que deseas eliminar este cliente?")) {
-            const deleted = clients.splice(index, 1)[0];
-            saveClients();
-            renderTable();
-            sendTelegramAlert(`🗑️ *Cliente Eliminado*\n*Nombre:* ${deleted.name}`);
-        }
-    }
+  function renderClients() {
+    const tbody = document.getElementById('clientsTableBody');
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const todayStr = new Date().toISOString().split('T')[0];
 
-    // Persistencia Local
-    function saveClients() {
-        localStorage.setItem('iptv_clients', JSON.stringify(clients));
-    }
+    tbody.innerHTML = '';
 
-    // Exportar Backup JSON
-    function exportBackup() {
-        const blob = new Blob([JSON.stringify(clients, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `backup_clientes_${new Date().toISOString().slice(0, 10)}.json`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-    }
+    let filtered = clients.filter(c => {
+      const matchSearch = (c.nombre || '').toLowerCase().includes(search) || 
+                          (c.telefono || '').includes(search) || 
+                          (c.mac || '').toLowerCase().includes(search);
+      if (!matchSearch) return false;
 
-    // Importar Backup JSON
-    function importBackup(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-            try {
-                const imported = JSON.parse(evt.target.result);
-                if (Array.isArray(imported)) {
-                    clients = imported;
-                    saveClients();
-                    renderTable();
-                    alert("Copia de seguridad importada con éxito.");
-                } else {
-                    alert("El archivo no contiene un formato de lista válido.");
-                }
-            } catch(err) {
-                alert("El archivo importado no es un JSON válido.");
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    // Guardar Telegram Config
-    function saveTgConfig() {
-        const tgData = {
-            token: document.getElementById('tgToken').value.trim(),
-            chatId: document.getElementById('tgChatId').value.trim()
-        };
-        localStorage.setItem('iptv_tg_config', JSON.stringify(tgData));
-        alert("Configuración de Telegram guardada correctamente.");
-    }
-
-    // Enviar Alerta por Telegram
-    function sendTelegramAlert(text) {
-        const tgData = JSON.parse(localStorage.getItem('iptv_tg_config'));
-        if (!tgData || !tgData.token || !tgData.chatId) return;
-
-        const url = `https://api.telegram.org/bot${tgData.token}/sendMessage`;
-        fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: tgData.chatId,
-                text: text,
-                parse_mode: 'Markdown'
-            })
-        }).catch(err => console.error("Error al enviar a Telegram:", err));
-    }
-
-    // Inicialización al Cargar
-    document.addEventListener('DOMContentLoaded', () => {
-        renderTable();
-        const savedTg = JSON.parse(localStorage.getItem('iptv_tg_config'));
-        if (savedTg) {
-            if (savedTg.token) document.getElementById('tgToken').value = savedTg.token;
-            if (savedTg.chatId) document.getElementById('tgChatId').value = savedTg.chatId;
-        }
+      if (currentFilter === 'today') return c.fecha === todayStr;
+      if (currentFilter === 'expired') return c.fecha < todayStr && c.fecha !== '';
+      return true;
     });
+
+    document.getElementById('clientCount').innerText = filtered.length;
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:20px;">No hay clientes registrados o coincidentes.</td></tr>`;
+      return;
+    }
+
+    filtered.forEach(c => {
+      const cleanTel = (c.telefono || '').replace(/[^0-9]/g, '');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${c.nombre}</strong><br><small style="color: #94a3b8;">${c.telefono}</small></td>
+        <td><small>U: ${c.usuario || '-'}</small><br><small style="color: #94a3b8;">C: ${c.password || '-'}</small></td>
+        <td><span class="tag-badge">${c.servidor || 'N/A'}</span><br><small>${c.app || '-'}</small></td>
+        <td><code>${c.mac || '-'}</code></td>
+        <td>${c.fecha || '-'}</td>
+        <td>
+          <a href="https://wa.me/${cleanTel}" target="_blank" class="btn-ws-table">📲 WhatsApp</a>
+          <button class="btn-tg-table" onclick="sendTelegramAlert('${c.id}')">✈️ Telegram</button>
+        </td>
+        <td>
+          <div class="action-icons">
+            <button class="btn-icon" onclick="editClient('${c.id}')">✏️</button>
+            <button class="btn-icon delete" onclick="deleteClient('${c.id}')">🗑️</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function exportBackup() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clients));
+    const dlAnchor = document.createElement('a');
+    dlAnchor.setAttribute("href", dataStr);
+    dlAnchor.setAttribute("download", `copia_iptv_${new Date().toISOString().split('T')[0]}.json`);
+    dlAnchor.click();
+  }
+
+  function importBackup() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = e => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = event => {
+        try {
+          const importedClients = JSON.parse(event.target.result);
+          if (Array.isArray(importedClients)) {
+            importedClients.forEach(c => {
+              if (window.db && c.id) {
+                window.dbSet(window.dbRef(window.db, 'clientes/' + c.id), c);
+              }
+            });
+            clients = importedClients;
+            localStorage.setItem('iptv_clients', JSON.stringify(clients));
+            renderClients();
+            alert('¡Copia de seguridad importada y sincronizada correctamente!');
+          }
+        } catch (err) {
+          alert('Error al procesar el archivo JSON.');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  function resetApp() {
+    if (confirm('¿Deseas limpiar los datos guardados en este navegador?')) {
+      localStorage.clear();
+      location.reload();
+    }
+  }
 </script>
+
 </body>
 </html>
