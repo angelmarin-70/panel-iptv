@@ -5,32 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel IPTV Admin</title>
 
-  <!-- SDK Firebase CDN v9 (Módulos) -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-
-    // Configuración de tu proyecto Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSy_REEMPLAZA_CON_TU_API_KEY",
-      authDomain: "tu-proyecto.firebaseapp.com",
-      databaseURL: "https://tu-proyecto-default-rtdb.firebaseio.com",
-      projectId: "tu-proyecto",
-      storageBucket: "tu-proyecto.appspot.com",
-      messagingSenderId: "123456789",
-      appId: "1:123456789:web:abcdef123456"
-    };
-
-    // Inicializar Firebase y Realtime Database
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    window.db = db;
-    window.dbRef = ref;
-    window.dbSet = set;
-    window.dbOnValue = onValue;
-    window.dbRemove = remove;
-  </script>
-
   <style>
     :root {
       --bg-main: #0a0f1d;
@@ -109,7 +83,7 @@
   <div class="header">
     <div>
       <h1>Panel IPTV Admin</h1>
-      <span class="badge-status" id="syncStatus">● Sincronizado (Firebase)</span>
+      <span class="badge-status" id="syncStatus">● Sistema Operativo</span>
     </div>
     <div class="header-buttons">
       <button class="btn-top btn-reset" onclick="resetApp()">🔄 Reset Datos</button>
@@ -263,33 +237,14 @@
 </div>
 
 <script>
-  let clients = [];
+  let clients = JSON.parse(localStorage.getItem('iptv_clients') || '[]');
   let currentFilter = 'all';
 
-  // Esperar a que Firebase cargue
-  window.addEventListener('load', () => {
+  document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('blocNotas').value = localStorage.getItem('iptv_notes') || '';
-    document.getElementById('tgToken').value = localStorage.getItem('tg_token') || '8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOSS5g';
-    document.getElementById('tgChat').value = localStorage.getItem('tg_chat') || '1417906399';
-
-    // Sincronización continua en tiempo real con Firebase
-    if (window.db) {
-      const clientsRef = window.dbRef(window.db, 'clientes');
-      window.dbOnValue(clientsRef, (snapshot) => {
-        const data = snapshot.val();
-        clients = data ? Object.values(data) : [];
-        renderClients();
-        document.getElementById('syncStatus').innerText = '● Sincronizado (Firebase)';
-        document.getElementById('syncStatus').style.color = '#34d399';
-      }, (error) => {
-        console.error("Error Firebase:", error);
-        // Respaldo en LocalStorage si falla la red
-        clients = JSON.parse(localStorage.getItem('iptv_clients') || '[]');
-        renderClients();
-        document.getElementById('syncStatus').innerText = '● Modo Offline (Local)';
-        document.getElementById('syncStatus').style.color = '#f59e0b';
-      });
-    }
+    if (localStorage.getItem('tg_token')) document.getElementById('tgToken').value = localStorage.getItem('tg_token');
+    if (localStorage.getItem('tg_chat')) document.getElementById('tgChat').value = localStorage.getItem('tg_chat');
+    renderClients();
   });
 
   function saveNotes() {
@@ -305,7 +260,7 @@
     e.preventDefault();
     const id = document.getElementById('clientId').value || 'cli_' + Date.now();
     const newClient = {
-      id,
+      id: id,
       nombre: document.getElementById('cNombre').value,
       telefono: document.getElementById('cTelefono').value,
       usuario: document.getElementById('cUsuario').value,
@@ -317,40 +272,37 @@
       notas: document.getElementById('cNotas').value
     };
 
-    // Guardar en Firebase
-    if (window.db) {
-      window.dbSet(window.dbRef(window.db, 'clientes/' + id), newClient);
+    const index = clients.findIndex(c => c.id === id);
+    if (index > -1) {
+      clients[index] = newClient;
+    } else {
+      clients.push(newClient);
     }
 
-    // Respaldo Local
-    const index = clients.findIndex(c => c.id === id);
-    if (index > -1) { clients[index] = newClient; } else { clients.push(newClient); }
     localStorage.setItem('iptv_clients', JSON.stringify(clients));
-
     resetForm();
+    renderClients();
+    alert('✅ Cliente guardado correctamente');
   }
 
   function editClient(id) {
     const c = clients.find(item => item.id === id);
     if (!c) return;
     document.getElementById('clientId').value = c.id;
-    document.getElementById('cNombre').value = c.nombre;
-    document.getElementById('cTelefono').value = c.telefono;
-    document.getElementById('cUsuario').value = c.usuario;
-    document.getElementById('cPassword').value = c.password;
-    document.getElementById('cServidor').value = c.servidor;
-    document.getElementById('cApp').value = c.app;
-    document.getElementById('cMac').value = c.mac;
-    document.getElementById('cFecha').value = c.fecha;
+    document.getElementById('cNombre').value = c.nombre || '';
+    document.getElementById('cTelefono').value = c.telefono || '';
+    document.getElementById('cUsuario').value = c.usuario || '';
+    document.getElementById('cPassword').value = c.password || '';
+    document.getElementById('cServidor').value = c.servidor || '';
+    document.getElementById('cApp').value = c.app || '';
+    document.getElementById('cMac').value = c.mac || '';
+    document.getElementById('cFecha').value = c.fecha || '';
     document.getElementById('cNotas').value = c.notas || '';
     window.scrollTo({ top: 400, behavior: 'smooth' });
   }
 
   function deleteClient(id) {
     if (confirm('¿Seguro que deseas eliminar este cliente?')) {
-      if (window.db) {
-        window.dbRemove(window.dbRef(window.db, 'clientes/' + id));
-      }
       clients = clients.filter(c => c.id !== id);
       localStorage.setItem('iptv_clients', JSON.stringify(clients));
       renderClients();
@@ -365,7 +317,7 @@
     const chatId = document.getElementById('tgChat').value;
 
     if (!token || !chatId) {
-      alert("Por favor, ingresa el Token y Chat ID de Telegram arriba.");
+      alert("Por favor, ingresa el Token y Chat ID de Telegram.");
       return;
     }
 
@@ -385,10 +337,10 @@
       if (data.ok) {
         alert('✅ Notificación enviada con éxito a Telegram');
       } else {
-        alert('❌ Error al enviar notificación a Telegram');
+        alert('❌ Error al enviar a Telegram. Revisa el Token y Chat ID.');
       }
     })
-    .catch(err => alert('❌ Error en la conexión con Telegram'));
+    .catch(() => alert('❌ Error de conexión al enviar Telegram'));
   }
 
   function resetForm() {
@@ -471,18 +423,13 @@
         try {
           const importedClients = JSON.parse(event.target.result);
           if (Array.isArray(importedClients)) {
-            importedClients.forEach(c => {
-              if (window.db && c.id) {
-                window.dbSet(window.dbRef(window.db, 'clientes/' + c.id), c);
-              }
-            });
             clients = importedClients;
             localStorage.setItem('iptv_clients', JSON.stringify(clients));
             renderClients();
-            alert('¡Copia de seguridad importada y sincronizada correctamente!');
+            alert('¡Copia de seguridad cargada con éxito!');
           }
         } catch (err) {
-          alert('Error al procesar el archivo JSON.');
+          alert('Error al leer el archivo JSON.');
         }
       };
       reader.readAsText(file);
@@ -491,9 +438,10 @@
   }
 
   function resetApp() {
-    if (confirm('¿Deseas limpiar los datos guardados en este navegador?')) {
+    if (confirm('¿Deseas limpiar todos los clientes guardados localmente?')) {
       localStorage.clear();
-      location.reload();
+      clients = [];
+      renderClients();
     }
   }
 </script>
