@@ -84,8 +84,8 @@
       <span class="badge-status" id="dbStatus">● Conectado a Firebase</span>
     </div>
     <div class="header-buttons">
-      <button class="btn-top btn-reset" onclick="resetearURLs()">🔄 Reset URLs</button>
-      <button class="btn-top btn-copy-load" onclick="cargarCopiaLocal()">📥 Cargar Copia</button>
+      <button class="btn-top btn-reset">🔄 Reset URLs</button>
+      <button class="btn-top btn-copy-load">📥 Cargar Copia</button>
       <button class="btn-top btn-copy-save" onclick="guardarCopiaLocal()">💾 Guardar Copia</button>
     </div>
   </div>
@@ -131,10 +131,10 @@
   <div class="card">
     <div class="card-title">BLOC DE NOTAS & DNS</div>
     <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-      <select id="dnsSelect" style="max-width: 200px;"><option>DNS</option></select>
-      <button class="btn-top" style="background: #d97706;" onclick="alert('Abriendo bloc de notas...')">Abrir a Pantalla Completa</button>
+      <select style="max-width: 200px;"><option>DNS</option></select>
+      <button class="btn-top" style="background: #d97706;">Abrir a Pantalla Completa</button>
     </div>
-    <textarea id="blocNotas" rows="3" placeholder="Anota aquí las DNS o credenciales..."></textarea>
+    <textarea rows="3" placeholder="Anota aquí las DNS o credenciales..."></textarea>
   </div>
 
   <!-- ALERTAS POR TELEGRAM -->
@@ -143,11 +143,11 @@
     <div class="grid-4">
       <div style="grid-column: span 2;">
         <label>TELEGRAM BOT TOKEN</label>
-        <input type="text" id="telegramToken" value="8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOSS5g">
+        <input type="text" value="8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOSS5g">
       </div>
       <div style="grid-column: span 2;">
         <label>TELEGRAM CHAT ID</label>
-        <input type="text" id="telegramChatId" value="1417906399">
+        <input type="text" value="1417906399">
       </div>
     </div>
   </div>
@@ -212,8 +212,8 @@
       
       <div class="filters-group">
         <button class="btn-filter filter-all" onclick="renderClientes(clientes)">Todos</button>
-        <button class="btn-filter filter-today" onclick="filtrarVencimientos('hoy')">Vencen Hoy</button>
-        <button class="btn-filter filter-expired" onclick="filtrarVencimientos('caducados')">Caducados</button>
+        <button class="btn-filter filter-today" onclick="filtrarClientesPorFecha('hoy')">Vencen Hoy</button>
+        <button class="btn-filter filter-expired" onclick="filtrarClientesPorFecha('caducados')">Caducados</button>
       </div>
 
       <input type="text" class="search-input" id="buscador" placeholder="Buscar cliente, tel, MAC..." onkeyup="filtrarClientes()">
@@ -237,7 +237,7 @@
 </div>
 
 <script>
-  // 1. Inicialización de Firebase con tu URL real
+  // Configuración con la URL real funcional de Firebase
   const firebaseConfig = {
     databaseURL: "https://mi-panel-iptv-d1954-default-rtdb.firebaseio.com/"
   };
@@ -246,17 +246,19 @@
     firebase.initializeApp(firebaseConfig);
   }
   const dbRef = firebase.database().ref('clientes');
-
   let clientes = [];
 
-  // Formateo automático de MAC
-  document.getElementById('mac').addEventListener('input', function (e) {
-    let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-    let formattedValue = value.match(/.{1,2}/g)?.join(':') || '';
-    e.target.value = formattedValue.slice(0, 17);
-  });
+  // Formato automático de MAC
+  const macElem = document.getElementById('mac');
+  if (macElem) {
+    macElem.addEventListener('input', function (e) {
+      let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+      let formattedValue = value.match(/.{1,2}/g)?.join(':') || '';
+      e.target.value = formattedValue.slice(0, 17);
+    });
+  }
 
-  // 2. Conexión en tiempo real con Firebase
+  // Sincronización en tiempo real multidispositivo
   dbRef.on('value', (snapshot) => {
     const data = snapshot.val();
     clientes = [];
@@ -268,17 +270,20 @@
     localStorage.setItem('iptv_clientes', JSON.stringify(clientes));
     renderClientes();
   }, (error) => {
-    console.error("Error al conectar con Firebase:", error);
-    document.getElementById('dbStatus').textContent = '● Modo Offline (Local)';
-    document.getElementById('dbStatus').style.background = '#854d0e';
+    console.error("Error conectando con Firebase:", error);
+    const dbStatus = document.getElementById('dbStatus');
+    if (dbStatus) {
+      dbStatus.textContent = '● Modo Offline (Local)';
+      dbStatus.style.background = '#854d0e';
+    }
     clientes = JSON.parse(localStorage.getItem('iptv_clientes')) || [];
     renderClientes();
   });
 
-  // 3. Renderizado de Clientes en Tabla
   function renderClientes(data = clientes) {
     const lista = document.getElementById('listaClientes');
-    document.getElementById('totalClientes').textContent = data.length;
+    const total = document.getElementById('totalClientes');
+    if (total) total.textContent = data.length;
     if (!lista) return;
     lista.innerHTML = '';
 
@@ -316,7 +321,7 @@
     });
   }
 
-  // 4. Guardar o Editar Cliente
+  // Operaciones de guardado y edición
   document.getElementById('clientForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const idCliente = document.getElementById('clienteId').value;
@@ -379,7 +384,17 @@
     renderClientes(filtrados);
   }
 
-  function resetearURLs() { alert('URLs restablecidas.'); }
+  function filtrarClientesPorFecha(tipo) {
+    const hoyStr = new Date().toISOString().split('T')[0];
+    let filtrados = [];
+    if (tipo === 'hoy') {
+      filtrados = clientes.filter(c => c.vencimiento === hoyStr);
+    } else if (tipo === 'caducados') {
+      filtrados = clientes.filter(c => c.vencimiento && c.vencimiento < hoyStr);
+    }
+    renderClientes(filtrados);
+  }
+
   function guardarCopiaLocal() { 
     const blob = new Blob([JSON.stringify(clientes, null, 2)], {type : 'application/json'});
     const a = document.createElement('a');
@@ -387,7 +402,6 @@
     a.download = `clientes_backup_${new Date().toISOString().slice(0,10)}.json`;
     a.click();
   }
-  function cargarCopiaLocal() { alert('Para restaurar clientes copia, carga el archivo JSON.'); }
 </script>
 
 </body>
