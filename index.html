@@ -3,12 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel IPTV Admin - Completo y Sincronizado</title>
-  
-  <!-- Scripts de Firebase 8.x para Sincronización en Tiempo Real -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
+  <title>Panel IPTV Admin</title>
   <style>
     :root {
       --bg-main: #0a0f1d;
@@ -16,7 +11,6 @@
       --bg-input: #0f172a;
       --border-color: #1e293b;
       --accent-blue: #38bdf8;
-      --accent-green: #10b981;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
     }
@@ -28,57 +22,71 @@
     /* Header */
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .header-title h1 { font-size: 20px; margin: 0; color: #fff; }
-    .badge-status { font-size: 11px; padding: 4px 10px; border-radius: 12px; display: inline-block; font-weight: bold; }
-    .status-online { background: #064e3b; color: #34d399; border: 1px solid #059669; }
-    .status-offline { background: #7f1d1d; color: #fca5a5; border: 1px solid #dc2626; }
+    .badge-status { background: #064e3b; color: #34d399; font-size: 11px; padding: 3px 8px; border-radius: 12px; border: 1px solid #059669; display: inline-block; margin-top: 5px; }
+    .header-buttons { display: flex; gap: 8px; }
+    .btn-top { padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; border: none; cursor: pointer; color: white; }
+    .btn-reset { background-color: #d97706; }
+    .btn-copy-load { background-color: #0284c7; }
+    .btn-copy-save { background-color: #16a34a; }
 
     /* Tarjetas */
     .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 18px; margin-bottom: 20px; }
-    .card-title { font-size: 13px; font-weight: bold; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+    .card-title { font-size: 13px; font-weight: bold; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 15px; }
 
     /* Grid Botones Paneles */
     .grid-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
     .link-item { background: #1e293b; border: 1px solid #334155; color: #f1f5f9; padding: 8px 12px; border-radius: 4px; font-size: 13px; text-decoration: none; display: flex; justify-content: space-between; align-items: center; }
     .app-link { background: #1e1b4b; border-color: #312e81; color: #c7d2fe; }
 
-    /* Grids & Forms */
-    .grid-form { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    /* Formulario */
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .full-row { grid-column: span 4; margin-top: 8px; }
     label { display: block; font-size: 11px; font-weight: bold; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 5px; }
     input, select, textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 9px 10px; border-radius: 4px; font-size: 13px; outline: none; }
     
-    /* Grid Dominios y APKs */
-    .grid-domains { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
-    .domain-card { background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 6px; position: relative; }
-    .domain-name { font-weight: bold; color: #fff; font-size: 14px; }
-    .domain-url { font-size: 11px; color: var(--accent-blue); font-mono: monospace; word-break: break-all; }
-    .apk-link { display: inline-flex; align-items: center; gap: 5px; background: #0284c7; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; text-decoration: none; margin-top: 4px; width: fit-content; }
-    .btn-delete-dom { position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #f87171; cursor: pointer; font-size: 14px; }
-
-    /* Botones */
-    .btn-save { background: #059669; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; }
-    .btn-cancel { background: #475569; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; }
     .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
+    .btn-cancel { background: #475569; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .btn-save { background: #059669; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; }
+
+    /* Cabecera de Tabla */
+    .table-header-tools { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+    .filters-group { display: flex; gap: 8px; align-items: center; }
+    .btn-filter { padding: 6px 12px; font-size: 11px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; color: white; }
+    .filter-all { background: #3b82f6; }
+    .filter-today { background: #0284c7; }
+    .filter-expired { background: #dc2626; }
+    .search-input { width: 220px; background: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 6px 10px; border-radius: 4px; font-size: 12px; }
 
     /* Tabla */
     table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
     th { background: #0f172a; color: var(--accent-blue); padding: 12px 10px; border-bottom: 1px solid var(--border-color); font-size: 11px; text-transform: uppercase; }
     td { padding: 12px 10px; border-bottom: 1px solid var(--border-color); color: #e2e8f0; vertical-align: middle; }
     tr:nth-child(even) { background-color: #0f172a; }
+
+    .tag-badge { background: #0284c7; color: white; font-size: 10px; padding: 2px 6px; border-radius: 3px; display: inline-block; }
+    .btn-ws-table { background: #059669; color: white; border: none; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
+    .action-icons { display: flex; gap: 6px; }
+    .btn-icon { background: #334155; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .btn-icon.delete { background: #991b1b; }
   </style>
 </head>
 <body>
 
 <div class="container">
-
-  <!-- CABECERA DE ESTADO -->
+  <!-- CABECERA -->
   <div class="header">
     <div>
       <h1>Panel IPTV Admin</h1>
-      <span id="sync-status" class="badge-status status-offline">○ Conectando a Firebase...</span>
+      <span class="badge-status">● Conectado a Firebase</span>
+    </div>
+    <div class="header-buttons">
+      <button class="btn-top btn-reset">🔄 Reset URLs</button>
+      <button class="btn-top btn-copy-load">📥 Cargar Copia</button>
+      <button class="btn-top btn-copy-save">💾 Guardar Copia</button>
     </div>
   </div>
 
-  <!-- PANELES IPTV OPERATIVOS -->
+  <!-- PANELES IPTV -->
   <div class="card">
     <div class="card-title">PANELES IPTV</div>
     <div class="grid-links">
@@ -95,7 +103,7 @@
     </div>
   </div>
 
-  <!-- PANELES APLICACIONES OPERATIVOS -->
+  <!-- PANELES APLICACIONES -->
   <div class="card">
     <div class="card-title">PANELES APLICACIONES</div>
     <div class="grid-links">
@@ -118,222 +126,136 @@
   <!-- BLOC DE NOTAS & DNS -->
   <div class="card">
     <div class="card-title">BLOC DE NOTAS & DNS</div>
-    <textarea id="noteText" rows="3" placeholder="Anota aquí las DNS o credenciales temporales..."></textarea>
+    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+      <select style="max-width: 200px;"><option>DNS</option></select>
+      <button class="btn-top" style="background: #d97706;">Abrir a Pantalla Completa</button>
+    </div>
+    <textarea rows="3" placeholder="Anota aquí las DNS o credenciales..."></textarea>
   </div>
 
   <!-- ALERTAS POR TELEGRAM -->
   <div class="card">
     <div class="card-title">ALERTAS POR TELEGRAM</div>
-    <div class="grid-form">
+    <div class="grid-4">
       <div style="grid-column: span 2;">
         <label>TELEGRAM BOT TOKEN</label>
-        <input type="text" id="tgToken" value="8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOSS5g">
+        <input type="text" value="8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOSS5g">
       </div>
       <div style="grid-column: span 2;">
         <label>TELEGRAM CHAT ID</label>
-        <input type="text" id="tgChatId" value="1417906399">
+        <input type="text" value="1417906399">
       </div>
     </div>
   </div>
 
-  <!-- SECCIÓN DOMINIOS Y APKs -->
+  <!-- REGISTRAR NUEVO CLIENTE -->
   <div class="card">
-    <div class="card-title">🌐 DOMINIOS DNS & DESCARGA DE APKs</div>
-
-    <form id="domainForm" style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
-      <div class="grid-form">
-        <div>
-          <label>NOMBRE SERVIDOR / APP</label>
-          <input type="text" id="domName" placeholder="Ej: NetTV / MaxPlayer" required>
-        </div>
-        <div>
-          <label>URL DOMINIO / DNS</label>
-          <input type="text" id="domUrl" placeholder="http://midominio.com:8080" required>
-        </div>
-        <div style="grid-column: span 2;">
-          <label>ENLACE DIRECTO DESCARGA APK</label>
-          <input type="text" id="domApk" placeholder="https://midominio.com/app.apk">
-        </div>
-      </div>
-      <div class="form-actions">
-        <button type="submit" class="btn-save" style="padding: 6px 15px; font-size: 12px;">+ Guardar Dominio / APK</button>
-      </div>
-    </form>
-
-    <div class="grid-domains" id="domainList">
-      <!-- Carga dinámica sincronizada -->
-    </div>
-  </div>
-
-  <!-- REGISTRO DE CLIENTES -->
-  <div class="card">
-    <div class="card-title">👤 REGISTRAR CLIENTE</div>
-    <form id="clientForm">
-      <div class="grid-form">
+    <div class="card-title">👤 REGISTRAR NUEVO CLIENTE</div>
+    <form>
+      <div class="grid-4">
         <div>
           <label>NOMBRE DEL CLIENTE*</label>
-          <input type="text" id="cliName" placeholder="Nombre completo" required>
+          <input type="text" placeholder="Nombre completo" required>
         </div>
         <div>
           <label>TELÉFONO (WHATSAPP)*</label>
-          <input type="text" id="cliPhone" placeholder="+34600000000" required>
+          <input type="text" value="+34612345678" required>
         </div>
         <div>
-          <label>USUARIO PANEL</label>
-          <input type="text" id="cliUser" placeholder="Usuario">
+          <label>USUARIO PANEL / APP</label>
+          <input type="text" placeholder="Ej: usuario123">
         </div>
         <div>
           <label>CONTRASEÑA</label>
-          <input type="text" id="cliPass" placeholder="Contraseña">
+          <input type="text" placeholder="Ej: clave123">
         </div>
 
         <div>
-          <label>DOMINIO / SERVIDOR</label>
-          <input type="text" id="cliServer" placeholder="Ej: NetTV / Max Player">
+          <label>SERVIDOR / PANEL IPTV</label>
+          <input type="text" value="NetTV">
         </div>
         <div>
-          <label>MAC ADDRESS</label>
-          <input type="text" id="cliMac" placeholder="00:1A:2B:3C:4D:5E">
+          <label>APLICACIÓN INSTALADA</label>
+          <input type="text" value="Max Player">
         </div>
         <div>
-          <label>DEVICE KEY / APP ID</label>
-          <input type="text" id="cliKey" placeholder="Key / ID">
+          <label>DIRECCIÓN MAC</label>
+          <input type="text" value="00:1A:2B:3C:4D:5E">
         </div>
         <div>
-          <label>FECHA VENCIMIENTO</label>
-          <input type="date" id="cliDate">
+          <label>FECHA VENCIMIENTO*</label>
+          <input type="date" required>
+        </div>
+
+        <div class="full-row">
+          <label>NOTAS ADICIONALES</label>
+          <input type="text" placeholder="Dispositivo, observaciones, etc.">
         </div>
       </div>
 
       <div class="form-actions">
-        <button type="reset" class="btn-cancel">Limpiar</button>
-        <button type="submit" class="btn-save">💾 Guardar en Todos los Dispositivos</button>
+        <button type="button" class="btn-cancel">Limpiar / Cancelar</button>
+        <button type="submit" class="btn-save">💾 Guardar Cliente</button>
       </div>
     </form>
   </div>
 
-  <!-- TABLA DE CLIENTES EN TIEMPO REAL -->
+  <!-- CLIENTES REGISTRADOS -->
   <div class="card">
-    <div class="card-title">👥 CLIENTES SINCRONIZADOS</div>
+    <div class="table-header-tools">
+      <div class="card-title" style="margin:0;">👥 CLIENTES</div>
+      
+      <div class="filters-group">
+        <button class="btn-filter filter-all">Todos</button>
+        <button class="btn-filter filter-today">Vencen Hoy</button>
+        <button class="btn-filter filter-expired">Caducados</button>
+      </div>
+
+      <input type="text" class="search-input" placeholder="Buscar cliente, tel, MAC...">
+    </div>
+
     <table>
       <thead>
         <tr>
-          <th>Cliente</th>
+          <th>Cliente / Teléfono</th>
           <th>Credenciales</th>
-          <th>Dominio / Servidor</th>
-          <th>MAC / Device Key</th>
+          <th>Servidor / App</th>
+          <th>MAC</th>
           <th>Vencimiento</th>
+          <th>Aviso WhatsApp</th>
           <th>Acciones</th>
         </tr>
       </thead>
-      <tbody id="clientTableBody">
-        <!-- Carga dinámica sincronizada -->
+      <tbody>
+        <tr>
+          <td>
+            <strong>ANGEL MARIN</strong><br>
+            <small style="color: #94a3b8;">670465155</small>
+          </td>
+          <td>
+            <small>U: nkDN1tKnLo</small><br>
+            <small style="color: #94a3b8;">C: ER22HH24YHY42</small>
+          </td>
+          <td>
+            <span class="tag-badge">NetTV</span><br>
+            <small>Max Player</small>
+          </td>
+          <td><code>-</code></td>
+          <td>-</td>
+          <td>
+            <a href="https://wa.me/34670465155" target="_blank" class="btn-ws-table">📲 Contactar</a>
+          </td>
+          <td>
+            <div class="action-icons">
+              <button class="btn-icon">✏️</button>
+              <button class="btn-icon delete">🗑️</button>
+            </div>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
-
 </div>
-
-<!-- LOGICA DE SINCRONIZACIÓN FIREBASE EN TIEMPO REAL -->
-<script>
-  const firebaseConfig = {
-    databaseURL: "https://panel-iptv-default-rtdb.firebaseio.com"
-  };
-  
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-  const db = firebase.database();
-
-  // Control Visual de Conexión
-  db.ref(".info/connected").on("value", (snap) => {
-    const status = document.getElementById("sync-status");
-    if (snap.val() === true) {
-      status.innerText = "● Sincronizado en Tiempo Real (Firebase)";
-      status.className = "badge-status status-online";
-    } else {
-      status.innerText = "○ Desconectado / Reconectando...";
-      status.className = "badge-status status-offline";
-    }
-  });
-
-  // 1. SINCRONIZAR DOMINIOS Y APKs
-  db.ref("dominios").on("value", (snapshot) => {
-    const container = document.getElementById("domainList");
-    container.innerHTML = "";
-    snapshot.forEach((child) => {
-      const id = child.key;
-      const data = child.val();
-      container.innerHTML += `
-        <div class="domain-card">
-          <button onclick="deleteDomain('${id}')" class="btn-delete-dom">🗑️</button>
-          <div class="domain-name">${data.name}</div>
-          <div class="domain-url">${data.url}</div>
-          ${data.apk ? `<a href="${data.apk}" target="_blank" class="apk-link">📲 Descargar APK</a>` : ''}
-        </div>
-      `;
-    });
-  });
-
-  document.getElementById("domainForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    db.ref("dominios").push({
-      name: document.getElementById("domName").value,
-      url: document.getElementById("domUrl").value,
-      apk: document.getElementById("domApk").value
-    });
-    e.target.reset();
-  });
-
-  function deleteDomain(id) {
-    if (confirm("¿Eliminar este dominio?")) {
-      db.ref("dominios/" + id).remove();
-    }
-  }
-
-  // 2. SINCRONIZAR CLIENTES ENTRE DISPOSITIVOS
-  db.ref("clientes").on("value", (snapshot) => {
-    const tbody = document.getElementById("clientTableBody");
-    tbody.innerHTML = "";
-    snapshot.forEach((child) => {
-      const id = child.key;
-      const c = child.val();
-      tbody.innerHTML += `
-        <tr>
-          <td><strong>${c.name}</strong><br><small style="color:var(--text-muted);">${c.phone}</small></td>
-          <td><small>U: ${c.user || '-'}</small><br><small style="color:var(--text-muted);">C: ${c.pass || '-'}</small></td>
-          <td>${c.server || '-'}</td>
-          <td><small>${c.mac || '-'}</small><br><small style="color:var(--text-muted);">Key: ${c.key || '-'}</small></td>
-          <td>${c.date || '-'}</td>
-          <td>
-            <button onclick="deleteClient('${id}')" style="background:#991b1b; color:white; border:none; padding:5px 8px; border-radius:4px; cursor:pointer;">🗑️</button>
-          </td>
-        </tr>
-      `;
-    });
-  });
-
-  document.getElementById("clientForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    db.ref("clientes").push({
-      name: document.getElementById("cliName").value,
-      phone: document.getElementById("cliPhone").value,
-      user: document.getElementById("cliUser").value,
-      pass: document.getElementById("cliPass").value,
-      server: document.getElementById("cliServer").value,
-      mac: document.getElementById("cliMac").value,
-      key: document.getElementById("cliKey").value,
-      date: document.getElementById("cliDate").value
-    });
-    e.target.reset();
-  });
-
-  function deleteClient(id) {
-    if (confirm("¿Deseas eliminar este cliente de la base de datos?")) {
-      db.ref("clientes/" + id).remove();
-    }
-  }
-</script>
 
 </body>
 </html>
