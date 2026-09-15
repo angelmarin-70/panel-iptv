@@ -10,7 +10,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-    // Configuración de tu base de datos en la nube
     const firebaseConfig = {
       apiKey: "AIzaSy_REEMPLAZA_CON_TU_API_KEY",
       authDomain: "tu-proyecto.firebaseapp.com",
@@ -42,24 +41,32 @@
     }
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: var(--bg-main); color: var(--text-main); margin: 0; padding: 20px; }
-    .container { max-width: 1300px; margin: 0 auto; }
+    .container { max-width: 1400px; margin: 0 auto; }
     
-    /* Cabecera de Estado Cloud */
+    /* Cabecera y Estado Cloud */
     .header-cloud { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
     .badge-status { background: #064e3b; color: #34d399; font-size: 11px; padding: 4px 10px; border-radius: 12px; border: 1px solid #059669; font-weight: bold; }
 
-    .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-    .card-title { font-size: 14px; font-weight: bold; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 15px; }
+    .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 18px; margin-bottom: 20px; }
+    .card-title { font-size: 13px; font-weight: bold; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 12px; }
+
+    /* Grid Botones Paneles */
+    .grid-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+    .link-item { background: #1e293b; border: 1px solid #334155; color: #f1f5f9; padding: 8px 12px; border-radius: 4px; font-size: 13px; text-decoration: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .link-item:hover { background: #334155; }
+    .app-link { background: #1e1b4b; border-color: #312e81; color: #c7d2fe; }
+    .app-link:hover { background: #312e81; }
     
     /* Formularios */
-    .grid-form { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+    .grid-form { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
     label { display: block; font-size: 11px; font-weight: bold; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 5px; }
-    input, select { width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 10px; border-radius: 4px; font-size: 13px; outline: none; }
-    input:focus, select:focus { border-color: var(--accent-blue); }
+    input, select, textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 9px 10px; border-radius: 4px; font-size: 13px; outline: none; }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent-blue); }
     
     .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
-    .btn { padding: 9px 18px; font-size: 13px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
+    .btn { padding: 8px 18px; font-size: 13px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
     .btn-save { background: #059669; color: white; }
+    .btn-cancel { background: #475569; color: white; }
 
     /* Tabla */
     table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; margin-top: 10px; }
@@ -75,8 +82,51 @@
 <div class="container">
 
   <div class="header-cloud">
-    <div style="font-size: 16px; font-weight: bold;">Panel IPTV & Clientes</div>
+    <div style="font-size: 18px; font-weight: bold;">Panel IPTV & Clientes</div>
     <div><span class="badge-status" id="syncStatus">● Conectando a la nube...</span></div>
+  </div>
+
+  <!-- PANELES IPTV -->
+  <div class="card">
+    <div class="card-title">PANELES IPTV</div>
+    <div class="grid-links">
+      <a href="#" class="link-item">NetTV ✏️</a>
+      <a href="#" class="link-item">Emby ✏️</a>
+      <a href="#" class="link-item">Zafiro ✏️</a>
+      <a href="#" class="link-item">Dylan ✏️</a>
+      <a href="#" class="link-item">Joker ✏️</a>
+      <a href="#" class="link-item">TS4K ✏️</a>
+      <a href="#" class="link-item">Nexon ✏️</a>
+      <a href="#" class="link-item">Regilón ✏️</a>
+      <a href="#" class="link-item">DonIPTV ✏️</a>
+      <a href="#" class="link-item">P2P ✏️</a>
+    </div>
+  </div>
+
+  <!-- PANELES APLICACIONES -->
+  <div class="card">
+    <div class="card-title">PANELES APLICACIONES</div>
+    <div class="grid-links">
+      <a href="#" class="link-item app-link">Max Player ✏️</a>
+      <a href="#" class="link-item app-link">iBox Player ✏️</a>
+      <a href="#" class="link-item app-link">Smartone ✏️</a>
+      <a href="#" class="link-item app-link">CR7 Panel ✏️</a>
+      <a href="#" class="link-item app-link">IBO Player ✏️</a>
+      <a href="#" class="link-item app-link">IBO Sol ✏️</a>
+      <a href="#" class="link-item app-link">IBO Lopes ✏️</a>
+      <a href="#" class="link-item app-link">DonIBO ✏️</a>
+      <a href="#" class="link-item app-link">TiviMate VPN ✏️</a>
+      <a href="#" class="link-item app-link">VU Player ✏️</a>
+      <a href="#" class="link-item app-link">IBO Killer ✏️</a>
+      <a href="#" class="link-item app-link">XCIPTV Phoenix ✏️</a>
+      <a href="#" class="link-item app-link">TiviMate Phoenix ✏️</a>
+    </div>
+  </div>
+
+  <!-- BLOC DE NOTAS & DNS -->
+  <div class="card">
+    <div class="card-title">BLOC DE NOTAS & DNS</div>
+    <textarea id="blocNotas" rows="2" placeholder="Anota aquí las DNS o credenciales temporales..." oninput="saveNotes()"></textarea>
   </div>
 
   <!-- FORMULARIO DE CLIENTES -->
@@ -148,8 +198,9 @@
           <input type="date" id="cFecha" required>
         </div>
 
-        <div style="display: flex; align-items: flex-end;">
-          <button type="submit" class="btn btn-save" style="width: 100%;">Guardar Cliente</button>
+        <div style="display: flex; align-items: flex-end; gap: 8px;">
+          <button type="button" class="btn btn-cancel" onclick="resetForm()" style="width: 50%;">Limpiar</button>
+          <button type="submit" class="btn btn-save" style="width: 50%;">Guardar</button>
         </div>
 
       </div>
@@ -182,13 +233,15 @@
   let clients = [];
 
   window.addEventListener('load', () => {
+    document.getElementById('blocNotas').value = localStorage.getItem('iptv_notes') || '';
+    
     if (window.db) {
       const clientsRef = window.dbRef(window.db, 'clientes');
       window.dbOnValue(clientsRef, (snapshot) => {
         const data = snapshot.val();
         clients = data ? Object.values(data) : [];
         renderClients();
-        document.getElementById('syncStatusinnerText' || 'syncStatus').innerText = '● Sincronizado en la Nube';
+        document.getElementById('syncStatus').innerText = '● Sincronizado en la Nube';
         document.getElementById('syncStatus').style.color = '#34d399';
       }, (error) => {
         clients = JSON.parse(localStorage.getItem('iptv_clients') || '[]');
@@ -198,6 +251,10 @@
       });
     }
   });
+
+  function saveNotes() {
+    localStorage.setItem('iptv_notes', document.getElementById('blocNotas').value);
+  }
 
   function saveClient(e) {
     e.preventDefault();
@@ -221,9 +278,13 @@
     if (index > -1) { clients[index] = newClient; } else { clients.push(newClient); }
     localStorage.setItem('iptv_clients', JSON.stringify(clients));
 
-    document.getElementById('clientForm').reset();
-    document.getElementById('clientId').value = '';
+    resetForm();
     renderClients();
+  }
+
+  function resetForm() {
+    document.getElementById('clientId').value = '';
+    document.getElementById('clientForm').reset();
   }
 
   function deleteClient(id) {
@@ -271,7 +332,7 @@
     document.getElementById('cServidor').value = c.servidor;
     document.getElementById('cApp').value = c.app;
     document.getElementById('cFecha').value = c.fecha;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 300, behavior: 'smooth' });
   }
 </script>
 
