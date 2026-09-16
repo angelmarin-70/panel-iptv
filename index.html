@@ -3,643 +3,588 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración IPTV</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome para iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDKs (Compat v8) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <title>Panel IPTV Admin - Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <!-- Firebase SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <style>
+        body { background-color: #0b0f19 !important; color: #ffffff !important; font-family: system-ui, -apple-system, sans-serif; padding: 20px; }
+        .section-box { background-color: #151c2c !important; border: 2px solid #2d3748 !important; border-radius: 12px; padding: 20px; margin-bottom: 25px; }
+        .section-title { font-size: 1.1rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .btn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+        .btn-panel-box { background-color: #1e293b !important; border: 1px solid #475569 !important; border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+        .btn-panel-box:hover { background-color: #334155 !important; border-color: #38bdf8 !important; }
+        .btn-app-box { background-color: #1d4ed8 !important; border: 1px solid #3b82f6 !important; }
+        .btn-app-box:hover { background-color: #2563eb !important; }
+        .panel-link { color: #ffffff !important; text-decoration: none !important; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; width: 100%; }
+        .btn-edit-icon { color: #fbbf24 !important; font-size: 1rem; cursor: pointer; }
+        label { color: #38bdf8 !important; font-weight: 800 !important; font-size: 0.9rem; margin-bottom: 6px; display: block; text-transform: uppercase; }
+        .form-control, .form-select { background-color: #0f172a !important; border: 2px solid #475569 !important; color: #ffffff !important; font-size: 0.95rem !important; font-weight: 600 !important; padding: 10px !important; }
+        .form-control:focus, .form-select:focus { background-color: #1e293b !important; border-color: #38bdf8 !important; color: #ffffff !important; box-shadow: 0 0 10px rgba(56, 189, 248, 0.5) !important; }
+        ::placeholder { color: #94a3b8 !important; opacity: 1 !important; }
+        option { background-color: #0f172a !important; color: #ffffff !important; }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+        .table-custom { color: #ffffff !important; margin: 0; }
+        .table-custom th { background-color: #1e293b !important; color: #38bdf8 !important; border-bottom: 2px solid #475569 !important; padding: 12px; font-weight: 800; }
+        .table-custom td { background-color: #0f172a !important; border-bottom: 1px solid #1e293b !important; padding: 12px; vertical-align: middle; color: #ffffff !important; }
+        .btn-whatsapp { background-color: #25d366 !important; color: #ffffff !important; font-weight: bold; border: none !important; }
+        .btn-whatsapp:hover { background-color: #1da851 !important; }
+        .notepad-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(11, 15, 25, 0.98); z-index: 99999; padding: 25px; box-sizing: border-box; flex-direction: column; }
+        .notepad-modal.active { display: flex; }
+        .notepad-textarea { width: 100%; height: 100%; background-color: #050811 !important; color: #00ffcc !important; font-family: monospace; font-size: 1.1rem !important; padding: 20px !important; border: 2px solid #38bdf8 !important; border-radius: 8px; resize: none; }
+        .sync-badge { font-size: 0.85rem; padding: 5px 12px; border-radius: 20px; }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen">
+<body>
 
-    <div class="container mx-auto px-4 py-8">
-        <!-- Cabecera -->
-        <header class="flex flex-col md:flex-row justify-between items-center mb-8 bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
-            <div>
-                <h1 class="text-3xl font-bold text-blue-400 flex items-center gap-3">
-                    <i class="fa-solid fa-server"></i> Panel IPTV Admin
-                </h1>
-                <p class="text-gray-400 text-sm mt-1">Gestión avanzada de cuentas, MACs, expiraciones y notificaciones</p>
-            </div>
-            <div class="flex flex-wrap gap-3 mt-4 md:mt-0">
-                <button onclick="exportBackup()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2">
-                    <i class="fa-solid fa-download"></i> Exportar Backup
-                </button>
-                <label class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 cursor-pointer">
-                    <i class="fa-solid fa-upload"></i> Importar Backup
-                    <input type="file" id="importFile" accept=".json" onchange="importBackup(event)" class="hidden">
-                </label>
-                <button onclick="openConfigModal()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2">
-                    <i class="fa-solid fa-gear"></i> Config
-                </button>
-            </div>
-        </header>
+<div class="container-fluid max-w-7xl mx-auto">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold m-0 text-white"><i class="bi bi-cpu-fill text-info me-2"></i>Panel IPTV Admin</h3>
+            <span id="syncStatus" class="badge bg-secondary sync-badge mt-1"><i class="bi bi-cloud-slash me-1"></i> Conectando a Firebase...</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-primary btn-sm" onclick="requestNotificationPermission()"><i class="bi bi-bell-fill"></i> Notificaciones</button>
+            <button class="btn btn-outline-warning btn-sm" onclick="resetLinks()"><i class="bi bi-arrow-counterclockwise"></i> Reset URLs</button>
+            <button class="btn btn-outline-info btn-sm" onclick="document.getElementById('importFile').click()"><i class="bi bi-upload"></i> Cargar Copia</button>
+            <input type="file" id="importFile" style="display:none;" onchange="importBackup(event)">
+            <button class="btn btn-success btn-sm" onclick="exportBackup()"><i class="bi bi-download"></i> Guardar Copia</button>
+        </div>
+    </div>
 
-        <!-- Barra de Acciones Principales y Filtros -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
-            <div class="lg:col-span-2 flex gap-2">
-                <input type="text" id="searchInput" placeholder="Buscar por nombre, usuario, MAC..." onkeyup="filterClients()" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500">
-                <button onclick="openClientModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-user-plus"></i> Nuevo
-                </button>
-            </div>
-            <div class="flex gap-2">
-                <select id="statusFilter" onchange="filterClients()" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500">
-                    <option value="all">Todos los estados</option>
-                    <option value="active">Activos</option>
-                    <option value="expiring">Por Caducar (Próx. 5 días)</option>
-                    <option value="expired">Caducados</option>
+    <!-- PANELES IPTV -->
+    <div class="section-box">
+        <div class="section-title text-info"><i class="bi bi-grid-3x3-gap-fill"></i> Paneles IPTV</div>
+        <div class="btn-grid" id="iptvGrid"></div>
+    </div>
+
+    <!-- PANELES APLICACIONES -->
+    <div class="section-box">
+        <div class="section-title text-primary"><i class="bi bi-app-indicator"></i> Paneles de Aplicaciones</div>
+        <div class="btn-grid" id="appGrid"></div>
+    </div>
+
+    <!-- BLOC DE NOTAS / DNS -->
+    <div class="section-box">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="section-title text-warning m-0"><i class="bi bi-journal-text me-1"></i> Bloc de Notas & DNS</div>
+            <div class="d-flex align-items-center gap-2">
+                <select class="form-select form-select-sm" id="noteCategorySelect" style="width: 240px;" onchange="changeNoteCategory()">
+                    <option value="dns_iptv">🌐 DNS</option>
+                    <option value="apks">📲 APKs & Códigos Downloader</option>
+                    <option value="app_codes">🔑 Códigos & Activaciones App</option>
+                    <option value="general_notes">📝 Notas Generales</option>
                 </select>
-            </div>
-            <div class="flex justify-end items-center">
-                <span id="cloudStatus" class="text-xs px-3 py-1 rounded-full bg-red-900 text-red-200 flex items-center gap-1.5">
-                    <i class="fa-solid fa-circle text-[8px]"></i> Desconectado de Firebase
-                </span>
-            </div>
-        </div>
-
-        <!-- Botones de Paneles IPTV Dinámicos -->
-        <div class="mb-6 bg-gray-800 p-4 rounded-xl border border-gray-700">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Enlaces Rápidos a Paneles</h3>
-                <button onclick="openCustomLinkModal()" class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
-                    <i class="fa-solid fa-plus"></i> Añadir Panel
-                </button>
-            </div>
-            <div id="panelButtonsContainer" class="flex flex-wrap gap-2">
-                <!-- Se generan dinámicamente -->
-            </div>
-        </div>
-
-        <!-- Tabla de Clientes -->
-        <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden mb-8">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase tracking-wider bg-gray-800/50">
-                            <th class="p-4">Cliente / Notas</th>
-                            <th class="p-4">Credenciales / MAC & Device</th>
-                            <th class="p-4">Vencimiento</th>
-                            <th class="p-4">Estado</th>
-                            <th class="p-4 text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="clientTableBody" class="divide-y divide-gray-700 text-sm">
-                        <!-- Filas inyectadas por JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Sección de Notas Rápidas / Blóq de notas inferior -->
-        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-200 flex items-center gap-2">
-                    <i class="fa-solid fa-note-sticky text-amber-400"></i> Notas Rápidas Generales
-                </h3>
-                <div class="text-xs text-gray-400" id="noteStatus">Guardado automáticamente</div>
-            </div>
-            <textarea id="generalNotes" oninput="saveGeneralNote()" rows="4" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-4 text-white focus:outline-none focus:border-blue-500" placeholder="Escribe notas de proveedores, IPs, accesos o avisos importantes aquí..."></textarea>
-        </div>
-    </div>
-
-    <!-- Modal Nuevo / Editar Cliente -->
-    <div id="clientModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-gray-800 border border-gray-700 rounded-2xl w-full max-w-lg p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="modalTitle" class="text-xl font-bold text-white">Añadir Nuevo Cliente</h3>
-                <button onclick="closeClientModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <form id="clientForm" onsubmit="saveClient(event)" class="space-y-4">
-                <input type="hidden" id="clientId">
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Nombre del Cliente</label>
-                    <input type="text" id="clientName" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Usuario / Línea</label>
-                        <input type="text" id="clientUser" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Contraseña</label>
-                        <input type="text" id="clientPass" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Dirección MAC (Formato automático)</label>
-                    <input type="text" id="clientMac" placeholder="00:1A:79:..." oninput="formatMacInput(this)" maxlength="17" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono focus:outline-none focus:border-blue-500 uppercase">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Fecha de Expiración</label>
-                        <input type="date" id="clientExpiry" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Device</label>
-                        <input type="text" id="clientDevice" placeholder="Ej: MaxPlayer, TiviMate..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Notas del Cliente</label>
-                    <textarea id="clientNotes" rows="2" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"></textarea>
-                </div>
-                <div class="flex justify-end gap-3 mt-6">
-                    <button type="button" onclick="closeClientModal()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">Cancelar</button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition">Guardar Cliente</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal de Configuración (Telegram & Firebase) -->
-    <div id="configModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-gray-800 border border-gray-700 rounded-2xl w-full max-w-lg p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-white">Configuración del Sistema</h3>
-                <button onclick="closeConfigModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div class="space-y-4">
-                <div class="border-b border-gray-700 pb-4">
-                    <h4 class="text-sm font-semibold text-blue-400 mb-3"><i class="fa-brands fa-telegram"></i> Bot de Telegram</h4>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-400 mb-1">Bot Token</label>
-                            <input type="text" id="tgToken" placeholder="123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-400 mb-1">Chat ID</label>
-                            <input type="text" id="tgChatId" placeholder="-100123456789" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500">
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="text-sm font-semibold text-amber-400 mb-3"><i class="fa-solid fa-database"></i> Firebase Realtime Database Config</h4>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-400 mb-1">Configuración JSON de Firebase</label>
-                            <textarea id="firebaseConfigJson" rows="4" placeholder='{"apiKey": "...", "databaseURL": "...", ...}' class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white text-xs font-mono focus:outline-none focus:border-blue-500"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-end gap-3 mt-6">
-                    <button type="button" onclick="closeConfigModal()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">Cancelar</button>
-                    <button type="button" onclick="saveConfig()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition">Guardar Configuración</button>
-                </div>
+                <button class="btn btn-warning btn-sm fw-bold px-3" onclick="openNotepadModal()"><i class="bi bi-arrows-fullscreen me-1"></i> Abrir a Pantalla Completa</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Añadir Enlace de Panel Personalizado -->
-    <div id="customLinkModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-gray-800 border border-gray-700 rounded-2xl w-full max-w-md p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-white">Añadir Enlace a Panel</h3>
-                <button onclick="closeCustomLinkModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+    <!-- VENTANA FLOTANTE BLOC DE NOTAS -->
+    <div class="notepad-modal" id="notepadModal">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="m-0 fw-bold text-warning" id="modalTitle"><i class="bi bi-file-earmark-code me-2"></i> Bloc de Notas - DNS</h4>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm" onclick="clearCurrentNote()"><i class="bi bi-eraser"></i> Limpiar</button>
+                <button class="btn btn-success btn-sm fw-bold px-4" onclick="saveCurrentNote()"><i class="bi bi-save me-1"></i> Guardar Cambios</button>
+                <button class="btn btn-danger btn-sm px-3" onclick="closeNotepadModal()"><i class="bi bi-x-lg me-1"></i> Cerrar</button>
             </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Nombre del Panel</label>
-                    <input type="text" id="panelNameInput" placeholder="Ej: MaxPlayer Reseller" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">URL del Panel</label>
-                    <input type="url" id="panelUrlInput" placeholder="https://tu-panel.com" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500">
-                </div>
-                <div class="flex justify-end gap-3 mt-6">
-                    <button type="button" onclick="closeCustomLinkModal()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">Cancelar</button>
-                    <button type="button" onclick="saveCustomLink()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold transition">Añadir</button>
-                </div>
+        </div>
+        <textarea class="notepad-textarea" id="noteTextArea" placeholder="Escribe o pega aquí tus direcciones DNS, APKs, notas o claves..."></textarea>
+    </div>
+
+    <!-- BOT TELEGRAM -->
+    <div class="section-box">
+        <div class="section-title text-warning"><i class="bi bi-telegram"></i> Alertas por Telegram</div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label>Telegram Bot Token</label>
+                <input type="text" class="form-control" id="tgToken" value="8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOS5Sg" onchange="saveTgConfig()">
+            </div>
+            <div class="col-md-6">
+                <label>Telegram Chat ID</label>
+                <input type="text" class="form-control" id="tgChatId" value="1417906399" onchange="saveTgConfig()">
             </div>
         </div>
     </div>
 
-    <!-- Lógica JavaScript de la Aplicación -->
-    <script>
-        let clients = [];
-        let customLinks = JSON.parse(localStorage.getItem('iptv_custom_urls')) || [
-            { name: 'MaxPlayer Panel', url: 'https://maxplayer.tv' },
-            { name: 'TiviMate Portal', url: 'https://tivimate.com' }
-        ];
-        let db = null;
-        let isFirebaseConnected = false;
+    <!-- REGISTRO DE CLIENTE -->
+    <div class="section-box">
+        <div class="section-title text-success" id="formTitle"><i class="bi bi-person-plus-fill"></i> Registrar Nuevo Cliente</div>
+        <form id="clientForm" onsubmit="event.preventDefault(); saveClientForm();">
+            <input type="hidden" id="editClientId" value="">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label>Nombre del Cliente *</label>
+                    <input type="text" class="form-control" id="cName" required placeholder="Nombre completo">
+                </div>
+                <div class="col-md-3">
+                    <label>Teléfono (WhatsApp) *</label>
+                    <input type="text" class="form-control" id="cPhone" required placeholder="+34612345678">
+                </div>
+                <div class="col-md-3">
+                    <label>Usuario Panel / App</label>
+                    <input type="text" class="form-control" id="cUser" placeholder="Ej: usuario123">
+                </div>
+                <div class="col-md-3">
+                    <label>Contraseña</label>
+                    <input type="text" class="form-control" id="cPass" placeholder="Ej: clave123">
+                </div>
+                <div class="col-md-3">
+                    <label>Servidor / Panel IPTV</label>
+                    <select class="form-select" id="cServer">
+                        <option value="NetTV">NetTV</option>
+                        <option value="Emby">Emby</option>
+                        <option value="Zafiro">Zafiro</option>
+                        <option value="Dylan">Dylan</option>
+                        <option value="Joker">Joker</option>
+                        <option value="TS4K">TS4K</option>
+                        <option value="Nexon">Nexon</option>
+                        <option value="Regilón">Regilón</option>
+                        <option value="DonIPTV">DonIPTV</option>
+                        <option value="P2P">P2P</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Aplicación Instalada</label>
+                    <select class="form-select" id="cApp">
+                        <option value="Max Player">Max Player</option>
+                        <option value="IBO Player">IBO Player</option>
+                        <option value="iBox Player">iBox Player</option>
+                        <option value="Smartone">Smartone</option>
+                        <option value="CR7 Panel">CR7 Panel</option>
+                        <option value="IBO Sol">IBO Sol</option>
+                        <option value="IBO Lopes">IBO Lopes</option>
+                        <option value="DonIBO">DonIBO</option>
+                        <option value="TiviMate VPN">TiviMate VPN</option>
+                        <option value="VU Player">VU Player</option>
+                        <option value="IBO Killer">IBO Killer</option>
+                        <option value="XCIPTV Phoenix">XCIPTV Phoenix</option>
+                        <option value="TiviMate Phoenix">TiviMate Phoenix</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Dirección MAC</label>
+                    <input type="text" class="form-control" id="cMac" placeholder="00:1A:2B:3C:4D:5E">
+                </div>
+                <div class="col-md-3">
+                    <label>Fecha Vencimiento *</label>
+                    <input type="date" class="form-control" id="cExpiry" required>
+                </div>
+                <div class="col-md-12">
+                    <label>Notas Adicionales</label>
+                    <input type="text" class="form-control" id="cNotes" placeholder="Dispositivo, observaciones, etc.">
+                </div>
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn btn-outline-secondary btn-sm px-3" onclick="resetForm()">Limpiar / Cancelar</button>
+                <button type="submit" class="btn btn-success btn-sm px-4 fw-bold" id="btnSaveClient"><i class="bi bi-save me-1"></i> Guardar Cliente</button>
+            </div>
+        </form>
+    </div>
 
-        // Auto-formateador dinámico para direcciones MAC mientras se escribe
-        function formatMacInput(input) {
-            let val = input.value.replace(/[^0-9a-fA-F]/g, '').toUpperCase();
-            let formatted = '';
-            for (let i = 0; i < val.length && i < 12; i++) {
-                if (i > 0 && i % 2 === 0) {
-                    formatted += ':';
-                }
-                formatted += val[i];
+    <!-- LISTA DE CLIENTES -->
+    <div class="section-box">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+            <div class="section-title text-warning m-0"><i class="bi bi-people-fill"></i> Clientes (<span id="clientCount">0</span>)</div>
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-outline-info active" id="filterAll" onclick="setFilter('all')">Todos</button>
+                <button type="button" class="btn btn-outline-warning" id="filterToday" onclick="setFilter('today')">Vencen Hoy</button>
+                <button type="button" class="btn btn-outline-primary" id="filterWeek" onclick="setFilter('week')">Esta Semana</button>
+                <button type="button" class="btn btn-outline-danger" id="filterExpired" onclick="setFilter('expired')">Caducados</button>
+            </div>
+            <div style="width: 250px;">
+                <input type="text" class="form-control form-control-sm" id="searchBox" placeholder="Buscar cliente, tel, MAC..." onkeyup="renderTable()">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>Cliente / Teléfono</th>
+                        <th>Credenciales</th>
+                        <th>Servidor / App</th>
+                        <th>MAC</th>
+                        <th>Vencimiento</th>
+                        <th class="text-center">Aviso WhatsApp</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="clientTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const FIREBASE_URL = "https://mi-panel-iptv-d1954-default-rtdb.firebaseio.com/";
+    const DEFAULT_TG_TOKEN = "8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOS5Sg";
+    const DEFAULT_TG_CHAT_ID = "1417906399";
+
+    const defaultIptvLinks = [
+        { id: 'nettv', name: 'NetTV', icon: 'bi-tv', url: 'https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100' },
+        { id: 'emby', name: 'Emby', icon: 'bi-hdd-network', url: 'https://thorcrm.info/login' },
+        { id: 'zafiro', name: 'Zafiro', icon: 'bi-gem', url: 'https://koramendi.eu/dashboard' },
+        { id: 'dylan', name: 'Dylan', icon: 'bi-play-circle', url: 'https://599.iglesiadecristoredentor.org:2053/piruletas@@2020/login' },
+        { id: 'joker', name: 'Joker', icon: 'bi-lightning', url: 'https://respaneller.xyz/generalcOyYsDqo/login?referrer=dashboard' },
+        { id: 'ts4k', name: 'TS4K', icon: 'bi-box', url: 'https://storm-panel.pro/login.php' },
+        { id: 'nexon', name: 'Nexon', icon: 'bi-cpu', url: 'https://cms-nexon.org/nexon/login.php?referrer=subresellers.php' },
+        { id: 'regilon', name: 'Regilón', icon: 'bi-globe', url: 'https://treemor.uk/TARANTULA2/login' },
+        { id: 'doniptv', name: 'DonIPTV', icon: 'bi-broadcast', url: 'https://main.salsadetomate.shop:2096' },
+        { id: 'p2p', name: 'P2P', icon: 'bi-diagram-3', url: 'https://p2pro.sigma.st' }
+    ];
+
+    const defaultAppLinks = [
+        { id: 'maxplayer', name: 'Max Player', icon: 'bi-display', url: 'https://my.maxplayer.tv/auth/login' },
+        { id: 'ibox', name: 'iBox Player', icon: 'bi-box', url: 'https://iboxxiptv.com/device/login' },
+        { id: 'smartone', name: 'Smartone', icon: 'bi-tv', url: 'https://smartone-iptv.com/es/aplicacion-iptv-para-samsung' },
+        { id: 'cr7', name: 'CR7 Panel', icon: 'bi-shield', url: 'https://cr7panel.com/' },
+        { id: 'ibo', name: 'IBO Player', icon: 'bi-play-circle', url: 'https://iboplayer.com/' },
+        { id: 'ibosol', name: 'IBO Sol', icon: 'bi-sun', url: 'https://ibosol.com/login' },
+        { id: 'ibolopes', name: 'IBO Lopes', icon: 'bi-controller', url: 'https://maxtvapps.pw/Apks/Ibo/Lopes/index.php' },
+        { id: 'donibo', name: 'DonIBO', icon: 'bi-check-circle', url: 'https://nertix.org/ibopanel4/users.php' },
+        { id: 'thimata', name: 'TiviMate VPN', icon: 'bi-key', url: 'https://globalvip.website/rbatv/nuepp/tiviproat' },
+        { id: 'vuplayer', name: 'VU Player', icon: 'bi-collection-play', url: 'https://rgvipplus.site/vu2/marine' },
+        { id: 'ibokiller', name: 'IBO Killer', icon: 'bi-x-circle', url: 'https://maxtvapps.pw/Apks/Ibo/Killer1/' },
+        { id: 'xciptv', name: 'XCIPTV Phoenix', icon: 'bi-fire', url: 'https://maxtvapps.pw/Apks/Xciptv/Phoenix/index.php' },
+        { id: 'tivimate', name: 'TiviMate Phoenix', icon: 'bi-lightning-charge', url: 'https://maxtvapps.pw/Apks/Tivimate/Phoenix/' },
+        { id: 'urlconverter', name: 'Conversor de URL', icon: 'bi-code-slash', url: 'https://www.url-encode-decode.com/' }
+    ];
+
+    let customLinks = JSON.parse(localStorage.getItem('iptv_custom_urls')) || {};
+    let activeFilter = 'all';
+    let dbRef = null;
+    let clients = JSON.parse(localStorage.getItem('iptv_clients_full')) || [];
+
+    function sendTelegramAlert(message) {
+        const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || { token: DEFAULT_TG_TOKEN, chatId: DEFAULT_TG_CHAT_ID };
+        if (!tgData.token || !tgData.chatId) return;
+        fetch(`https://api.telegram.org/bot${tgData.token}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: tgData.chatId, text: message, parse_mode: 'Markdown' })
+        }).catch(err => console.error("Error Telegram:", err));
+    }
+
+    function saveTgConfig() {
+        const token = document.getElementById('tgToken').value.trim();
+        const chatId = document.getElementById('tgChatId').value.trim();
+        localStorage.setItem('iptv_tg_config', JSON.stringify({ token, chatId }));
+        alert('Configuración de Telegram guardada.');
+    }
+
+    function loadTgConfig() {
+        const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || { token: DEFAULT_TG_TOKEN, chatId: DEFAULT_TG_CHAT_ID };
+        document.getElementById('tgToken').value = tgData.token;
+        document.getElementById('tgChatId').value = tgData.chatId;
+    }
+
+    function initFirebase() {
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp({ databaseURL: FIREBASE_URL });
             }
-            input.value = formatted;
-        }
+            dbRef = firebase.database().ref('iptv_admin_data');
 
-        // Inicializar Firebase si existe config guardada
-        function initFirebase() {
-            const savedConfig = localStorage.getItem('iptv_firebase_config');
-            if (!savedConfig) return;
-            try {
-                const firebaseConfig = JSON.parse(savedConfig);
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(firebaseConfig);
-                }
-                db = firebase.database();
-                
-                // Escuchar cambios en tiempo real
-                db.ref('clients').on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        clients = Array.isArray(data) ? data : Object.values(data);
-                    } else {
-                        clients = [];
-                    }
-                    renderTable();
-                    updateCloudStatus(true);
-                }, (error) => {
-                    console.error("Error Firebase:", error);
-                    updateCloudStatus(false);
-                });
-            } catch (e) {
-                console.error("Configuración de Firebase inválida", e);
-                updateCloudStatus(false);
-            }
-        }
-
-        function updateCloudStatus(connected) {
-            isFirebaseConnected = connected;
-            const statusEl = document.getElementById('cloudStatus');
-            if (connected) {
-                statusEl.className = "text-xs px-3 py-1 rounded-full bg-emerald-900 text-emerald-200 flex items-center gap-1.5";
-                statusEl.innerHTML = `<i class="fa-solid fa-circle text-[8px]"></i> Sincronizado con Firebase`;
-            } else {
-                statusEl.className = "text-xs px-3 py-1 rounded-full bg-red-900 text-red-200 flex items-center gap-1.5";
-                statusEl.innerHTML = `<i class="fa-solid fa-circle text-[8px]"></i> Modo Local (Sin Conexión)`;
-            }
-        }
-
-        function syncToCloud() {
-            saveClientsLocal();
-            if (db && isFirebaseConnected) {
-                db.ref('clients').set(clients);
-            }
-        }
-
-        function saveClientsLocal() {
-            localStorage.setItem('iptv_clients_data', JSON.stringify(clients));
-        }
-
-        function loadClientsLocal() {
-            const local = localStorage.getItem('iptv_clients_data');
-            if (local) {
-                try { clients = JSON.parse(local); } catch(e) { clients = []; }
-            }
-        }
-
-        // Renderizar tabla principal
-        function renderTable() {
-            const tbody = document.getElementById('clientTableBody');
-            tbody.innerHTML = '';
-            
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value;
-
-            const filtered = clients.filter(client => {
-                const matchesSearch = (client.name && client.name.toLowerCase().includes(searchTerm)) ||
-                                      (client.username && client.username.toLowerCase().includes(searchTerm)) ||
-                                      (client.mac && client.mac.toLowerCase().includes(searchTerm));
-                
-                const status = getClientStatus(client.expiryDate);
-                let matchesStatus = true;
-                if (statusFilter === 'active') matchesStatus = (status === 'active');
-                if (statusFilter === 'expiring') matchesStatus = (status === 'expiring');
-                if (statusFilter === 'expired') matchesStatus = (status === 'expired');
-
-                return matchesSearch && matchesStatus;
-            });
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-gray-500">No se encontraron clientes registrados.</td></tr>`;
-                return;
-            }
-
-            filtered.forEach(client => {
-                const status = getClientStatus(client.expiryDate);
-                let badge = '';
-                if (status === 'active') badge = '<span class="bg-emerald-900/60 text-emerald-300 border border-emerald-700 text-xs px-2.5 py-1 rounded-full">Activo</span>';
-                else if (status === 'expiring') badge = '<span class="bg-amber-900/60 text-amber-300 border border-amber-700 text-xs px-2.5 py-1 rounded-full">Por Caducar</span>';
-                else badge = '<span class="bg-red-900/60 text-red-300 border border-red-700 text-xs px-2.5 py-1 rounded-full">Caducado</span>';
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-750/50 transition border-b border-gray-700/50";
-                tr.innerHTML = `
-                    <td class="p-4">
-                        <div class="font-bold text-white">${escapeHtml(client.name)}</div>
-                        <div class="text-xs text-gray-400 mt-0.5">${escapeHtml(client.notes || 'Sin notas')}</div>
-                    </td>
-                    <td class="p-4 font-mono text-xs">
-                        ${client.username ? `<div>Usr: <span class="text-blue-300">${escapeHtml(client.username)}</span></div>` : ''}
-                        ${client.password ? `<div>Pass: <span class="text-gray-300">${escapeHtml(client.password)}</span></div>` : ''}
-                        ${client.mac ? `<div>MAC: <span class="text-amber-300">${escapeHtml(client.mac)}</span></div>` : ''}
-                        ${client.device ? `<div>Device: <span class="text-purple-300">${escapeHtml(client.device)}</span></div>` : ''}
-                    </td>
-                    <td class="p-4 text-gray-300 text-xs">${client.expiryDate || 'N/D'}</td>
-                    <td class="p-4">${badge}</td>
-                    <td class="p-4 text-right space-x-2">
-                        <button onclick="sendTgNotification('${client.id}')" title="Avisar por Telegram" class="bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white p-2 rounded-lg transition"><i class="fa-brands fa-telegram"></i></button>
-                        <button onclick="editClient('${client.id}')" title="Editar" class="bg-gray-700 hover:bg-gray-600 text-gray-300 p-2 rounded-lg transition"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="deleteClient('${client.id}')" title="Eliminar" class="bg-red-900/40 hover:bg-red-600 text-red-300 hover:text-white p-2 rounded-lg transition"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function getClientStatus(expiryDateStr) {
-            if (!expiryDateStr) return 'active';
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            const expiry = new Date(expiryDateStr);
-            const diffTime = expiry - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            if (diffDays < 0) return 'expired';
-            if (diffDays <= 5) return 'expiring';
-            return 'active';
-        }
-
-        function filterClients() {
-            renderTable();
-        }
-
-        // Abrir y cerrar Modales
-        function openClientModal(id = null) {
-            document.getElementById('clientModal').classList.remove('hidden');
-            if (id) {
-                document.getElementById('modalTitle').innerText = 'Editar Cliente IPTV';
-                const client = clients.find(c => c.id === id);
-                if (client) {
-                    document.getElementById('clientId').value = client.id;
-                    document.getElementById('clientName').value = client.name || '';
-                    document.getElementById('clientUser').value = client.username || '';
-                    document.getElementById('clientPass').value = client.password || '';
-                    document.getElementById('clientMac').value = client.mac || '';
-                    document.getElementById('clientExpiry').value = client.expiryDate || '';
-                    document.getElementById('clientDevice').value = client.device || '';
-                    document.getElementById('clientNotes').value = client.notes || '';
-                }
-            } else {
-                document.getElementById('modalTitle').innerText = 'Añadir Nuevo Cliente';
-                document.getElementById('clientForm').reset();
-                document.getElementById('clientId').value = '';
-            }
-        }
-
-        function closeClientModal() {
-            document.getElementById('clientModal').classList.add('hidden');
-        }
-
-        function openConfigModal() {
-            document.getElementById('configModal').classList.remove('hidden');
-            document.getElementById('tgToken').value = localStorage.getItem('iptv_tg_token') || '';
-            document.getElementById('tgChatId').value = localStorage.getItem('iptv_tg_chatid') || '';
-            document.getElementById('firebaseConfigJson').value = localStorage.getItem('iptv_firebase_config') || '';
-        }
-
-        function closeConfigModal() {
-            document.getElementById('configModal').classList.add('hidden');
-        }
-
-        function openCustomLinkModal() {
-            document.getElementById('customLinkModal').classList.remove('hidden');
-            document.getElementById('panelNameInput').value = '';
-            document.getElementById('panelUrlInput').value = '';
-        }
-
-        function closeCustomLinkModal() {
-            document.getElementById('customLinkModal').classList.add('hidden');
-        }
-
-        // Operaciones de Clientes
-        function saveClient(e) {
-            e.preventDefault();
-            const id = document.getElementById('clientId').value || 'cli_' + Date.now();
-            const name = document.getElementById('clientName').value;
-            const username = document.getElementById('clientUser').value;
-            const password = document.getElementById('clientPass').value;
-            const mac = document.getElementById('clientMac').value.toUpperCase();
-            const expiryDate = document.getElementById('clientExpiry').value;
-            const device = document.getElementById('clientDevice').value;
-            const notes = document.getElementById('clientNotes').value;
-
-            const index = clients.findIndex(c => c.id === id);
-            const clientData = { id, name, username, password, mac, expiryDate, device, notes };
-
-            if (index >= 0) {
-                clients[index] = clientData;
-            } else {
-                clients.push(clientData);
-            }
-
-            syncToCloud();
-            closeClientModal();
-            renderTable();
-        }
-
-        function editClient(id) {
-            openClientModal(id);
-        }
-
-        function deleteClient(id) {
-            if (confirm('¿Estás seguro de eliminar este cliente?')) {
-                clients = clients.filter(c => c.id !== id);
-                syncToCloud();
-                renderTable();
-            }
-        }
-
-        // Enlaces personalizados
-        function renderButtons() {
-            const container = document.getElementById('panelButtonsContainer');
-            container.innerHTML = '';
-            customLinks.forEach((link, idx) => {
-                const btn = document.createElement('div');
-                btn.className = "flex items-center bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 gap-2";
-                btn.innerHTML = `
-                    <a href="${link.url}" target="_blank" class="text-blue-400 hover:text-blue-300 text-xs font-semibold flex items-center gap-1.5">
-                        <i class="fa-solid fa-external-link text-[10px]"></i> ${escapeHtml(link.name)}
-                    </a>
-                    <button onclick="deleteCustomLink(${idx})" class="text-gray-500 hover:text-red-400 text-xs"><i class="fa-solid fa-xmark"></i></button>
-                `;
-                container.appendChild(btn);
-            });
-        }
-
-        function saveCustomLink() {
-            const name = document.getElementById('panelNameInput').value;
-            const url = document.getElementById('panelUrlInput').value;
-            if (!name || !url) return alert('Rellena ambos campos');
-            customLinks.push({ name, url });
-            localStorage.setItem('iptv_custom_urls', JSON.stringify(customLinks));
-            closeCustomLinkModal();
-            renderButtons();
-        }
-
-        function deleteCustomLink(idx) {
-            customLinks.splice(idx, 1);
-            localStorage.setItem('iptv_custom_urls', JSON.stringify(customLinks));
-            renderButtons();
-        }
-
-        // Notas generales inferiores
-        function saveGeneralNote() {
-            const text = document.getElementById('generalNotes').value;
-            localStorage.setItem('iptv_general_notes', text);
-            const status = document.getElementById('noteStatus');
-            status.innerText = "Guardado";
-            setTimeout(() => { status.innerText = "Guardado automáticamente"; }, 1500);
-        }
-
-        function loadCurrentNote() {
-            const saved = localStorage.getItem('iptv_general_notes');
-            if (saved) {
-                document.getElementById('generalNotes').value = saved;
-            }
-        }
-
-        // Configuración Telegram y Firebase
-        function saveConfig() {
-            const token = document.getElementById('tgToken').value.trim();
-            const chatId = document.getElementById('tgChatId').value.trim();
-            const fbConfig = document.getElementById('firebaseConfigJson').value.trim();
-
-            localStorage.setItem('iptv_tg_token', token);
-            localStorage.setItem('iptv_tg_chatid', chatId);
-            localStorage.setItem('iptv_firebase_config', fbConfig);
-
-            closeConfigModal();
-            alert('Configuración guardada correctamente.');
-            if (fbConfig) {
-                initFirebase();
-            }
-        }
-
-        function loadTgConfig() {
-            loadClientsLocal();
-        }
-
-        // Notificaciones Telegram Bot
-        async function sendTgNotification(id) {
-            const client = clients.find(c => c.id === id);
-            if (!client) return;
-
-            const token = localStorage.getItem('iptv_tg_token');
-            const chatId = localStorage.getItem('iptv_tg_chatid');
-
-            if (!token || !chatId) {
-                alert('Falta configurar el Token y Chat ID de Telegram en el botón de Configuración.');
-                openConfigModal();
-                return;
-            }
-
-            const message = `📢 *Aviso de Cuenta IPTV*\n\n` +
-                            `👤 *Cliente:* ${client.name}\n` +
-                            (client.username ? `🔑 *Usuario:* \`${client.username}\`\n` : '') +
-                            (client.password ? `🔒 *Contraseña:* \`${client.password}\`\n` : '') +
-                            (client.mac ? `🏷️ *MAC:* \`${client.mac}\`\n` : '') +
-                            (client.device ? `📱 *Device:* ${client.device}\n` : '') +
-                            `⏳ *Vencimiento:* ${client.expiryDate}\n` +
-                            `💬 *Notas:* ${client.notes || 'Ninguna'}`;
-
-            const url = `https://api.telegram.org/bot${token}/sendMessage`;
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: chatId,
-                        text: message,
-                        parse_mode: 'Markdown'
-                    })
-                });
-                const resData = await response.json();
-                if (resData.ok) {
-                    alert('Notificación enviada a Telegram con éxito.');
-                } else {
-                    alert('Error de Telegram: ' + (resData.description || 'Verifica los datos'));
-                }
-            } catch (err) {
-                console.error(err);
-                alert('Error de red al conectar con la API de Telegram.');
-            }
-        }
-
-        // Funciones de Copia de Seguridad
-        function exportBackup() {
-            const data = { 
-                clients: clients, 
-                notes: localStorage.getItem('iptv_general_notes') || '', 
-                customLinks: customLinks 
-            };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `backup_iptv_admin_${new Date().toISOString().slice(0, 10)}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function importBackup(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
+            dbRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
                     if (data.clients) {
                         clients = data.clients;
                         saveClientsLocal();
+                        renderTable();
                     }
                     if (data.notes) {
-                        localStorage.setItem('iptv_general_notes', data.notes);
+                        localStorage.setItem('iptv_multi_notes', JSON.stringify(data.notes));
                         loadCurrentNote();
                     }
-                    if (data.customLinks) {
-                        customLinks = data.customLinks;
-                        localStorage.setItem('iptv_custom_urls', JSON.stringify(customLinks));
-                        renderButtons();
-                    }
+                } else {
                     syncToCloud();
-                    renderTable();
-                    alert('Copia de seguridad cargada y sincronizada correctamente.');
-                } catch (err) {
-                    console.error(err);
-                    alert('Error al leer el archivo JSON de copia de seguridad.');
                 }
-            };
-            reader.readAsText(file);
-        }
+            });
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+            document.getElementById('syncStatus').className = "badge bg-success sync-badge mt-1";
+            document.getElementById('syncStatus').innerHTML = '<i class="bi bi-cloud-check-fill me-1"></i> Conectado a Firebase';
+        } catch(e) {
+            console.error(e);
+            document.getElementById('syncStatus').className = "badge bg-danger sync-badge mt-1";
+            document.getElementById('syncStatus').innerText = "Error de conexión";
         }
+    }
 
-        // Inicializar la aplicación al cargar la página
-        window.onload = function() {
-            loadTgConfig();
+    function syncToCloud() {
+        if (dbRef) {
+            const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
+            dbRef.set({ clients: clients, notes: savedNotes }).catch(err => console.error("Error al escribir en Firebase:", err));
+        }
+    }
+
+    function renderButtons() {
+        const iptvGrid = document.getElementById('iptvGrid');
+        const appGrid = document.getElementById('appGrid');
+        iptvGrid.innerHTML = ''; appGrid.innerHTML = '';
+
+        defaultIptvLinks.forEach(item => {
+            const finalUrl = customLinks[item.id] || item.url;
+            iptvGrid.appendChild(createButtonBox(item, finalUrl, false));
+        });
+
+        defaultAppLinks.forEach(item => {
+            const finalUrl = customLinks[item.id] || item.url;
+            appGrid.appendChild(createButtonBox(item, finalUrl, true));
+        });
+    }
+
+    function createButtonBox(item, url, isApp) {
+        const div = document.createElement('div');
+        div.className = `btn-panel-box ${isApp ? 'btn-app-box' : ''}`;
+        const cleanUrl = url.trim();
+
+        div.innerHTML = `
+            <a href="${cleanUrl}" class="panel-link" target="_blank" rel="noopener noreferrer">
+                <i class="bi ${item.icon}"></i> ${item.name}
+            </a>
+            <i class="bi bi-pencil-fill btn-edit-icon" title="Editar URL" onclick="editUrl('${item.id}', '${item.name}', '${cleanUrl}')"></i>
+        `;
+        return div;
+    }
+
+    function editUrl(id, name, currentUrl) {
+        const newUrl = prompt(`Cambiar enlace para ${name}:`, currentUrl);
+        if (newUrl !== null) {
+            customLinks[id] = newUrl.trim();
+            localStorage.setItem('iptv_custom_urls', JSON.stringify(customLinks));
             renderButtons();
-            renderTable();
-            loadCurrentNote();
-            initFirebase();
+        }
+    }
+
+    function resetLinks() {
+        if(confirm('¿Restablecer todas las URLs al estado original?')) {
+            localStorage.removeItem('iptv_custom_urls');
+            customLinks = {};
+            renderButtons();
+        }
+    }
+
+    function requestNotificationPermission() {
+        if (!("Notification" in window)) return alert("Tu navegador no soporta notificaciones.");
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") new Notification("Panel IPTV Admin", { body: "Notificaciones activadas correctamente." });
+        });
+    }
+
+    let currentCategoryKey = 'dns_iptv';
+
+    function openNotepadModal() {
+        saveCurrentNote(false);
+        currentCategoryKey = document.getElementById('noteCategorySelect').value;
+        const selectText = document.getElementById('noteCategorySelect').options[document.getElementById('noteCategorySelect').selectedIndex].text;
+        document.getElementById('modalTitle').innerHTML = `<i class="bi bi-file-earmark-code me-2"></i> ${selectText}`;
+        loadCurrentNote();
+        document.getElementById('notepadModal').classList.add('active');
+    }
+
+    function closeNotepadModal() {
+        saveCurrentNote(false);
+        document.getElementById('notepadModal').classList.remove('active');
+    }
+
+    function changeNoteCategory() {
+        saveCurrentNote(false);
+        currentCategoryKey = document.getElementById('noteCategorySelect').value;
+        const selectText = document.getElementById('noteCategorySelect').options[document.getElementById('noteCategorySelect').selectedIndex].text;
+        document.getElementById('modalTitle').innerHTML = `<i class="bi bi-file-earmark-code me-2"></i> ${selectText}`;
+        loadCurrentNote();
+    }
+
+    function loadCurrentNote() {
+        const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
+        document.getElementById('noteTextArea').value = savedNotes[currentCategoryKey] || '';
+    }
+
+    function saveCurrentNote(showAlert = true) {
+        const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
+        savedNotes[currentCategoryKey] = document.getElementById('noteTextArea').value;
+        localStorage.setItem('iptv_multi_notes', JSON.stringify(savedNotes));
+        syncToCloud();
+        if (showAlert) alert('Nota guardada y sincronizada.');
+    }
+
+    function clearCurrentNote() {
+        if(confirm('¿Borrar texto de esta categoría?')) {
+            document.getElementById('noteTextArea').value = '';
+            saveCurrentNote(false);
+        }
+    }
+
+    function saveClientsLocal() { localStorage.setItem('iptv_clients_full', JSON.stringify(clients)); }
+
+    function saveClients() {
+        saveClientsLocal();
+        syncToCloud();
+    }
+
+    function saveClientForm() {
+        const editId = document.getElementById('editClientId').value;
+        const clientData = {
+            id: editId ? editId : Date.now().toString(),
+            name: document.getElementById('cName').value,
+            phone: document.getElementById('cPhone').value,
+            user: document.getElementById('cUser').value,
+            pass: document.getElementById('cPass').value,
+            server: document.getElementById('cServer').value,
+            app: document.getElementById('cApp').value,
+            mac: document.getElementById('cMac').value,
+            expiry: document.getElementById('cExpiry').value,
+            notes: document.getElementById('cNotes').value
         };
-    </script>
+
+        if (editId) {
+            const index = clients.findIndex(c => c.id === editId);
+            if (index !== -1) clients[index] = clientData;
+        } else {
+            clients.push(clientData);
+            sendTelegramAlert(`🟢 *Nuevo Cliente Registrado*\n👤 *Cliente:* ${clientData.name}\n📱 *Tel:* ${clientData.phone}\n📅 *Vence:* ${clientData.expiry}\n📺 *App/Servidor:* ${clientData.app} / ${clientData.server}`);
+        }
+
+        saveClients();
+        resetForm();
+        renderTable();
+    }
+
+    function editClient(id) {
+        const client = clients.find(c => c.id === id);
+        if (!client) return;
+        document.getElementById('editClientId').value = client.id;
+        document.getElementById('cName').value = client.name || '';
+        document.getElementById('cPhone').value = client.phone || '';
+        document.getElementById('cUser').value = client.user || '';
+        document.getElementById('cPass').value = client.pass || '';
+        document.getElementById('cServer').value = client.server || 'NetTV';
+        document.getElementById('cApp').value = client.app || 'Max Player';
+        document.getElementById('cMac').value = client.mac || '';
+        document.getElementById('cExpiry').value = client.expiry || '';
+        document.getElementById('cNotes').value = client.notes || '';
+        document.getElementById('formTitle').innerHTML = `<i class="bi bi-pencil-square text-warning"></i> Editando: ${client.name}`;
+        window.scrollTo({ top: document.getElementById('clientForm').offsetTop - 20, behavior: 'smooth' });
+    }
+
+    function deleteClient(id) {
+        if (confirm('¿Estás seguro de eliminar este cliente?')) {
+            clients = clients.filter(c => c.id !== id);
+            saveClients();
+            renderTable();
+        }
+    }
+
+    function resetForm() {
+        document.getElementById('editClientId').value = '';
+        document.getElementById('clientForm').reset();
+        document.getElementById('formTitle').innerHTML = `<i class="bi bi-person-plus-fill"></i> Registrar Nuevo Cliente`;
+    }
+
+    function setFilter(filterType) {
+        activeFilter = filterType;
+        document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+        if (filterType === 'all') document.getElementById('filterAll').classList.add('active');
+        if (filterType === 'today') document.getElementById('filterToday').classList.add('active');
+        if (filterType === 'week') document.getElementById('filterWeek').classList.add('active');
+        if (filterType === 'expired') document.getElementById('filterExpired').classList.add('active');
+        renderTable();
+    }
+
+    function sendWhatsApp(phone, name, expiry, app) {
+        if (!phone) return alert("No hay teléfono registrado.");
+        const cleanPhone = phone.replace(/[^0-9]/g, '');
+        const today = new Date().toISOString().slice(0, 10);
+        let msg = `Buenas ${name}, te caduca la aplicación (${app || 'IPTV'}) `;
+        if (expiry < today) msg += `caducó el ${expiry}. ¿Te interesa renovar? Gracias.`;
+        else if (expiry === today) msg += `caduca HOY. ¿Te interesa renovar? Gracias.`;
+        else msg += `el día ${expiry}. ¿Te interesa renovar? Gracias.`;
+        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('clientTableBody');
+        const query = document.getElementById('searchBox').value.toLowerCase();
+        tbody.innerHTML = '';
+
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const nextWeek = new Date(); nextWeek.setDate(nextWeek.getDate() + 7);
+        const nextWeekStr = nextWeek.toISOString().slice(0, 10);
+
+        let filtered = clients.filter(c => 
+            (c.name && c.name.toLowerCase().includes(query)) || 
+            (c.phone && c.phone.includes(query)) ||
+            (c.user && c.user.toLowerCase().includes(query)) ||
+            (c.mac && c.mac.toLowerCase().includes(query))
+        );
+
+        if (activeFilter === 'today') filtered = filtered.filter(c => c.expiry === todayStr);
+        else if (activeFilter === 'week') filtered = filtered.filter(c => c.expiry >= todayStr && c.expiry <= nextWeekStr);
+        else if (activeFilter === 'expired') filtered = filtered.filter(c => c.expiry < todayStr);
+
+        document.getElementById('clientCount').innerText = filtered.length;
+
+        filtered.forEach(c => {
+            const tr = document.createElement('tr');
+            let badgeClass = c.expiry < todayStr ? 'bg-danger' : (c.expiry === todayStr ? 'bg-warning text-dark' : 'bg-info text-dark');
+            tr.innerHTML = `
+                <td><strong>${c.name || '-'}</strong><br><small class="text-info">${c.phone || '-'}</small></td>
+                <td><small>U: ${c.user || '-'}<br>C: ${c.pass || '-'}</small></td>
+                <td><span class="badge bg-primary">${c.server || '-'}</span><br><small class="text-light">${c.app || '-'}</small></td>
+                <td><small class="text-warning">${c.mac || '-'}</small></td>
+                <td><span class="badge ${badgeClass}">${c.expiry || '-'}</span></td>
+                <td class="text-center"><button class="btn btn-whatsapp btn-sm px-3" onclick="sendWhatsApp('${c.phone}', '${c.name}', '${c.expiry}', '${c.app}')"><i class="bi bi-whatsapp"></i></button></td>
+                <td class="text-center">
+                    <button class="btn btn-warning btn-sm" onclick="editClient('${c.id}')"><i class="bi bi-pencil-fill"></i></button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')"><i class="bi bi-trash-fill"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function exportBackup() {
+        const data = { clients: clients, notes: JSON.parse(localStorage.getItem('iptv_multi_notes')) || {}, customLinks: customLinks };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `backup_iptv_${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+    }
+
+    function importBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data.clients) { clients = data.clients; saveClientsLocal(); }
+                if (data.notes) { localStorage.setItem('iptv_multi_notes', JSON.stringify(data.notes)); }
+                if (data.customLinks) { customLinks = data.customLinks; localStorage.setItem('iptv_custom_urls', JSON.stringify(customLinks)); }
+                syncToCloud();
+                renderButtons();
+                renderTable();
+                loadCurrentNote();
+                alert('Copia restaurada con éxito.');
+            } catch(err) { alert('Error al leer el archivo.'); }
+        };
+        reader.readAsText(file);
+    }
+
+    window.onload = function() {
+        renderButtons();
+        loadTgConfig();
+        initFirebase();
+        renderTable();
+    };
+</script>
 </body>
 </html>
