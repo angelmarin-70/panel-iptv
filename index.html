@@ -122,7 +122,6 @@
                     <label>Usuario Panel / App</label>
                     <input type="text" class="form-control" id="cUser" placeholder="Ej: usuario123">
                 </div>
-                <!-- MODIFICADO: Fecha Vencimiento arriba -->
                 <div class="col-md-3">
                     <label>Fecha Vencimiento *</label>
                     <input type="date" class="form-control" id="cExpiry" required>
@@ -160,12 +159,10 @@
                         <option value="TiviMate Phoenix">TiviMate Phoenix</option>
                     </select>
                 </div>
-                <!-- MODIFICADO: Dirección MAC con dos puntos automáticos -->
                 <div class="col-md-3">
                     <label>Dirección MAC</label>
                     <input type="text" class="form-control" id="cMac" placeholder="00:1A:2B:3C:4D:5E" maxlength="17" oninput="formatMacInput(this)">
                 </div>
-                <!-- MODIFICADO: Device en lugar de contraseña abajo -->
                 <div class="col-md-3">
                     <label>Device</label>
                     <input type="text" class="form-control" id="cDevice" placeholder="Ej: MaxPlayer, TiviMate...">
@@ -249,8 +246,7 @@
     let activeFilter = 'all';
     let dbRef = null;
     let clients = JSON.parse(localStorage.getItem('iptv_clients_full')) || [];
-
-    // Función para formatear la MAC automáticamente con dos puntos
+    
     function formatMacInput(input) {
         let val = input.value.replace(/[^0-9a-fA-F]/g, '').toUpperCase();
         let formatted = '';
@@ -260,7 +256,6 @@
         }
         input.value = formatted;
     }
-
     function sendTelegramAlert(message) {
         const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || { token: DEFAULT_TG_TOKEN, chatId: DEFAULT_TG_CHAT_ID };
         if (!tgData.token || !tgData.chatId) return;
@@ -412,8 +407,8 @@
             name: document.getElementById('cName').value,
             phone: document.getElementById('cPhone').value,
             user: document.getElementById('cUser').value,
-            pass: '', // Ya no se usa contraseña
-            device: document.getElementById('cDevice').value, // Guardamos device
+            pass: '', 
+            device: document.getElementById('cDevice').value, 
             server: document.getElementById('cServer').value,
             app: document.getElementById('cApp').value,
             mac: document.getElementById('cMac').value,
@@ -438,7 +433,7 @@
         document.getElementById('cName').value = client.name || '';
         document.getElementById('cPhone').value = client.phone || '';
         document.getElementById('cUser').value = client.user || '';
-        document.getElementById('cDevice').value = client.device || ''; // Carga el device al editar
+        document.getElementById('cDevice').value = client.device || ''; 
         document.getElementById('cServer').value = client.server || 'NetTV';
         document.getElementById('cApp').value = client.app || 'Max Player';
         document.getElementById('cMac').value = client.mac || '';
@@ -468,16 +463,40 @@
         if (filterType === 'expired') document.getElementById('filterExpired').classList.add('active');
         renderTable();
     }
-    function sendWhatsApp(phone, name, expiry, app) {
+
+    // NUEVA FUNCIÓN PARA GESTIONAR LAS PLANTILLAS DE WHATSAPP
+    function sendWhatsAppCustom(phone, name, expiry, app, user, device, clientId) {
         if (!phone) return alert("No hay teléfono registrado.");
         const cleanPhone = phone.replace(/[^0-9]/g, '');
         const today = new Date().toISOString().slice(0, 10);
-        let msg = `Buenas ${name}, te caduca la aplicación (${app || 'IPTV'}) `;
-        if (expiry < today) msg += `caducó el ${expiry}. ¿Te interesa renovar? Gracias.`;
-        else if (expiry === today) msg += `caduca HOY. ¿Te interesa renovar? Gracias.`;
-        else msg += `el día ${expiry}. ¿Te interesa renovar? Gracias.`;
+        
+        const selectElem = document.getElementById(`template_${clientId}`);
+        const templateType = selectElem ? selectElem.value : 'renewal';
+        
+        let msg = "";
+
+        if (templateType === 'renewal') {
+            msg = `Buenas ${name}, te caduca la aplicación (${app || 'IPTV'}) `;
+            if (expiry < today) msg += `caducó el ${expiry}. ¿Te interesa renovar? Gracias.`;
+            else if (expiry === today) msg += `caduca HOY. ¿Te interesa renovar? Gracias.`;
+            else msg += `el día ${expiry}. ¿Te interesa renovar? Gracias.`;
+            
+        } else if (templateType === 'credentials') {
+            msg = `Hola ${name}! Aquí tienes los datos de tu cuenta para *${app || 'IPTV'}*:\n` +
+                  `👤 Usuario: *${user || '-'}*\n` +
+                  `📱 Device: *${device || '-'}*\n` +
+                  `📅 Vencimiento: *${expiry || '-'}*\n` +
+                  `¡Muchas gracias por confiar en nosotros!`;
+                  
+        } else if (templateType === 'welcome') {
+            msg = `¡Hola ${name}! Bienvenido/a. Ya tienes activo tu servicio de *${app || 'IPTV'}*.\n` +
+                  `Tu suscripción estará activa hasta el día *${expiry}*.\n` +
+                  `Cualquier duda o problema nos dices por aquí. ¡A disfrutar!`;
+        }
+
         window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
     }
+
     function renderTable() {
         const tbody = document.getElementById('clientTableBody');
         const query = document.getElementById('searchBox').value.toLowerCase();
@@ -505,7 +524,18 @@
                 <td><span class="badge bg-primary">${c.server || '-'}</span><br><small class="text-light">${c.app || '-'}</small></td>
                 <td><small class="text-warning">MAC: ${c.mac || '-'}</small><br><small class="text-info">Device: ${c.device || '-'}</small></td>
                 <td><span class="badge ${badgeClass}">${c.expiry || '-'}</span></td>
-                <td class="text-center"><button class="btn btn-whatsapp btn-sm px-3" onclick="sendWhatsApp('${c.phone}', '${c.name}', '${c.expiry}', '${c.app}')"><i class="bi bi-whatsapp"></i></button></td>
+                <td class="text-center">
+                    <div class="d-flex flex-column gap-1 align-items-center">
+                        <select class="form-select form-select-sm bg-dark text-white border-secondary py-0 px-1" id="template_${c.id}" style="font-size: 0.75rem; width: 130px;">
+                            <option value="renewal">Renovación</option>
+                            <option value="credentials">Datos/Credenciales</option>
+                            <option value="welcome">Bienvenida</option>
+                        </select>
+                        <button class="btn btn-whatsapp btn-sm px-3 py-1" onclick="sendWhatsAppCustom('${c.phone}', '${c.name}', '${c.expiry}', '${c.app}', '${c.user}', '${c.device}', '${c.id}')">
+                            <i class="bi bi-whatsapp"></i> Enviar
+                        </button>
+                    </div>
+                </td>
                 <td class="text-center">
                     <button class="btn btn-warning btn-sm" onclick="editClient('${c.id}')"><i class="bi bi-pencil-fill"></i></button>
                     <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')"><i class="bi bi-trash-fill"></i></button>
