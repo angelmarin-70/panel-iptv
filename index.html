@@ -10,7 +10,6 @@
     <!-- Firebase SDK Compat -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
     <style>
         body { background-color: #0b0f19 !important; color: #ffffff !important; font-family: system-ui, -apple-system, sans-serif; padding: 20px; }
         .section-box { background-color: #151c2c !important; border: 2px solid #2d3748 !important; border-radius: 12px; padding: 20px; margin-bottom: 25px; }
@@ -40,7 +39,6 @@
     </style>
 </head>
 <body>
-
 <div class="container-fluid max-w-7xl mx-auto">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -55,19 +53,16 @@
             <button class="btn btn-success btn-sm" onclick="exportBackup()"><i class="bi bi-download"></i> Guardar Copia</button>
         </div>
     </div>
-
     <!-- PANELES IPTV -->
     <div class="section-box">
         <div class="section-title text-info"><i class="bi bi-grid-3x3-gap-fill"></i> Paneles IPTV</div>
         <div class="btn-grid" id="iptvGrid"></div>
     </div>
-
     <!-- PANELES APLICACIONES -->
     <div class="section-box">
         <div class="section-title text-primary"><i class="bi bi-app-indicator"></i> Paneles de Aplicaciones</div>
         <div class="btn-grid" id="appGrid"></div>
     </div>
-
     <!-- BLOC DE NOTAS / DNS -->
     <div class="section-box">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
@@ -83,7 +78,6 @@
             </div>
         </div>
     </div>
-
     <!-- VENTANA FLOTANTE BLOC DE NOTAS -->
     <div class="notepad-modal" id="notepadModal">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -96,7 +90,6 @@
         </div>
         <textarea class="notepad-textarea" id="noteTextArea" placeholder="Escribe o pega aquí tus direcciones DNS, APKs, notas o claves..."></textarea>
     </div>
-
     <!-- BOT TELEGRAM -->
     <div class="section-box">
         <div class="section-title text-warning"><i class="bi bi-telegram"></i> Alertas por Telegram</div>
@@ -111,7 +104,6 @@
             </div>
         </div>
     </div>
-
     <!-- REGISTRO DE CLIENTE -->
     <div class="section-box">
         <div class="section-title text-success" id="formTitle"><i class="bi bi-person-plus-fill"></i> Registrar Nuevo Cliente</div>
@@ -130,9 +122,10 @@
                     <label>Usuario Panel / App</label>
                     <input type="text" class="form-control" id="cUser" placeholder="Ej: usuario123">
                 </div>
+                <!-- MODIFICADO: Fecha Vencimiento arriba -->
                 <div class="col-md-3">
-                    <label>Contraseña</label>
-                    <input type="text" class="form-control" id="cPass" placeholder="Ej: clave123">
+                    <label>Fecha Vencimiento *</label>
+                    <input type="date" class="form-control" id="cExpiry" required>
                 </div>
                 <div class="col-md-3">
                     <label>Servidor / Panel IPTV</label>
@@ -167,13 +160,15 @@
                         <option value="TiviMate Phoenix">TiviMate Phoenix</option>
                     </select>
                 </div>
+                <!-- MODIFICADO: Dirección MAC con dos puntos automáticos -->
                 <div class="col-md-3">
                     <label>Dirección MAC</label>
-                    <input type="text" class="form-control" id="cMac" placeholder="00:1A:2B:3C:4D:5E">
+                    <input type="text" class="form-control" id="cMac" placeholder="00:1A:2B:3C:4D:5E" maxlength="17" oninput="formatMacInput(this)">
                 </div>
+                <!-- MODIFICADO: Device en lugar de contraseña abajo -->
                 <div class="col-md-3">
-                    <label>Fecha Vencimiento *</label>
-                    <input type="date" class="form-control" id="cExpiry" required>
+                    <label>Device</label>
+                    <input type="text" class="form-control" id="cDevice" placeholder="Ej: MaxPlayer, TiviMate...">
                 </div>
                 <div class="col-md-12">
                     <label>Notas Adicionales</label>
@@ -186,7 +181,6 @@
             </div>
         </form>
     </div>
-
     <!-- LISTA DE CLIENTES -->
     <div class="section-box">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
@@ -201,7 +195,6 @@
                 <input type="text" class="form-control form-control-sm" id="searchBox" placeholder="Buscar cliente, tel, MAC..." onkeyup="renderTable()">
             </div>
         </div>
-
         <div class="table-responsive">
             <table class="table table-custom">
                 <thead>
@@ -209,7 +202,7 @@
                         <th>Cliente / Teléfono</th>
                         <th>Credenciales</th>
                         <th>Servidor / App</th>
-                        <th>MAC</th>
+                        <th>MAC / Device</th>
                         <th>Vencimiento</th>
                         <th class="text-center">Aviso WhatsApp</th>
                         <th class="text-center">Acciones</th>
@@ -220,12 +213,10 @@
         </div>
     </div>
 </div>
-
 <script>
     const FIREBASE_URL = "https://mi-panel-iptv-d1954-default-rtdb.firebaseio.com/";
     const DEFAULT_TG_TOKEN = "8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOS5Sg";
     const DEFAULT_TG_CHAT_ID = "1417906399";
-
     const defaultIptvLinks = [
         { id: 'nettv', name: 'NetTV', icon: 'bi-tv', url: 'https://nettv.mypannel.xyz/reseller/login.php?referrer=edit_subreseller.php?id=11100' },
         { id: 'emby', name: 'Emby', icon: 'bi-hdd-network', url: 'https://thorcrm.info/login' },
@@ -238,7 +229,6 @@
         { id: 'doniptv', name: 'DonIPTV', icon: 'bi-broadcast', url: 'https://main.salsadetomate.shop:2096' },
         { id: 'p2p', name: 'P2P', icon: 'bi-diagram-3', url: 'https://p2pro.sigma.st' }
     ];
-
     const defaultAppLinks = [
         { id: 'maxplayer', name: 'Max Player', icon: 'bi-display', url: 'https://my.maxplayer.tv/auth/login' },
         { id: 'ibox', name: 'iBox Player', icon: 'bi-box', url: 'https://iboxxiptv.com/device/login' },
@@ -255,11 +245,21 @@
         { id: 'tivimate', name: 'TiviMate Phoenix', icon: 'bi-lightning-charge', url: 'https://maxtvapps.pw/Apks/Tivimate/Phoenix/' },
         { id: 'urlconverter', name: 'Conversor de URL', icon: 'bi-code-slash', url: 'https://www.url-encode-decode.com/' }
     ];
-
     let customLinks = JSON.parse(localStorage.getItem('iptv_custom_urls')) || {};
     let activeFilter = 'all';
     let dbRef = null;
     let clients = JSON.parse(localStorage.getItem('iptv_clients_full')) || [];
+
+    // Función para formatear la MAC automáticamente con dos puntos
+    function formatMacInput(input) {
+        let val = input.value.replace(/[^0-9a-fA-F]/g, '').toUpperCase();
+        let formatted = '';
+        for (let i = 0; i < val.length && i < 12; i++) {
+            if (i > 0 && i % 2 === 0) formatted += ':';
+            formatted += val[i];
+        }
+        input.value = formatted;
+    }
 
     function sendTelegramAlert(message) {
         const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || { token: DEFAULT_TG_TOKEN, chatId: DEFAULT_TG_CHAT_ID };
@@ -270,27 +270,23 @@
             body: JSON.stringify({ chat_id: tgData.chatId, text: message, parse_mode: 'Markdown' })
         }).catch(err => console.error("Error Telegram:", err));
     }
-
     function saveTgConfig() {
         const token = document.getElementById('tgToken').value.trim();
         const chatId = document.getElementById('tgChatId').value.trim();
         localStorage.setItem('iptv_tg_config', JSON.stringify({ token, chatId }));
         alert('Configuración de Telegram guardada.');
     }
-
     function loadTgConfig() {
         const tgData = JSON.parse(localStorage.getItem('iptv_tg_config')) || { token: DEFAULT_TG_TOKEN, chatId: DEFAULT_TG_CHAT_ID };
         document.getElementById('tgToken').value = tgData.token;
         document.getElementById('tgChatId').value = tgData.chatId;
     }
-
     function initFirebase() {
         try {
             if (!firebase.apps.length) {
                 firebase.initializeApp({ databaseURL: FIREBASE_URL });
             }
             dbRef = firebase.database().ref('iptv_admin_data');
-
             dbRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -307,7 +303,6 @@
                     syncToCloud();
                 }
             });
-
             document.getElementById('syncStatus').className = "badge bg-success sync-badge mt-1";
             document.getElementById('syncStatus').innerHTML = '<i class="bi bi-cloud-check-fill me-1"></i> Conectado a Firebase';
         } catch(e) {
@@ -316,35 +311,29 @@
             document.getElementById('syncStatus').innerText = "Error de conexión";
         }
     }
-
     function syncToCloud() {
         if (dbRef) {
             const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
             dbRef.set({ clients: clients, notes: savedNotes }).catch(err => console.error("Error al escribir en Firebase:", err));
         }
     }
-
     function renderButtons() {
         const iptvGrid = document.getElementById('iptvGrid');
         const appGrid = document.getElementById('appGrid');
         iptvGrid.innerHTML = ''; appGrid.innerHTML = '';
-
         defaultIptvLinks.forEach(item => {
             const finalUrl = customLinks[item.id] || item.url;
             iptvGrid.appendChild(createButtonBox(item, finalUrl, false));
         });
-
         defaultAppLinks.forEach(item => {
             const finalUrl = customLinks[item.id] || item.url;
             appGrid.appendChild(createButtonBox(item, finalUrl, true));
         });
     }
-
     function createButtonBox(item, url, isApp) {
         const div = document.createElement('div');
         div.className = `btn-panel-box ${isApp ? 'btn-app-box' : ''}`;
         const cleanUrl = url.trim();
-
         div.innerHTML = `
             <a href="${cleanUrl}" class="panel-link" target="_blank" rel="noopener noreferrer">
                 <i class="bi ${item.icon}"></i> ${item.name}
@@ -353,7 +342,6 @@
         `;
         return div;
     }
-
     function editUrl(id, name, currentUrl) {
         const newUrl = prompt(`Cambiar enlace para ${name}:`, currentUrl);
         if (newUrl !== null) {
@@ -362,7 +350,6 @@
             renderButtons();
         }
     }
-
     function resetLinks() {
         if(confirm('¿Restablecer todas las URLs al estado original?')) {
             localStorage.removeItem('iptv_custom_urls');
@@ -370,16 +357,13 @@
             renderButtons();
         }
     }
-
     function requestNotificationPermission() {
         if (!("Notification" in window)) return alert("Tu navegador no soporta notificaciones.");
         Notification.requestPermission().then(permission => {
             if (permission === "granted") new Notification("Panel IPTV Admin", { body: "Notificaciones activadas correctamente." });
         });
     }
-
     let currentCategoryKey = 'dns_iptv';
-
     function openNotepadModal() {
         saveCurrentNote(false);
         currentCategoryKey = document.getElementById('noteCategorySelect').value;
@@ -388,12 +372,10 @@
         loadCurrentNote();
         document.getElementById('notepadModal').classList.add('active');
     }
-
     function closeNotepadModal() {
         saveCurrentNote(false);
         document.getElementById('notepadModal').classList.remove('active');
     }
-
     function changeNoteCategory() {
         saveCurrentNote(false);
         currentCategoryKey = document.getElementById('noteCategorySelect').value;
@@ -401,12 +383,10 @@
         document.getElementById('modalTitle').innerHTML = `<i class="bi bi-file-earmark-code me-2"></i> ${selectText}`;
         loadCurrentNote();
     }
-
     function loadCurrentNote() {
         const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
         document.getElementById('noteTextArea').value = savedNotes[currentCategoryKey] || '';
     }
-
     function saveCurrentNote(showAlert = true) {
         const savedNotes = JSON.parse(localStorage.getItem('iptv_multi_notes')) || {};
         savedNotes[currentCategoryKey] = document.getElementById('noteTextArea').value;
@@ -414,21 +394,17 @@
         syncToCloud();
         if (showAlert) alert('Nota guardada y sincronizada.');
     }
-
     function clearCurrentNote() {
         if(confirm('¿Borrar texto de esta categoría?')) {
             document.getElementById('noteTextArea').value = '';
             saveCurrentNote(false);
         }
     }
-
     function saveClientsLocal() { localStorage.setItem('iptv_clients_full', JSON.stringify(clients)); }
-
     function saveClients() {
         saveClientsLocal();
         syncToCloud();
     }
-
     function saveClientForm() {
         const editId = document.getElementById('editClientId').value;
         const clientData = {
@@ -436,14 +412,14 @@
             name: document.getElementById('cName').value,
             phone: document.getElementById('cPhone').value,
             user: document.getElementById('cUser').value,
-            pass: document.getElementById('cPass').value,
+            pass: '', // Ya no se usa contraseña
+            device: document.getElementById('cDevice').value, // Guardamos device
             server: document.getElementById('cServer').value,
             app: document.getElementById('cApp').value,
             mac: document.getElementById('cMac').value,
             expiry: document.getElementById('cExpiry').value,
             notes: document.getElementById('cNotes').value
         };
-
         if (editId) {
             const index = clients.findIndex(c => c.id === editId);
             if (index !== -1) clients[index] = clientData;
@@ -451,12 +427,10 @@
             clients.push(clientData);
             sendTelegramAlert(`🟢 *Nuevo Cliente Registrado*\n👤 *Cliente:* ${clientData.name}\n📱 *Tel:* ${clientData.phone}\n📅 *Vence:* ${clientData.expiry}\n📺 *App/Servidor:* ${clientData.app} / ${clientData.server}`);
         }
-
         saveClients();
         resetForm();
         renderTable();
     }
-
     function editClient(id) {
         const client = clients.find(c => c.id === id);
         if (!client) return;
@@ -464,7 +438,7 @@
         document.getElementById('cName').value = client.name || '';
         document.getElementById('cPhone').value = client.phone || '';
         document.getElementById('cUser').value = client.user || '';
-        document.getElementById('cPass').value = client.pass || '';
+        document.getElementById('cDevice').value = client.device || ''; // Carga el device al editar
         document.getElementById('cServer').value = client.server || 'NetTV';
         document.getElementById('cApp').value = client.app || 'Max Player';
         document.getElementById('cMac').value = client.mac || '';
@@ -473,7 +447,6 @@
         document.getElementById('formTitle').innerHTML = `<i class="bi bi-pencil-square text-warning"></i> Editando: ${client.name}`;
         window.scrollTo({ top: document.getElementById('clientForm').offsetTop - 20, behavior: 'smooth' });
     }
-
     function deleteClient(id) {
         if (confirm('¿Estás seguro de eliminar este cliente?')) {
             clients = clients.filter(c => c.id !== id);
@@ -481,13 +454,11 @@
             renderTable();
         }
     }
-
     function resetForm() {
         document.getElementById('editClientId').value = '';
         document.getElementById('clientForm').reset();
         document.getElementById('formTitle').innerHTML = `<i class="bi bi-person-plus-fill"></i> Registrar Nuevo Cliente`;
     }
-
     function setFilter(filterType) {
         activeFilter = filterType;
         document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
@@ -497,7 +468,6 @@
         if (filterType === 'expired') document.getElementById('filterExpired').classList.add('active');
         renderTable();
     }
-
     function sendWhatsApp(phone, name, expiry, app) {
         if (!phone) return alert("No hay teléfono registrado.");
         const cleanPhone = phone.replace(/[^0-9]/g, '');
@@ -508,37 +478,32 @@
         else msg += `el día ${expiry}. ¿Te interesa renovar? Gracias.`;
         window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
     }
-
     function renderTable() {
         const tbody = document.getElementById('clientTableBody');
         const query = document.getElementById('searchBox').value.toLowerCase();
         tbody.innerHTML = '';
-
         const todayStr = new Date().toISOString().slice(0, 10);
         const nextWeek = new Date(); nextWeek.setDate(nextWeek.getDate() + 7);
         const nextWeekStr = nextWeek.toISOString().slice(0, 10);
-
         let filtered = clients.filter(c => 
             (c.name && c.name.toLowerCase().includes(query)) || 
             (c.phone && c.phone.includes(query)) ||
             (c.user && c.user.toLowerCase().includes(query)) ||
-            (c.mac && c.mac.toLowerCase().includes(query))
+            (c.mac && c.mac.toLowerCase().includes(query)) ||
+            (c.device && c.device.toLowerCase().includes(query))
         );
-
         if (activeFilter === 'today') filtered = filtered.filter(c => c.expiry === todayStr);
         else if (activeFilter === 'week') filtered = filtered.filter(c => c.expiry >= todayStr && c.expiry <= nextWeekStr);
         else if (activeFilter === 'expired') filtered = filtered.filter(c => c.expiry < todayStr);
-
         document.getElementById('clientCount').innerText = filtered.length;
-
         filtered.forEach(c => {
             const tr = document.createElement('tr');
             let badgeClass = c.expiry < todayStr ? 'bg-danger' : (c.expiry === todayStr ? 'bg-warning text-dark' : 'bg-info text-dark');
             tr.innerHTML = `
                 <td><strong>${c.name || '-'}</strong><br><small class="text-info">${c.phone || '-'}</small></td>
-                <td><small>U: ${c.user || '-'}<br>C: ${c.pass || '-'}</small></td>
+                <td><small>U: ${c.user || '-'}</small></td>
                 <td><span class="badge bg-primary">${c.server || '-'}</span><br><small class="text-light">${c.app || '-'}</small></td>
-                <td><small class="text-warning">${c.mac || '-'}</small></td>
+                <td><small class="text-warning">MAC: ${c.mac || '-'}</small><br><small class="text-info">Device: ${c.device || '-'}</small></td>
                 <td><span class="badge ${badgeClass}">${c.expiry || '-'}</span></td>
                 <td class="text-center"><button class="btn btn-whatsapp btn-sm px-3" onclick="sendWhatsApp('${c.phone}', '${c.name}', '${c.expiry}', '${c.app}')"><i class="bi bi-whatsapp"></i></button></td>
                 <td class="text-center">
@@ -549,7 +514,6 @@
             tbody.appendChild(tr);
         });
     }
-
     function exportBackup() {
         const data = { clients: clients, notes: JSON.parse(localStorage.getItem('iptv_multi_notes')) || {}, customLinks: customLinks };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'json' });
@@ -558,7 +522,6 @@
         a.download = `backup_iptv_${new Date().toISOString().slice(0, 10)}.json`;
         a.click();
     }
-
     function importBackup(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -578,7 +541,6 @@
         };
         reader.readAsText(file);
     }
-
     window.onload = function() {
         renderButtons();
         loadTgConfig();
