@@ -346,7 +346,7 @@
         const oldPass = typeof currentData === 'object' ? (currentData.pass || '') : '';
 
         const newUrl = prompt(`Cambiar enlace (URL) para ${name}:`, oldUrl);
-        if (newUrl === null) return; // Si cancela, no hace nada
+        if (newUrl === null) return;
 
         const newUser = prompt(`Usuario de acceso para ${name}:`, oldUser);
         if (newUser === null) return;
