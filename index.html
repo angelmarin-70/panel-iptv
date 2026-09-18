@@ -19,8 +19,10 @@
         .btn-panel-box:hover { background-color: #334155 !important; border-color: #38bdf8 !important; }
         .btn-app-box { background-color: #1d4ed8 !important; border: 1px solid #3b82f6 !important; }
         .btn-app-box:hover { background-color: #2563eb !important; }
-        .panel-link { color: #ffffff !important; text-decoration: none !important; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; width: 100%; }
-        .btn-edit-icon { color: #fbbf24 !important; font-size: 1rem; cursor: pointer; }
+        .btn-vpn-box { background-color: #6d28d9 !important; border: 1px solid #8b5cf6 !important; }
+        .btn-vpn-box:hover { background-color: #7c3aed !important; }
+        .panel-link { color: #ffffff !important; text-decoration: none !important; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .btn-edit-icon { color: #fbbf24 !important; font-size: 1rem; cursor: pointer; flex-shrink: 0; margin-left: 8px; }
         label { color: #38bdf8 !important; font-weight: 800 !important; font-size: 0.9rem; margin-bottom: 6px; display: block; text-transform: uppercase; }
         .form-control, .form-select { background-color: #0f172a !important; border: 2px solid #475569 !important; color: #ffffff !important; font-size: 0.95rem !important; font-weight: 600 !important; padding: 10px !important; }
         .form-control:focus, .form-select:focus { background-color: #1e293b !important; border-color: #38bdf8 !important; color: #ffffff !important; box-shadow: 0 0 10px rgba(56, 189, 248, 0.5) !important; }
@@ -63,6 +65,11 @@
         <div class="section-title text-primary"><i class="bi bi-app-indicator"></i> Paneles de Aplicaciones</div>
         <div class="btn-grid" id="appGrid"></div>
     </div>
+    <!-- VPN & REDES -->
+    <div class="section-box">
+        <div class="section-title text-purple" style="color: #a78bfa !important;"><i class="bi bi-shield-lock-fill"></i> Conexión VPN Directa</div>
+        <div class="btn-grid" id="vpnGrid"></div>
+    </div>
     <!-- BLOC DE NOTAS / DNS -->
     <div class="section-box">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
@@ -90,6 +97,38 @@
         </div>
         <textarea class="notepad-textarea" id="noteTextArea" placeholder="Escribe o pega aquí tus direcciones DNS, APKs, notas o claves..."></textarea>
     </div>
+
+    <!-- MODAL EDITAR PANEL (URL, USUARIO, CONTRASEÑA) -->
+    <div class="modal fade" id="editPanelModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border border-secondary text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title fw-bold text-warning" id="editModalTitle"><i class="bi bi-pencil-square me-2"></i>Editar Panel</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editPanelId">
+                    <div class="mb-3">
+                        <label>Enlace URL / Protocolo VPN</label>
+                        <input type="text" class="form-control" id="editPanelUrl" placeholder="protonvpn:// o https://...">
+                    </div>
+                    <div class="mb-3">
+                        <label>Usuario de Acceso</label>
+                        <input type="text" class="form-control" id="editPanelUser" placeholder="Tu usuario o reseller">
+                    </div>
+                    <div class="mb-3">
+                        <label>Contraseña de Acceso</label>
+                        <input type="text" class="form-control" id="editPanelPass" placeholder="Tu contraseña">
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold px-4" onclick="savePanelChanges()"><i class="bi bi-save me-1"></i> Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- BOT TELEGRAM -->
     <div class="section-box">
         <div class="section-title text-warning"><i class="bi bi-telegram"></i> Alertas por Telegram</div>
@@ -210,6 +249,10 @@
         </div>
     </div>
 </div>
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
     const FIREBASE_URL = "https://mi-panel-iptv-d1954-default-rtdb.firebaseio.com/";
     const DEFAULT_TG_TOKEN = "8846157594:AAHrxWXBjjuUdSgdMky0u6vB-9AVDkOS5Sg";
@@ -242,10 +285,14 @@
         { id: 'tivimate', name: 'TiviMate Phoenix', icon: 'bi-lightning-charge', url: 'https://maxtvapps.pw/Apks/Tivimate/Phoenix/' },
         { id: 'urlconverter', name: 'Conversor de URL', icon: 'bi-code-slash', url: 'https://www.url-encode-decode.com/' }
     ];
+    const defaultVpnLinks = [
+        { id: 'protonvpn', name: 'Proton VPN', icon: 'bi-shield-shaded', url: 'protonvpn://' }
+    ];
     let customLinks = JSON.parse(localStorage.getItem('iptv_custom_urls')) || {};
     let activeFilter = 'all';
     let dbRef = null;
     let clients = JSON.parse(localStorage.getItem('iptv_clients_full')) || [];
+    let editModalInstance = null;
     
     function formatMacInput(input) {
         let val = input.value.replace(/[^0-9a-fA-F]/g, '').toUpperCase();
@@ -315,52 +362,80 @@
     function renderButtons() {
         const iptvGrid = document.getElementById('iptvGrid');
         const appGrid = document.getElementById('appGrid');
-        iptvGrid.innerHTML = ''; appGrid.innerHTML = '';
+        const vpnGrid = document.getElementById('vpnGrid');
+        iptvGrid.innerHTML = ''; appGrid.innerHTML = ''; vpnGrid.innerHTML = '';
+        
         defaultIptvLinks.forEach(item => {
             const itemData = customLinks[item.id] || { url: item.url, user: '', pass: '' };
             const finalUrl = typeof itemData === 'object' ? itemData.url : itemData;
-            iptvGrid.appendChild(createButtonBox(item, finalUrl, false));
+            iptvGrid.appendChild(createButtonBox(item, finalUrl, 'iptv'));
         });
         defaultAppLinks.forEach(item => {
             const itemData = customLinks[item.id] || { url: item.url, user: '', pass: '' };
             const finalUrl = typeof itemData === 'object' ? itemData.url : itemData;
-            appGrid.appendChild(createButtonBox(item, finalUrl, true));
+            appGrid.appendChild(createButtonBox(item, finalUrl, 'app'));
+        });
+        defaultVpnLinks.forEach(item => {
+            const itemData = customLinks[item.id] || { url: item.url, user: '', pass: '' };
+            const finalUrl = typeof itemData === 'object' ? itemData.url : itemData;
+            vpnGrid.appendChild(createButtonBox(item, finalUrl, 'vpn'));
         });
     }
-    function createButtonBox(item, url, isApp) {
+    function createButtonBox(item, url, type) {
         const div = document.createElement('div');
-        div.className = `btn-panel-box ${isApp ? 'btn-app-box' : ''}`;
+        let boxClass = '';
+        if (type === 'app') boxClass = 'btn-app-box';
+        else if (type === 'vpn') boxClass = 'btn-vpn-box';
+        
+        div.className = `btn-panel-box ${boxClass}`;
         const cleanUrl = url.trim();
         div.innerHTML = `
-            <a href="${cleanUrl}" class="panel-link" target="_blank" rel="noopener noreferrer">
+            <a href="${cleanUrl}" class="panel-link" target="_blank" rel="noopener noreferrer" title="${item.name}">
                 <i class="bi ${item.icon}"></i> ${item.name}
             </a>
-            <i class="bi bi-pencil-fill btn-edit-icon" title="Editar URL, Usuario y Contraseña" onclick="editUrl('${item.id}', '${item.name}', '${cleanUrl}')"></i>
+            <i class="bi bi-pencil-fill btn-edit-icon" title="Editar URL o Protocolo" onclick="openEditModal('${item.id}', '${item.name}', '${cleanUrl}')"></i>
         `;
         return div;
     }
-    function editUrl(id, name, currentUrl) {
+    function openEditModal(id, name, currentUrl) {
         const currentData = customLinks[id] || { url: currentUrl, user: '', pass: '' };
         const oldUrl = typeof currentData === 'object' ? currentData.url : currentData;
         const oldUser = typeof currentData === 'object' ? (currentData.user || '') : '';
         const oldPass = typeof currentData === 'object' ? (currentData.pass || '') : '';
 
-        const newUrl = prompt(`Cambiar enlace (URL) para ${name}:`, oldUrl);
-        if (newUrl === null) return;
+        document.getElementById('editPanelId').value = id;
+        document.getElementById('editModalTitle').innerHTML = `<i class="bi bi-pencil-square me-2"></i>Editar: ${name}`;
+        document.getElementById('editPanelUrl').value = oldUrl;
+        document.getElementById('editPanelUser').value = oldUser;
+        document.getElementById('editPanelPass').value = oldPass;
 
-        const newUser = prompt(`Usuario de acceso para ${name}:`, oldUser);
-        if (newUser === null) return;
+        if (!editModalInstance) {
+            editModalInstance = new bootstrap.Modal(document.getElementById('editPanelModal'));
+        }
+        editModalInstance.show();
+    }
+    function savePanelChanges() {
+        const id = document.getElementById('editPanelId').value;
+        const newUrl = document.getElementById('editPanelUrl').value.trim();
+        const newUser = document.getElementById('editPanelUser').value.trim();
+        const newPass = document.getElementById('editPanelPass').value.trim();
 
-        const newPass = prompt(`Contraseña de acceso para ${name}:`, oldPass);
-        if (newPass === null) return;
+        if (!newUrl) {
+            alert('La URL no puede estar vacía.');
+            return;
+        }
 
         customLinks[id] = {
-            url: newUrl.trim(),
-            user: newUser.trim(),
-            pass: newPass.trim()
+            url: newUrl,
+            user: newUser,
+            pass: newPass
         };
         localStorage.setItem('iptv_custom_urls', JSON.stringify(customLinks));
         renderButtons();
+
+        if (editModalInstance) {
+            editModalInstance.hide();
+        }
     }
     function resetLinks() {
         if(confirm('¿Restablecer todas las URLs al estado original?')) {
