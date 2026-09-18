@@ -317,11 +317,13 @@
         const appGrid = document.getElementById('appGrid');
         iptvGrid.innerHTML = ''; appGrid.innerHTML = '';
         defaultIptvLinks.forEach(item => {
-            const finalUrl = customLinks[item.id] || item.url;
+            const itemData = customLinks[item.id] || { url: item.url, user: '', pass: '' };
+            const finalUrl = typeof itemData === 'object' ? itemData.url : itemData;
             iptvGrid.appendChild(createButtonBox(item, finalUrl, false));
         });
         defaultAppLinks.forEach(item => {
-            const finalUrl = customLinks[item.id] || item.url;
+            const itemData = customLinks[item.id] || { url: item.url, user: '', pass: '' };
+            const finalUrl = typeof itemData === 'object' ? itemData.url : itemData;
             appGrid.appendChild(createButtonBox(item, finalUrl, true));
         });
     }
@@ -333,17 +335,32 @@
             <a href="${cleanUrl}" class="panel-link" target="_blank" rel="noopener noreferrer">
                 <i class="bi ${item.icon}"></i> ${item.name}
             </a>
-            <i class="bi bi-pencil-fill btn-edit-icon" title="Editar URL" onclick="editUrl('${item.id}', '${item.name}', '${cleanUrl}')"></i>
+            <i class="bi bi-pencil-fill btn-edit-icon" title="Editar URL, Usuario y Contraseña" onclick="editUrl('${item.id}', '${item.name}', '${cleanUrl}')"></i>
         `;
         return div;
     }
     function editUrl(id, name, currentUrl) {
-        const newUrl = prompt(`Cambiar enlace para ${name}:`, currentUrl);
-        if (newUrl !== null) {
-            customLinks[id] = newUrl.trim();
-            localStorage.setItem('iptv_custom_urls', JSON.stringify(customLinks));
-            renderButtons();
-        }
+        const currentData = customLinks[id] || { url: currentUrl, user: '', pass: '' };
+        const oldUrl = typeof currentData === 'object' ? currentData.url : currentData;
+        const oldUser = typeof currentData === 'object' ? (currentData.user || '') : '';
+        const oldPass = typeof currentData === 'object' ? (currentData.pass || '') : '';
+
+        const newUrl = prompt(`Cambiar enlace (URL) para ${name}:`, oldUrl);
+        if (newUrl === null) return; // Si cancela, no hace nada
+
+        const newUser = prompt(`Usuario de acceso para ${name}:`, oldUser);
+        if (newUser === null) return;
+
+        const newPass = prompt(`Contraseña de acceso para ${name}:`, oldPass);
+        if (newPass === null) return;
+
+        customLinks[id] = {
+            url: newUrl.trim(),
+            user: newUser.trim(),
+            pass: newPass.trim()
+        };
+        localStorage.setItem('iptv_custom_urls', JSON.stringify(customLinks));
+        renderButtons();
     }
     function resetLinks() {
         if(confirm('¿Restablecer todas las URLs al estado original?')) {
@@ -463,8 +480,6 @@
         if (filterType === 'expired') document.getElementById('filterExpired').classList.add('active');
         renderTable();
     }
-
-    // NUEVA FUNCIÓN PARA GESTIONAR LAS PLANTILLAS DE WHATSAPP
     function sendWhatsAppCustom(phone, name, expiry, app, user, device, clientId) {
         if (!phone) return alert("No hay teléfono registrado.");
         const cleanPhone = phone.replace(/[^0-9]/g, '');
@@ -496,7 +511,6 @@
 
         window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
     }
-
     function renderTable() {
         const tbody = document.getElementById('clientTableBody');
         const query = document.getElementById('searchBox').value.toLowerCase();
